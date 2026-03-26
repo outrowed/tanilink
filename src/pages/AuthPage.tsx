@@ -4,7 +4,8 @@ import { Navigate, useNavigate, useSearchParams } from "react-router-dom"
 
 import PageHeader from "@/components/shared/PageHeader"
 import { useAuth } from "@/context/auth"
-import { PRESET_ACCOUNTS, type StoredAccount } from "@/lib/auth"
+import { useMockData } from "@/context/mock-data"
+import { type StoredAccount } from "@/lib/auth"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
@@ -17,6 +18,7 @@ function AuthPage() {
   const navigate = useNavigate()
   const [searchParams] = useSearchParams()
   const { isAuthenticated, login, signup } = useAuth()
+  const { presetAccounts } = useMockData()
   const redirectTo = searchParams.get("redirect") || "/account"
   const defaultMode = searchParams.get("mode") === "signup" ? "signup" : "login"
   const [mode, setMode] = useState<AuthMode>(defaultMode)
@@ -141,7 +143,7 @@ function AuthPage() {
               </CardHeader>
               <CardContent className={styles.surfaceBody}>
                 <div className={styles.presetList}>
-                  {PRESET_ACCOUNTS.map((account) => (
+                  {presetAccounts.map((account) => (
                     <Card key={account.id} className={styles.presetCard} size="sm">
                       <CardContent className={styles.presetBody}>
                         <div className={styles.presetTopRow}>

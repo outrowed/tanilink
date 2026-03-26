@@ -1,9 +1,8 @@
 import {
-  products as marketplaceProducts,
+  summarizeSalesHistory,
   type PriceHistoryRange,
   type Product,
   type SalesHistoryPoint,
-  summarizeSalesHistory,
 } from "@/lib/data"
 
 export interface RatingHistoryPoint {
@@ -94,127 +93,15 @@ export interface CreateSellerListingInput {
   warehouseLocationId: string
 }
 
-export const DEFAULT_SELLER_PROFILE: SellerStoreProfile = {
-  sellerAccountId: "preset-dewi-santika",
-  storeName: "Dewi Pantry Nusantara",
-  ownerName: "Dewi Santika",
-  description: "Ingredient supplier focused on pantry staples, aromatics, and fast-moving kitchen restock items for Jakarta kitchens.",
-  contactPhone: "+62 813 7220 4551",
-  locations: [
-    {
-      id: "location-bekasi-main",
-      label: "Main Warehouse",
-      area: "Cibitung",
-      city: "Bekasi",
-      province: "West Java",
-      address: "Jl. Niaga Pangan No. 18, Cibitung, Bekasi",
-    },
-    {
-      id: "location-tangerang-dispatch",
-      label: "Metro Dispatch Point",
-      area: "Karawaci",
-      city: "Tangerang",
-      province: "Banten",
-      address: "Jl. Raya Karawaci No. 42, Tangerang",
-    },
-  ],
-  deliveryOptions: [
-    {
-      id: "delivery-metro-courier",
-      label: "Metro courier",
-      description: "Fast courier coverage for Jakarta and surrounding metro districts.",
-      leadTime: "Same-day delivery",
-    },
-    {
-      id: "delivery-next-day-van",
-      label: "Next-day van route",
-      description: "Scheduled van delivery for regular pantry replenishment.",
-      leadTime: "Arrives tomorrow",
-    },
-    {
-      id: "delivery-bulk-drop",
-      label: "Bulk scheduled drop",
-      description: "Planned bulk dispatch for larger stock replenishment runs.",
-      leadTime: "2 day delivery",
-    },
-  ],
-}
-
-type SellerListingSeed = Omit<
+export type SellerListingSeed = Omit<
   SellerListing,
   "ratingHistory" | "ratingHistoryByRange" | "salesHistory" | "salesHistoryByRange"
 >
 
-const DEFAULT_SELLER_LISTING_SEEDS: SellerListingSeed[] = [
-  {
-    id: 9101,
-    sellerAccountId: "preset-dewi-santika",
-    productSlug: "premium-rice",
-    price: 74900,
-    stockQuantity: 120,
-    stockLabel: "120 sacks ready",
-    warehouseLocationId: "location-bekasi-main",
-    deliveryOptionIds: ["delivery-next-day-van", "delivery-bulk-drop"],
-    handlingTime: "Packed within 3 hours",
-    isActive: true,
-    monthlyRevenue: 28700000,
-    monthlyOrders: 118,
-    pendingPayout: 4310000,
-    rating: 4.9,
-    activeOrders: 21,
-  },
-  {
-    id: 9102,
-    sellerAccountId: "preset-dewi-santika",
-    productSlug: "cooking-oil",
-    price: 18600,
-    stockQuantity: 210,
-    stockLabel: "High pallet stock",
-    warehouseLocationId: "location-tangerang-dispatch",
-    deliveryOptionIds: ["delivery-metro-courier", "delivery-next-day-van"],
-    handlingTime: "Prepared within 2 hours",
-    isActive: true,
-    monthlyRevenue: 15400000,
-    monthlyOrders: 92,
-    pendingPayout: 2260000,
-    rating: 4.8,
-    activeOrders: 18,
-  },
-  {
-    id: 9103,
-    sellerAccountId: "preset-dewi-santika",
-    productSlug: "shallots",
-    price: 39800,
-    stockQuantity: 34,
-    stockLabel: "34 crates ready",
-    warehouseLocationId: "location-bekasi-main",
-    deliveryOptionIds: ["delivery-metro-courier", "delivery-next-day-van"],
-    handlingTime: "Sorted within 4 hours",
-    isActive: true,
-    monthlyRevenue: 8800000,
-    monthlyOrders: 46,
-    pendingPayout: 1290000,
-    rating: 4.8,
-    activeOrders: 11,
-  },
-  {
-    id: 9104,
-    sellerAccountId: "preset-dewi-santika",
-    productSlug: "tomatoes",
-    price: 21700,
-    stockQuantity: 12,
-    stockLabel: "12 crates left",
-    warehouseLocationId: "location-tangerang-dispatch",
-    deliveryOptionIds: ["delivery-metro-courier"],
-    handlingTime: "Prepared within 2 hours",
-    isActive: true,
-    monthlyRevenue: 5690000,
-    monthlyOrders: 29,
-    pendingPayout: 840000,
-    rating: 4.7,
-    activeOrders: 9,
-  },
-]
+export interface SellerResource {
+  defaultSellerProfile: SellerStoreProfile
+  defaultSellerListingSeeds: SellerListingSeed[]
+}
 
 export function clampMoney(value: number) {
   if (!Number.isFinite(value)) {
@@ -249,13 +136,18 @@ export function deriveListingMetrics(price: number, stockQuantity: number) {
   }
 }
 
+function getMarketplaceProduct(marketplaceProducts: Product[], productSlug: Product["slug"]) {
+  return marketplaceProducts.find((entry) => entry.slug === productSlug)
+}
+
 function buildSellerSalesHistoryByRange(
   productSlug: Product["slug"],
   price: number,
   monthlyOrders: number,
-  listingSeed: number
+  listingSeed: number,
+  marketplaceProducts: Product[]
 ): Record<PriceHistoryRange, SalesHistoryPoint[]> {
-  const product = marketplaceProducts.find((entry) => entry.slug === productSlug)
+  const product = getMarketplaceProduct(marketplaceProducts, productSlug)
 
   if (!product) {
     const emptyHistory: SalesHistoryPoint[] = []
@@ -312,9 +204,10 @@ function buildSellerRatingHistoryByRange(
   rating: number,
   monthlyOrders: number,
   listingSeed: number,
-  salesHistoryByRange: Record<PriceHistoryRange, SalesHistoryPoint[]>
+  salesHistoryByRange: Record<PriceHistoryRange, SalesHistoryPoint[]>,
+  marketplaceProducts: Product[]
 ): Record<PriceHistoryRange, RatingHistoryPoint[]> {
-  const product = marketplaceProducts.find((entry) => entry.slug === productSlug)
+  const product = getMarketplaceProduct(marketplaceProducts, productSlug)
   const productRatingBias =
     product?.category === "Protein"
       ? 0.06
@@ -349,7 +242,10 @@ function buildSellerRatingHistoryByRange(
   }
 }
 
-export function normalizeSellerListing(listing: SellerListingSeed | SellerListing): SellerListing {
+export function normalizeSellerListing(
+  listing: SellerListingSeed | SellerListing,
+  marketplaceProducts: Product[]
+): SellerListing {
   const baseListing = {
     ...listing,
     handlingTime: listing.handlingTime.trim(),
@@ -365,7 +261,8 @@ export function normalizeSellerListing(listing: SellerListingSeed | SellerListin
           listing.productSlug,
           baseListing.price,
           listing.monthlyOrders,
-          listing.id
+          listing.id,
+          marketplaceProducts
         )
 
   const ratingHistoryByRange =
@@ -376,7 +273,8 @@ export function normalizeSellerListing(listing: SellerListingSeed | SellerListin
           listing.rating,
           listing.monthlyOrders,
           listing.id,
-          salesHistoryByRange
+          salesHistoryByRange,
+          marketplaceProducts
         )
 
   return {
@@ -392,21 +290,24 @@ export function deriveListingSnapshot(
   productSlug: Product["slug"],
   price: number,
   stockQuantity: number,
-  listingSeed: number
+  listingSeed: number,
+  marketplaceProducts: Product[]
 ) {
   const metrics = deriveListingMetrics(price, stockQuantity)
   const salesHistoryByRange = buildSellerSalesHistoryByRange(
     productSlug,
     clampMoney(price),
     metrics.monthlyOrders,
-    listingSeed
+    listingSeed,
+    marketplaceProducts
   )
   const ratingHistoryByRange = buildSellerRatingHistoryByRange(
     productSlug,
     metrics.rating,
     metrics.monthlyOrders,
     listingSeed,
-    salesHistoryByRange
+    salesHistoryByRange,
+    marketplaceProducts
   )
 
   return {
@@ -510,17 +411,8 @@ export function buildAverageRatingHistory(listings: SellerListing[], range: Pric
 
     return {
       period: point.period,
-      rating: Number(
-        (
-          periodPoints.reduce((sum, entry) => sum + entry.rating, 0) /
-          count
-        ).toFixed(1)
-      ),
+      rating: Number((periodPoints.reduce((sum, entry) => sum + entry.rating, 0) / count).toFixed(1)),
       reviewCount: Math.round(periodPoints.reduce((sum, entry) => sum + entry.reviewCount, 0) / count),
     }
   })
 }
-
-export const DEFAULT_SELLER_LISTINGS: SellerListing[] = DEFAULT_SELLER_LISTING_SEEDS.map((listing) =>
-  normalizeSellerListing(listing)
-)

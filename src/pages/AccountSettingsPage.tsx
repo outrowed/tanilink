@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom"
 import BackButton from "@/components/shared/BackButton"
 import PageHeader from "@/components/shared/PageHeader"
 import { useAuth } from "@/context/auth"
-import { settingsSections } from "@/lib/account"
+import { useMockData } from "@/context/mock-data"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
@@ -12,6 +12,7 @@ import styles from "@/pages/Account.module.css"
 function AccountSettingsPage() {
   const navigate = useNavigate()
   const { logout, user } = useAuth()
+  const { settingsSections } = useMockData()
 
   if (!user) {
     return null

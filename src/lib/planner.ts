@@ -1,6 +1,5 @@
 import {
   formatRupiah,
-  searchBundles,
   type PriceHistoryPoint,
   type Product,
   type SearchBundle,
@@ -158,7 +157,7 @@ function formatMarketDelta(delta: number) {
     : `${formatRupiah(delta)} above market`
 }
 
-export function findBundleMatch(query: string): BundleMatch {
+export function findBundleMatch(query: string, searchBundles: SearchBundle[]): BundleMatch {
   const normalizedQuery = normalize(query)
 
   if (!normalizedQuery) {
@@ -311,9 +310,10 @@ function resolveIngredient(
 export function buildSearchPlan(
   query: string,
   products: Product[],
-  userLocation: UserLocationOption
+  userLocation: UserLocationOption,
+  searchBundles: SearchBundle[]
 ): SearchPlan & { match: BundleMatch } {
-  const match = findBundleMatch(query)
+  const match = findBundleMatch(query, searchBundles)
   const ingredients = match.bundle.ingredients.map((ingredient) =>
     resolveIngredient(ingredient, products, userLocation)
   )
@@ -347,9 +347,10 @@ export function getIngredientView(
   productSlug: Product["slug"] | null,
   sortMode: SellerSortMode,
   products: Product[],
-  userLocation: UserLocationOption
+  userLocation: UserLocationOption,
+  searchBundles: SearchBundle[]
 ) {
-  const plan = buildSearchPlan(query, products, userLocation)
+  const plan = buildSearchPlan(query, products, userLocation, searchBundles)
   const activeIngredient =
     plan.ingredients.find((ingredient) => ingredient.product.slug === productSlug) ??
     plan.ingredients[0]

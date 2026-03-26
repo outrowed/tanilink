@@ -1,8 +1,8 @@
 import { useCallback, useEffect, useMemo, useState, type ReactNode } from "react"
 
 import { AuthContext } from "@/context/auth"
+import { useMockData } from "@/context/mock-data"
 import {
-  PRESET_ACCOUNTS,
   getAvatarInitials,
   normalizeEmail,
   type AuthSession,
@@ -56,10 +56,11 @@ interface AuthProviderProps {
 }
 
 function AuthProvider({ children }: AuthProviderProps) {
+  const { presetAccounts } = useMockData()
   const [storedAccounts, setStoredAccounts] = useState<StoredAccount[]>(readStoredAccounts)
   const [session, setSession] = useState<AuthSession | null>(readStoredSession)
 
-  const allAccounts = useMemo(() => [...PRESET_ACCOUNTS, ...storedAccounts], [storedAccounts])
+  const allAccounts = useMemo(() => [...presetAccounts, ...storedAccounts], [presetAccounts, storedAccounts])
   const user = useMemo(
     () =>
       session

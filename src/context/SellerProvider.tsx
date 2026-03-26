@@ -1,11 +1,10 @@
 import { useCallback, useEffect, useMemo, useState, type ReactNode } from "react"
 
 import { useAuth } from "@/context/auth"
+import { useMockData } from "@/context/mock-data"
 import { SellerContext, type CreateListingResult } from "@/context/seller"
-import { products as baseProducts, type Product, type Seller } from "@/lib/data"
+import { type Product, type Seller } from "@/lib/data"
 import {
-  DEFAULT_SELLER_LISTINGS,
-  DEFAULT_SELLER_PROFILE,
   clampMoney,
   clampStockQuantity,
   deriveListingSnapshot,
@@ -16,6 +15,7 @@ import {
   type SellerDeliveryOption,
   type SellerHubSummary,
   type SellerListing,
+  type SellerListingSeed,
   type SellerStoreLocation,
   type SellerStoreProfile,
 } from "@/lib/seller"
@@ -27,37 +27,45 @@ interface PersistedSellerState {
   profiles: SellerStoreProfile[]
 }
 
-function readInitialSellerState(): PersistedSellerState {
+function buildDefaultSellerState(
+  defaultSellerProfile: SellerStoreProfile,
+  defaultSellerListingSeeds: SellerListingSeed[],
+  baseMarketplaceProducts: Product[]
+) {
+  return {
+    listings: defaultSellerListingSeeds.map((listing) => normalizeSellerListing(listing, baseMarketplaceProducts)),
+    profiles: [defaultSellerProfile],
+  }
+}
+
+function readInitialSellerState(
+  defaultSellerProfile: SellerStoreProfile,
+  defaultSellerListingSeeds: SellerListingSeed[],
+  baseMarketplaceProducts: Product[]
+): PersistedSellerState {
+  const defaultState = buildDefaultSellerState(defaultSellerProfile, defaultSellerListingSeeds, baseMarketplaceProducts)
+
   if (typeof window === "undefined") {
-    return {
-      listings: DEFAULT_SELLER_LISTINGS,
-      profiles: [DEFAULT_SELLER_PROFILE],
-    }
+    return defaultState
   }
 
   try {
     const storedValue = window.localStorage.getItem(STORAGE_KEY)
 
     if (!storedValue) {
-      return {
-        listings: DEFAULT_SELLER_LISTINGS,
-        profiles: [DEFAULT_SELLER_PROFILE],
-      }
+      return defaultState
     }
 
     const parsedValue = JSON.parse(storedValue) as Partial<PersistedSellerState>
 
     return {
-      listings: (parsedValue.listings ?? DEFAULT_SELLER_LISTINGS).map((listing) =>
-        normalizeSellerListing(listing)
+      listings: (parsedValue.listings ?? defaultState.listings).map((listing) =>
+        normalizeSellerListing(listing, baseMarketplaceProducts)
       ),
-      profiles: parsedValue.profiles ?? [DEFAULT_SELLER_PROFILE],
+      profiles: parsedValue.profiles ?? defaultState.profiles,
     }
   } catch {
-    return {
-      listings: DEFAULT_SELLER_LISTINGS,
-      profiles: [DEFAULT_SELLER_PROFILE],
-    }
+    return defaultState
   }
 }
 
@@ -153,9 +161,14 @@ interface SellerProviderProps {
 }
 
 function SellerProvider({ children }: SellerProviderProps) {
+  const { baseMarketplaceProducts, defaultSellerListingSeeds, defaultSellerProfile } = useMockData()
   const { user } = useAuth()
-  const [storeProfiles, setStoreProfiles] = useState<SellerStoreProfile[]>(() => readInitialSellerState().profiles)
-  const [listings, setListings] = useState<SellerListing[]>(() => readInitialSellerState().listings)
+  const initialState = useMemo(
+    () => readInitialSellerState(defaultSellerProfile, defaultSellerListingSeeds, baseMarketplaceProducts),
+    [baseMarketplaceProducts, defaultSellerListingSeeds, defaultSellerProfile]
+  )
+  const [storeProfiles, setStoreProfiles] = useState<SellerStoreProfile[]>(initialState.profiles)
+  const [listings, setListings] = useState<SellerListing[]>(initialState.listings)
 
   useEffect(() => {
     window.localStorage.setItem(
@@ -177,8 +190,8 @@ function SellerProvider({ children }: SellerProviderProps) {
     [currentSellerId, listings]
   )
   const marketplaceProducts = useMemo(
-    () => mergeMarketplaceProducts(baseProducts, storeProfiles, listings),
-    [listings, storeProfiles]
+    () => mergeMarketplaceProducts(baseMarketplaceProducts, storeProfiles, listings),
+    [baseMarketplaceProducts, listings, storeProfiles]
   )
   const getProductBySlug = useCallback(
     (slug: Product["slug"]) => marketplaceProducts.find((product) => product.slug === slug),
@@ -435,7 +448,8 @@ function SellerProvider({ children }: SellerProviderProps) {
           input.productSlug,
           input.price,
           input.stockQuantity,
-          nextListingId
+          nextListingId,
+          baseMarketplaceProducts
         )
 
         result = {
@@ -445,25 +459,28 @@ function SellerProvider({ children }: SellerProviderProps) {
 
         return [
           ...currentListings,
-          normalizeSellerListing({
-            id: nextListingId,
-            sellerAccountId: currentSellerId,
-            productSlug: input.productSlug,
-            price: clampMoney(input.price),
-            stockQuantity: clampStockQuantity(input.stockQuantity),
-            stockLabel: input.stockLabel.trim(),
-            warehouseLocationId: input.warehouseLocationId,
-            deliveryOptionIds: input.deliveryOptionIds,
-            handlingTime: input.handlingTime.trim(),
-            isActive: input.isActive ?? true,
-            ...metrics,
-          }),
+          normalizeSellerListing(
+            {
+              id: nextListingId,
+              sellerAccountId: currentSellerId,
+              productSlug: input.productSlug,
+              price: clampMoney(input.price),
+              stockQuantity: clampStockQuantity(input.stockQuantity),
+              stockLabel: input.stockLabel.trim(),
+              warehouseLocationId: input.warehouseLocationId,
+              deliveryOptionIds: input.deliveryOptionIds,
+              handlingTime: input.handlingTime.trim(),
+              isActive: input.isActive ?? true,
+              ...metrics,
+            },
+            baseMarketplaceProducts
+          ),
         ]
       })
 
       return result
     },
-    [currentSellerId]
+    [baseMarketplaceProducts, currentSellerId]
   )
 
   const updateListing = useCallback(

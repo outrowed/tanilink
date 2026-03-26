@@ -1,0 +1,441 @@
+{
+  "accountTransactions": [
+    {
+      "id": "TNL-240326-015",
+      "placedAt": "26 March 2026, 09:20",
+      "status": "In transit",
+      "deliveryStatus": "Courier is moving between the final drop points.",
+      "eta": "Arrives today, 15:00 - 17:00",
+      "trackingCode": "JKT-TRK-880214",
+      "sellerNames": ["Karawang Grain Union", "Batu Agro Mandiri"],
+      "items": [
+        {
+          "lineTotal": 151600,
+          "productIcon": "BR",
+          "productName": "Premium Rice",
+          "productSlug": "premium-rice",
+          "quantity": 2,
+          "sellerName": "Karawang Grain Union",
+          "unit": "per 5 kg sack"
+        },
+        {
+          "lineTotal": 146400,
+          "productIcon": "CH",
+          "productName": "Red Chili",
+          "productSlug": "red-chili",
+          "quantity": 3,
+          "sellerName": "Batu Agro Mandiri",
+          "unit": "per kg"
+        }
+      ],
+      "subtotal": 298000,
+      "deliveryFee": 18000,
+      "total": 316000,
+      "timeline": [
+        {
+          "label": "Order confirmed",
+          "detail": "Sellers accepted the purchase and reserved stock.",
+          "state": "done",
+          "timestamp": "26 Mar, 09:31"
+        },
+        {
+          "label": "Packed at warehouse",
+          "detail": "Items were packed at East Jakarta and Depok hubs.",
+          "state": "done",
+          "timestamp": "26 Mar, 11:05"
+        },
+        {
+          "label": "Courier en route",
+          "detail": "The mixed order is currently on the way to the destination area.",
+          "state": "current",
+          "timestamp": "26 Mar, 13:40"
+        },
+        {
+          "label": "Delivered",
+          "detail": "Final handoff to your address.",
+          "state": "pending",
+          "timestamp": "Waiting"
+        }
+      ]
+    },
+    {
+      "id": "TNL-240325-084",
+      "placedAt": "25 March 2026, 19:10",
+      "status": "Delivered",
+      "deliveryStatus": "Delivered and received by kitchen staff.",
+      "eta": "Completed on 26 March 2026, 07:42",
+      "trackingCode": "JKT-TRK-879731",
+      "sellerNames": ["Cianjur Fresh Protein", "Bogor Fresh Depot"],
+      "items": [
+        {
+          "lineTotal": 167600,
+          "productIcon": "CK",
+          "productName": "Broiler Chicken Fillet",
+          "productSlug": "chicken-fillet",
+          "quantity": 4,
+          "sellerName": "Cianjur Fresh Protein",
+          "unit": "per kg"
+        },
+        {
+          "lineTotal": 98500,
+          "productIcon": "CB",
+          "productName": "Cabbage",
+          "productSlug": "cabbage",
+          "quantity": 5,
+          "sellerName": "Bogor Fresh Depot",
+          "unit": "per head"
+        }
+      ],
+      "subtotal": 266100,
+      "deliveryFee": 16000,
+      "total": 282100,
+      "timeline": [
+        {
+          "label": "Order confirmed",
+          "detail": "All sellers accepted the order.",
+          "state": "done",
+          "timestamp": "25 Mar, 19:22"
+        },
+        {
+          "label": "Packed at warehouse",
+          "detail": "Cold-chain packing completed and quality checked.",
+          "state": "done",
+          "timestamp": "25 Mar, 21:10"
+        },
+        {
+          "label": "Courier en route",
+          "detail": "Driver completed both delivery stops.",
+          "state": "done",
+          "timestamp": "26 Mar, 05:52"
+        },
+        {
+          "label": "Delivered",
+          "detail": "Order was delivered and marked complete.",
+          "state": "done",
+          "timestamp": "26 Mar, 07:42"
+        }
+      ]
+    },
+    {
+      "id": "TNL-240325-033",
+      "placedAt": "25 March 2026, 10:55",
+      "status": "Packed",
+      "deliveryStatus": "Packed and queued for next dispatch window.",
+      "eta": "Arrives tomorrow morning",
+      "trackingCode": "JKT-TRK-879204",
+      "sellerNames": ["Bekasi Cold & Dry Hub", "Lembang Spice House"],
+      "items": [
+        {
+          "lineTotal": 77200,
+          "productIcon": "BR",
+          "productName": "Premium Rice",
+          "productSlug": "premium-rice",
+          "quantity": 1,
+          "sellerName": "Subang Padi Sentra",
+          "unit": "per 5 kg sack"
+        },
+        {
+          "lineTotal": 74200,
+          "productIcon": "GA",
+          "productName": "Garlic",
+          "productSlug": "garlic",
+          "quantity": 2,
+          "sellerName": "Lembang Spice House",
+          "unit": "per kg"
+        },
+        {
+          "lineTotal": 81600,
+          "productIcon": "SH",
+          "productName": "Shallots",
+          "productSlug": "shallots",
+          "quantity": 2,
+          "sellerName": "Lembang Spice House",
+          "unit": "per kg"
+        }
+      ],
+      "subtotal": 233000,
+      "deliveryFee": 14000,
+      "total": 247000,
+      "timeline": [
+        {
+          "label": "Order confirmed",
+          "detail": "All line items are locked for fulfillment.",
+          "state": "done",
+          "timestamp": "25 Mar, 11:08"
+        },
+        {
+          "label": "Packed at warehouse",
+          "detail": "Dry goods and produce were packed for the 06:00 route.",
+          "state": "current",
+          "timestamp": "25 Mar, 16:25"
+        },
+        {
+          "label": "Courier en route",
+          "detail": "Dispatch begins on the next morning route.",
+          "state": "pending",
+          "timestamp": "Waiting"
+        },
+        {
+          "label": "Delivered",
+          "detail": "Final handoff to your address.",
+          "state": "pending",
+          "timestamp": "Waiting"
+        }
+      ]
+    },
+    {
+      "id": "TNL-240324-118",
+      "placedAt": "24 March 2026, 08:12",
+      "status": "Awaiting confirmation",
+      "deliveryStatus": "Waiting for seller acceptance and route batching.",
+      "eta": "Seller confirmation expected within 2 hours",
+      "trackingCode": "JKT-TRK-878560",
+      "sellerNames": ["West Jakarta Fresh Hub"],
+      "items": [
+        {
+          "lineTotal": 96400,
+          "productIcon": "TM",
+          "productName": "Tomatoes",
+          "productSlug": "tomatoes",
+          "quantity": 4,
+          "sellerName": "Malang Fresh Route",
+          "unit": "per kg"
+        },
+        {
+          "lineTotal": 91800,
+          "productIcon": "TF",
+          "productName": "Firm Tofu",
+          "productSlug": "firm-tofu",
+          "quantity": 6,
+          "sellerName": "Jakarta Tofu Collective",
+          "unit": "per 10-piece slab pack"
+        },
+        {
+          "lineTotal": 84600,
+          "productIcon": "TP",
+          "productName": "Tempeh",
+          "productSlug": "tempeh",
+          "quantity": 6,
+          "sellerName": "Jakarta Tofu Collective",
+          "unit": "per 10-piece pack"
+        }
+      ],
+      "subtotal": 272800,
+      "deliveryFee": 15000,
+      "total": 287800,
+      "timeline": [
+        {
+          "label": "Order placed",
+          "detail": "Your order has been submitted to the seller network.",
+          "state": "current",
+          "timestamp": "24 Mar, 08:12"
+        },
+        {
+          "label": "Seller confirmation",
+          "detail": "Waiting for the marketplace to confirm all line items.",
+          "state": "pending",
+          "timestamp": "Waiting"
+        },
+        {
+          "label": "Packed at warehouse",
+          "detail": "Items will be packed after confirmation.",
+          "state": "pending",
+          "timestamp": "Waiting"
+        },
+        {
+          "label": "Delivered",
+          "detail": "Final handoff to your address.",
+          "state": "pending",
+          "timestamp": "Waiting"
+        }
+      ]
+    },
+    {
+      "id": "TNL-240323-071",
+      "placedAt": "23 March 2026, 15:48",
+      "status": "Issue reported",
+      "deliveryStatus": "A seller-side packing issue is being resolved.",
+      "eta": "Support update expected today before 18:00",
+      "trackingCode": "JKT-TRK-877921",
+      "sellerNames": ["Batu Agro Mandiri", "South Jakarta Chill Hub"],
+      "items": [
+        {
+          "lineTotal": 97600,
+          "productIcon": "CH",
+          "productName": "Red Chili",
+          "productSlug": "red-chili",
+          "quantity": 2,
+          "sellerName": "Batu Agro Mandiri",
+          "unit": "per kg"
+        },
+        {
+          "lineTotal": 129000,
+          "productIcon": "EG",
+          "productName": "Fresh Eggs",
+          "productSlug": "fresh-eggs",
+          "quantity": 3,
+          "sellerName": "FarmEgg Nusantara",
+          "unit": "per tray of 30"
+        }
+      ],
+      "subtotal": 226600,
+      "deliveryFee": 12000,
+      "total": 238600,
+      "timeline": [
+        {
+          "label": "Order confirmed",
+          "detail": "Both sellers accepted and prepared the order.",
+          "state": "done",
+          "timestamp": "23 Mar, 16:02"
+        },
+        {
+          "label": "Issue reported",
+          "detail": "One line item failed packing inspection and support was notified.",
+          "state": "issue",
+          "timestamp": "23 Mar, 18:11"
+        },
+        {
+          "label": "Seller resolution",
+          "detail": "Replacement stock is being prepared.",
+          "state": "current",
+          "timestamp": "24 Mar, 09:20"
+        },
+        {
+          "label": "Delivered",
+          "detail": "Delivery will resume after the issue is cleared.",
+          "state": "pending",
+          "timestamp": "Waiting"
+        }
+      ]
+    }
+  ],
+  "inboxThreads": [
+    {
+      "id": "thread-1",
+      "sender": "Karawang Grain Union",
+      "subject": "Rice delivery window update",
+      "preview": "Your 5 kg sacks are already on the courier route and should arrive before 17:00.",
+      "unread": true,
+      "timestamp": "10 minutes ago",
+      "status": "Order update",
+      "messages": [
+        {
+          "id": "msg-1",
+          "author": "Karawang Grain Union",
+          "body": "Your rice order has left our East Jakarta fulfillment hub and is now on the courier route.",
+          "isUser": false,
+          "sentAt": "26 Mar, 13:42"
+        },
+        {
+          "id": "msg-2",
+          "author": "You",
+          "body": "Noted. Please leave it with the kitchen entrance if I am still out on delivery pickup.",
+          "isUser": true,
+          "sentAt": "26 Mar, 13:47"
+        },
+        {
+          "id": "msg-3",
+          "author": "Karawang Grain Union",
+          "body": "Understood. The driver note has been updated for kitchen-entrance handoff.",
+          "isUser": false,
+          "sentAt": "26 Mar, 13:49"
+        }
+      ]
+    },
+    {
+      "id": "thread-2",
+      "sender": "TaniLink Support",
+      "subject": "Issue review for order TNL-240323-071",
+      "preview": "We are coordinating a replacement batch and will update your ETA shortly.",
+      "unread": true,
+      "timestamp": "1 hour ago",
+      "status": "Support case",
+      "messages": [
+        {
+          "id": "msg-4",
+          "author": "TaniLink Support",
+          "body": "We have received the packing issue report for your egg and chili order and are coordinating with the seller.",
+          "isUser": false,
+          "sentAt": "26 Mar, 11:08"
+        },
+        {
+          "id": "msg-5",
+          "author": "You",
+          "body": "Please prioritize a replacement if possible. These items are for evening prep.",
+          "isUser": true,
+          "sentAt": "26 Mar, 11:11"
+        },
+        {
+          "id": "msg-6",
+          "author": "TaniLink Support",
+          "body": "Confirmed. We have escalated the ticket and will send a delivery update before 18:00.",
+          "isUser": false,
+          "sentAt": "26 Mar, 11:18"
+        }
+      ]
+    },
+    {
+      "id": "thread-3",
+      "sender": "Cianjur Fresh Protein",
+      "subject": "Cold-chain order completed",
+      "preview": "Thanks for receiving yesterday's protein delivery. Let us know if you need a repeat order.",
+      "unread": false,
+      "timestamp": "Yesterday",
+      "status": "Seller message",
+      "messages": [
+        {
+          "id": "msg-7",
+          "author": "Cianjur Fresh Protein",
+          "body": "Thank you for receiving yesterday's chilled delivery. Everything was signed off at 07:42.",
+          "isUser": false,
+          "sentAt": "25 Mar, 08:00"
+        },
+        {
+          "id": "msg-8",
+          "author": "You",
+          "body": "Received in good condition. Please keep the same route timing for next week.",
+          "isUser": true,
+          "sentAt": "25 Mar, 08:16"
+        }
+      ]
+    }
+  ],
+  "settingsSections": [
+    {
+      "id": "profile",
+      "title": "Profile and identity",
+      "description": "Update your account name, contact details, and public identity preferences.",
+      "actions": ["Edit profile", "Change phone number", "Update business label"]
+    },
+    {
+      "id": "address",
+      "title": "Addresses and delivery",
+      "description": "Manage destination addresses, handoff notes, and preferred receiving windows.",
+      "actions": ["Manage saved addresses", "Set delivery instructions", "Choose default drop point"]
+    },
+    {
+      "id": "payment",
+      "title": "Payment methods",
+      "description": "Review linked payment options used for ingredient purchases and repeat orders.",
+      "actions": ["Add payment method", "Set primary payment", "Review payment history"]
+    },
+    {
+      "id": "notifications",
+      "title": "Notifications",
+      "description": "Tune how often TaniLink sends order alerts, seller updates, and support responses.",
+      "actions": ["Order alerts", "Price notifications", "Inbox preferences"]
+    },
+    {
+      "id": "language",
+      "title": "Language and region",
+      "description": "Choose your preferred language, region display, and delivery communication style.",
+      "actions": ["Display language", "Regional formats", "Preferred communication"]
+    },
+    {
+      "id": "security",
+      "title": "Security",
+      "description": "Control password, sign-in protection, and active sessions for this account.",
+      "actions": ["Change password", "Review sessions", "Sign-in protection"]
+    }
+  ]
+}

@@ -4,8 +4,8 @@ import { Link } from "react-router-dom"
 import BackButton from "@/components/shared/BackButton"
 import PageHeader from "@/components/shared/PageHeader"
 import { useAuth } from "@/context/auth"
+import { useMockData } from "@/context/mock-data"
 import { useSellerStore } from "@/context/seller"
-import { accountTransactions, inboxThreads } from "@/lib/account"
 import { formatRupiah } from "@/lib/data"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
@@ -14,6 +14,7 @@ import styles from "@/pages/Account.module.css"
 
 function AccountPage() {
   const { user } = useAuth()
+  const { accountTransactions, inboxThreads } = useMockData()
   const { currentSellerListings, currentStoreProfile, sellerSummary } = useSellerStore()
 
   if (!user) {

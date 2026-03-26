@@ -2,11 +2,11 @@ import { useMemo, useState, type FormEvent } from "react"
 import { Clock3, Search, Sparkles, X } from "lucide-react"
 import { useLocation, useNavigate, useSearchParams } from "react-router-dom"
 
+import { useMockData } from "@/context/mock-data"
 import { useMarketplace } from "@/context/seller"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { recentAiSearches } from "@/lib/data"
 import { getProductSuggestions } from "@/lib/search"
 import { cn } from "@/lib/utils"
 import styles from "@/components/shared/SearchBox.module.css"
@@ -83,6 +83,7 @@ function SearchBoxInner({
   const [searchParams] = useSearchParams()
   const [query, setQuery] = useState(initialQuery)
   const [isOpen, setIsOpen] = useState(false)
+  const { recentAiSearches } = useMockData()
   const { marketplaceProducts } = useMarketplace()
 
   const currentMode = getCurrentMode(location.pathname, searchParams, defaultMode)

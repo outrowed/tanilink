@@ -2,7 +2,7 @@ import { useState } from "react"
 
 import BackButton from "@/components/shared/BackButton"
 import PageHeader from "@/components/shared/PageHeader"
-import { inboxThreads } from "@/lib/account"
+import { useMockData } from "@/context/mock-data"
 import { cn } from "@/lib/utils"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
@@ -10,6 +10,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import styles from "@/pages/Account.module.css"
 
 function AccountInboxPage() {
+  const { inboxThreads } = useMockData()
   const [selectedThreadId, setSelectedThreadId] = useState(inboxThreads[0]?.id ?? "")
   const selectedThread = inboxThreads.find((thread) => thread.id === selectedThreadId) ?? inboxThreads[0] ?? null
   const unreadCount = inboxThreads.filter((thread) => thread.unread).length

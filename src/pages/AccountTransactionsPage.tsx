@@ -3,7 +3,8 @@ import { Link } from "react-router-dom"
 
 import BackButton from "@/components/shared/BackButton"
 import PageHeader from "@/components/shared/PageHeader"
-import { accountTransactions, type TransactionStatus } from "@/lib/account"
+import { useMockData } from "@/context/mock-data"
+import { type TransactionStatus } from "@/lib/account"
 import { formatRupiah } from "@/lib/data"
 import { cn } from "@/lib/utils"
 import { Badge } from "@/components/ui/badge"
@@ -39,6 +40,7 @@ function getStatusVariant(status: TransactionStatus) {
 }
 
 function AccountTransactionsPage() {
+  const { accountTransactions } = useMockData()
   const [filter, setFilter] = useState<TransactionFilter>("All")
   const [selectedTransactionId, setSelectedTransactionId] = useState(accountTransactions[0]?.id ?? "")
 
@@ -47,7 +49,7 @@ function AccountTransactionsPage() {
       filter === "All"
         ? accountTransactions
         : accountTransactions.filter((transaction) => transaction.status === filter),
-    [filter]
+    [accountTransactions, filter]
   )
 
   const activeSelectedTransactionId = filteredTransactions.some(
