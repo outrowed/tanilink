@@ -668,7 +668,8 @@
 
 .priceChartLegendSwatch,
 .priceChartLegendLine,
-.priceChartLegendGuide {
+.priceChartLegendGuide,
+.priceChartLegendForecast {
   display: inline-block;
   flex-shrink: 0;
 }
@@ -680,7 +681,8 @@
 }
 
 .priceChartLegendLine,
-.priceChartLegendGuide {
+.priceChartLegendGuide,
+.priceChartLegendForecast {
   width: 1.35rem;
   height: 0;
   border-top: 2px solid #57534e;
@@ -689,6 +691,11 @@
 .priceChartLegendGuide {
   border-top-style: dashed;
   border-top-color: #15803d;
+}
+
+.priceChartLegendForecast {
+  border-top-style: dashed;
+  border-top-color: #2563eb;
 }
 
 .priceChartContent {
@@ -702,11 +709,19 @@
 
 .priceChartFooter {
   display: flex;
+  align-items: flex-end;
   justify-content: space-between;
+  flex-wrap: wrap;
   gap: 1rem;
   padding: 1rem 1.25rem;
   border-top: 1px solid color-mix(in srgb, #d6d3d1 60%, transparent);
   background: transparent;
+}
+
+.priceChartFooterCopy {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
 }
 
 .priceChartFooterText {
@@ -718,6 +733,44 @@
 .priceChartFooterSubtle {
   margin: 0;
   font-size: 0.875rem;
+  color: #78716c;
+}
+
+.priceForecastSummary {
+  display: flex;
+  align-items: stretch;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 0.6rem;
+}
+
+.priceForecastCard {
+  min-width: 11rem;
+  border: 1px solid color-mix(in srgb, #d6d3d1 75%, transparent);
+  border-radius: 0.95rem;
+  background: rgba(255, 255, 255, 0.8);
+  padding: 0.75rem 0.85rem;
+}
+
+.priceForecastLabel {
+  margin: 0;
+  font-size: 0.72rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: #78716c;
+}
+
+.priceForecastValue {
+  margin: 0.35rem 0 0;
+  font-size: 1rem;
+  font-weight: 600;
+  color: #1c1917;
+}
+
+.priceForecastHorizon {
+  margin: 0.1rem 0 0;
+  align-self: center;
+  font-size: 0.8rem;
   color: #78716c;
 }
 

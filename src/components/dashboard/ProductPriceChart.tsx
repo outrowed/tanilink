@@ -1,5 +1,5 @@
 import { useMemo, useState } from "react"
-import { Area, AreaChart, CartesianGrid, Legend, ReferenceLine, XAxis, YAxis } from "recharts"
+import { Area, AreaChart, CartesianGrid, Legend, Line, ReferenceLine, XAxis, YAxis } from "recharts"
 
 import {
   formatRupiah,
@@ -7,6 +7,7 @@ import {
   type PriceHistoryPoint,
   type PriceHistoryRange,
 } from "@/lib/data"
+import { buildPriceForecast } from "@/lib/forecast"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import {
@@ -26,6 +27,7 @@ interface ProductPriceChartProps {
   label: string
   priceChange: number
   referencePrice?: number
+  showForecast?: boolean
   showRangeControls?: boolean
   subtitle?: string
   title?: string
@@ -33,6 +35,13 @@ interface ProductPriceChartProps {
 }
 
 const rangeOrder: PriceHistoryRange[] = ["1y", "6m", "1m", "24h"]
+
+interface PriceChartRow {
+  average: number
+  baseline: number | null
+  label: string
+  price: number | null
+}
 
 function formatCompactRupiah(value: number) {
   if (value >= 1_000_000) {
@@ -55,6 +64,7 @@ function ProductPriceChart({
   label,
   priceChange,
   referencePrice,
+  showForecast = false,
   showRangeControls = false,
   subtitle,
   title,
@@ -87,15 +97,32 @@ function ProductPriceChart({
       label: "Average line",
       color: "#57534e",
     },
+    baseline: {
+      label: "Baseline forecast",
+      color: "#2563eb",
+    },
   } satisfies ChartConfig
   const averageLine =
     referencePrice ?? Math.round(activeHistory.reduce((sum, point) => sum + point.price, 0) / activeHistory.length)
   const latestPoint = activeHistory[activeHistory.length - 1]
-  const chartData = activeHistory.map((point) => ({
+  const forecast = showForecast ? buildPriceForecast(activeHistory, effectiveRange, priceChange) : null
+  const chartData: PriceChartRow[] = activeHistory.map((point, index) => ({
+    average: averageLine,
+    baseline: index === activeHistory.length - 1 ? point.price : null,
     label: point.month,
     price: point.price,
-    average: averageLine,
   }))
+
+  if (forecast) {
+    forecast.baseline.points.forEach((point) => {
+      chartData.push({
+        average: averageLine,
+        baseline: point.price,
+        label: point.month,
+        price: null,
+      })
+    })
+  }
 
   if (compact) {
     return (
@@ -164,6 +191,12 @@ function ProductPriceChart({
             <span className={styles.priceChartLegendLine} />
             Average line
           </span>
+          {forecast ? (
+            <span className={styles.priceChartLegendItem}>
+              <span className={styles.priceChartLegendForecast} />
+              Baseline forecast
+            </span>
+          ) : null}
           <span className={styles.priceChartLegendItem}>
             <span className={styles.priceChartLegendGuide} />
             Latest guide
@@ -236,16 +269,45 @@ function ProductPriceChart({
               strokeWidth={2.5}
               type="monotone"
             />
+            {forecast ? (
+              <Line
+                connectNulls
+                dataKey="baseline"
+                dot={false}
+                isAnimationActive={false}
+                stroke="var(--color-baseline)"
+                strokeDasharray="7 5"
+                strokeWidth={2.4}
+                type="monotone"
+              />
+            ) : null}
           </AreaChart>
         </ChartContainer>
       </CardContent>
       <CardFooter className={styles.priceChartFooter}>
-        <div className={styles.priceChartFooterText}>
-          Trending {trendCopy} across the latest {activeRangeLabel} window.
+        <div className={styles.priceChartFooterCopy}>
+          <div className={styles.priceChartFooterText}>
+            Trending {trendCopy} across the latest {activeRangeLabel} window.
+          </div>
+          <div className={styles.priceChartFooterSubtle}>
+            {subtitle ?? `${firstMonth} - ${lastMonth}`}
+          </div>
         </div>
-        <div className={styles.priceChartFooterSubtle}>
-          {subtitle ?? `${firstMonth} - ${lastMonth}`}
-        </div>
+        {forecast ? (
+          <div className={styles.priceForecastSummary}>
+            <div className={styles.priceForecastCard}>
+              <p className={styles.priceForecastLabel}>Baseline forecast</p>
+              <p className={styles.priceForecastValue}>
+                {formatRupiah(
+                  forecast.baseline.points[forecast.baseline.points.length - 1]?.price ??
+                    latestPoint?.price ??
+                    0
+                )}
+              </p>
+            </div>
+            <p className={styles.priceForecastHorizon}>{forecast.horizonLabel}</p>
+          </div>
+        ) : null}
       </CardFooter>
     </Card>
   )

@@ -208,6 +208,7 @@ function ProductPage() {
                   label={product.name}
                   priceChange={product.priceChange}
                   referencePrice={product.averagePrice}
+                  showForecast
                   showRangeControls
                   subtitle={product.leadTime}
                   title="Market curve"
