@@ -68,7 +68,7 @@
 
 .featureGrid {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 0.75rem;
 }
 
@@ -101,6 +101,39 @@
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 0.75rem;
+}
+
+.presetList {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.presetCard {
+  border-radius: 1rem;
+  background: #f7f4ee;
+  border-color: rgba(231, 229, 228, 0.9);
+  box-shadow: none;
+}
+
+.presetBody {
+  display: flex;
+  flex-direction: column;
+  gap: 0.8rem;
+  padding: 0.95rem 1rem;
+}
+
+.presetTopRow {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+.presetCopy {
+  margin: 0.3rem 0 0;
+  color: #57534e;
+  line-height: 1.55;
 }
 
 .fieldLabel {

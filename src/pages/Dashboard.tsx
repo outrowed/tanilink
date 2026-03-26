@@ -3,36 +3,21 @@ import { useNavigate, useSearchParams } from "react-router-dom"
 
 import ProductCard from "@/components/dashboard/ProductCard"
 import PageHeader from "@/components/shared/PageHeader"
+import { useMarketplace } from "@/context/seller"
 import { Badge } from "@/components/ui/badge"
 import { Card, CardContent } from "@/components/ui/card"
-import { products, type Product } from "@/lib/data"
+import { matchesProductQuery } from "@/lib/search"
 import styles from "@/pages/Dashboard.module.css"
-
-function matchesProductQuery(product: Product, query: string) {
-  const normalizedQuery = query.trim().toLowerCase()
-
-  if (!normalizedQuery) {
-    return true
-  }
-
-  return [
-    product.name,
-    product.category,
-    product.description,
-    product.marketStatus,
-    ...product.sellers.map((seller) => seller.location),
-    ...product.sellers.map((seller) => seller.name),
-  ].some((value) => value.toLowerCase().includes(normalizedQuery))
-}
 
 function Dashboard() {
   const navigate = useNavigate()
   const [searchParams] = useSearchParams()
   const appliedQuery = searchParams.get("q") ?? ""
+  const { marketplaceProducts } = useMarketplace()
 
   const filteredProducts = useMemo(
-    () => products.filter((product) => matchesProductQuery(product, appliedQuery)),
-    [appliedQuery]
+    () => marketplaceProducts.filter((product) => matchesProductQuery(product, appliedQuery)),
+    [appliedQuery, marketplaceProducts]
   )
 
   return (

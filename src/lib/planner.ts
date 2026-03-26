@@ -1,6 +1,5 @@
 import {
   formatRupiah,
-  products,
   searchBundles,
   userLocation,
   type PriceHistoryPoint,
@@ -201,7 +200,7 @@ export function rankSellers(product: Product, mode: SellerSortMode = "smart") {
   return sorted
 }
 
-function resolveIngredient(ingredient: SearchBundleIngredient): ResolvedIngredient {
+function resolveIngredient(ingredient: SearchBundleIngredient, products: Product[]): ResolvedIngredient {
   const product = products.find((item) => item.slug === ingredient.productSlug)
 
   if (!product) {
@@ -238,9 +237,9 @@ function resolveIngredient(ingredient: SearchBundleIngredient): ResolvedIngredie
   }
 }
 
-export function buildSearchPlan(query: string): SearchPlan & { match: BundleMatch } {
+export function buildSearchPlan(query: string, products: Product[]): SearchPlan & { match: BundleMatch } {
   const match = findBundleMatch(query)
-  const ingredients = match.bundle.ingredients.map(resolveIngredient)
+  const ingredients = match.bundle.ingredients.map((ingredient) => resolveIngredient(ingredient, products))
   const totalEstimatedCost = ingredients.reduce(
     (sum, ingredient) => sum + ingredient.recommendedSeller.price,
     0
@@ -269,9 +268,10 @@ export function buildSearchPlan(query: string): SearchPlan & { match: BundleMatc
 export function getIngredientView(
   query: string,
   productSlug: Product["slug"] | null,
-  sortMode: SellerSortMode
+  sortMode: SellerSortMode,
+  products: Product[]
 ) {
-  const plan = buildSearchPlan(query)
+  const plan = buildSearchPlan(query, products)
   const activeIngredient =
     plan.ingredients.find((ingredient) => ingredient.product.slug === productSlug) ??
     plan.ingredients[0]

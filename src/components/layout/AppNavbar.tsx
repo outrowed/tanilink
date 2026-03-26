@@ -1,4 +1,4 @@
-import { MapPin, ShoppingBasket, UserRound } from "lucide-react"
+import { LayoutDashboard, MapPin, ShoppingBasket, UserRound } from "lucide-react"
 import { Link, useLocation } from "react-router-dom"
 
 import SearchBox from "@/components/shared/SearchBox"
@@ -11,12 +11,13 @@ import styles from "@/components/layout/AppNavbar.module.css"
 
 function AppNavbar() {
   const { itemCount } = useBasket()
-  const { isAuthenticated, user } = useAuth()
+  const { isAuthenticated, isSeller, user } = useAuth()
   const location = useLocation()
   const isCatalogPage = location.pathname === "/catalog"
+  const isSellerPage = location.pathname.startsWith("/seller")
   const profileDestination = isAuthenticated ? "/account" : "/auth"
   const profileTitle = isAuthenticated ? user?.name ?? "Account" : "Sign in"
-  const profileMeta = isAuthenticated ? "Account management" : "Access your account"
+  const profileMeta = isAuthenticated ? (isSeller ? "Seller account" : "Account management") : "Access your account"
   const avatarContent = isAuthenticated && user ? user.avatarInitials : <UserRound className={styles.smallIcon} />
 
   return (
@@ -33,9 +34,17 @@ function AppNavbar() {
         </div>
 
         <div className={styles.searchStack}>
-          <Link className={cn(styles.catalogButton, isCatalogPage && styles.catalogButtonActive)} to="/catalog">
-            Catalog
-          </Link>
+          <div className={styles.navLinks}>
+            <Link className={cn(styles.catalogButton, isCatalogPage && styles.catalogButtonActive)} to="/catalog">
+              Catalog
+            </Link>
+            {isSeller ? (
+              <Link className={cn(styles.catalogButton, isSellerPage && styles.catalogButtonActive)} to="/seller">
+                <LayoutDashboard className={styles.smallIcon} />
+                Seller Hub
+              </Link>
+            ) : null}
+          </div>
           <SearchBox className={styles.searchRegion} />
         </div>
 

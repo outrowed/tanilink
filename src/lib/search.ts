@@ -1,4 +1,4 @@
-import { products, type Product } from "@/lib/data"
+import { type Product } from "@/lib/data"
 
 function normalizeQuery(query: string) {
   return query.trim().toLowerCase()
@@ -21,7 +21,7 @@ export function matchesProductQuery(product: Product, query: string) {
   ].some((value) => value.toLowerCase().includes(normalizedQuery))
 }
 
-export function getProductSuggestions(query: string, limit = 5) {
+export function getProductSuggestions(products: Product[], query: string, limit = 5) {
   const normalizedQuery = normalizeQuery(query)
 
   if (!normalizedQuery) {

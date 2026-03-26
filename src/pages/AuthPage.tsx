@@ -4,7 +4,7 @@ import { Navigate, useNavigate, useSearchParams } from "react-router-dom"
 
 import PageHeader from "@/components/shared/PageHeader"
 import { useAuth } from "@/context/auth"
-import { PRESET_ACCOUNT } from "@/lib/auth"
+import { PRESET_ACCOUNTS, type StoredAccount } from "@/lib/auth"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
@@ -37,9 +37,10 @@ function AuthPage() {
     setErrorMessage("")
   }
 
-  const handlePresetFill = () => {
-    setLoginEmail(PRESET_ACCOUNT.email)
-    setLoginPassword(PRESET_ACCOUNT.password)
+  const handlePresetFill = (account: StoredAccount) => {
+    setLoginEmail(account.email)
+    setLoginPassword(account.password)
+    setMode("login")
     setErrorMessage("")
   }
 
@@ -76,12 +77,12 @@ function AuthPage() {
     <div className={styles.page}>
       <div className={styles.inner}>
         <PageHeader
-          description="Sign in to access your orders, delivery tracking, inbox, and account preferences."
+          description="Sign in to access your buyer account or seller tools, including orders, inventory, inbox, and store management."
           label="Account access"
           meta={
             <div className={styles.headerMeta}>
               <Badge variant="outline">Account hub</Badge>
-              <Badge variant="info">Orders and inbox</Badge>
+              <Badge variant="info">Buyer and seller access</Badge>
             </div>
           }
           title="Welcome to your TaniLink account"
@@ -99,8 +100,8 @@ function AuthPage() {
                 </div>
                 <CardTitle className={styles.surfaceTitle}>Everything you need after purchase</CardTitle>
                 <CardDescription>
-                  Open your account to review transactions, follow delivery progress, and coordinate directly with
-                  sellers or TaniLink support.
+                  Open your account to review transactions, follow delivery progress, coordinate with sellers, or
+                  manage your own ingredient store.
                 </CardDescription>
               </CardHeader>
               <CardContent className={styles.surfaceBody}>
@@ -123,29 +124,50 @@ function AuthPage() {
                       <p className={styles.tileCopy}>Keep seller updates and support conversations in one place.</p>
                     </CardContent>
                   </Card>
+                  <Card className={styles.infoTile} size="sm">
+                    <CardContent className={styles.infoTileBody}>
+                      <p className={styles.tileTitle}>Seller hub</p>
+                      <p className={styles.tileCopy}>Register ingredients, set prices, and manage store locations.</p>
+                    </CardContent>
+                  </Card>
                 </div>
               </CardContent>
             </Card>
 
             <Card className={styles.credentialCard}>
               <CardHeader className={styles.surfaceHeader}>
-                <CardTitle className={styles.credentialTitle}>Starter account</CardTitle>
-                <CardDescription>Use the preset account below if you want to open the signed-in pages immediately.</CardDescription>
+                <CardTitle className={styles.credentialTitle}>Preset accounts</CardTitle>
+                <CardDescription>Use one of the preset accounts below to open either the buyer pages or the seller hub immediately.</CardDescription>
               </CardHeader>
               <CardContent className={styles.surfaceBody}>
-                <div className={styles.credentialGrid}>
-                  <div>
-                    <p className={styles.fieldLabel}>Email</p>
-                    <p className={styles.credentialValue}>{PRESET_ACCOUNT.email}</p>
-                  </div>
-                  <div>
-                    <p className={styles.fieldLabel}>Password</p>
-                    <p className={styles.credentialValue}>{PRESET_ACCOUNT.password}</p>
-                  </div>
+                <div className={styles.presetList}>
+                  {PRESET_ACCOUNTS.map((account) => (
+                    <Card key={account.id} className={styles.presetCard} size="sm">
+                      <CardContent className={styles.presetBody}>
+                        <div className={styles.presetTopRow}>
+                          <div>
+                            <p className={styles.credentialValue}>{account.name}</p>
+                            <p className={styles.presetCopy}>{account.email}</p>
+                          </div>
+                          <Badge variant={account.role === "seller" ? "warning" : "outline"}>{account.role}</Badge>
+                        </div>
+                        <div className={styles.credentialGrid}>
+                          <div>
+                            <p className={styles.fieldLabel}>Email</p>
+                            <p className={styles.presetCopy}>{account.email}</p>
+                          </div>
+                          <div>
+                            <p className={styles.fieldLabel}>Password</p>
+                            <p className={styles.presetCopy}>{account.password}</p>
+                          </div>
+                        </div>
+                        <Button onClick={() => handlePresetFill(account)} type="button" variant="outline">
+                          Fill {account.role} account
+                        </Button>
+                      </CardContent>
+                    </Card>
+                  ))}
                 </div>
-                <Button onClick={handlePresetFill} type="button" variant="outline">
-                  Fill starter account
-                </Button>
               </CardContent>
             </Card>
           </section>

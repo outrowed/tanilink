@@ -2,7 +2,7 @@ import { useCallback, useEffect, useMemo, useState, type ReactNode } from "react
 
 import { AuthContext } from "@/context/auth"
 import {
-  PRESET_ACCOUNT,
+  PRESET_ACCOUNTS,
   getAvatarInitials,
   normalizeEmail,
   type AuthSession,
@@ -20,7 +20,14 @@ function readStoredAccounts() {
 
   try {
     const storedValue = window.localStorage.getItem(ACCOUNTS_STORAGE_KEY)
-    return storedValue ? (JSON.parse(storedValue) as StoredAccount[]) : []
+    return storedValue
+      ? (JSON.parse(storedValue) as Array<Omit<StoredAccount, "role"> & Partial<Pick<StoredAccount, "role">>>).map(
+          (account) => ({
+            ...account,
+            role: account.role ?? "buyer",
+          })
+        )
+      : []
   } catch {
     return []
   }
@@ -33,7 +40,12 @@ function readStoredSession() {
 
   try {
     const storedValue = window.localStorage.getItem(SESSION_STORAGE_KEY)
-    return storedValue ? (JSON.parse(storedValue) as AuthSession) : null
+    return storedValue
+      ? ({
+          ...(JSON.parse(storedValue) as Omit<AuthSession, "role"> & Partial<Pick<AuthSession, "role">>),
+          role: (JSON.parse(storedValue) as Partial<AuthSession>).role ?? "buyer",
+        } as AuthSession)
+      : null
   } catch {
     return null
   }
@@ -47,7 +59,7 @@ function AuthProvider({ children }: AuthProviderProps) {
   const [storedAccounts, setStoredAccounts] = useState<StoredAccount[]>(readStoredAccounts)
   const [session, setSession] = useState<AuthSession | null>(readStoredSession)
 
-  const allAccounts = useMemo(() => [PRESET_ACCOUNT, ...storedAccounts], [storedAccounts])
+  const allAccounts = useMemo(() => [...PRESET_ACCOUNTS, ...storedAccounts], [storedAccounts])
   const user = useMemo(
     () =>
       session
@@ -86,6 +98,7 @@ function AuthProvider({ children }: AuthProviderProps) {
 
       setSession({
         email: account.email,
+        role: account.role,
         userId: account.id,
       })
 
@@ -124,11 +137,13 @@ function AuthProvider({ children }: AuthProviderProps) {
         password: trimmedPassword,
         phone: trimmedPhone,
         avatarInitials: getAvatarInitials(trimmedName),
+        role: "buyer",
       }
 
       setStoredAccounts((current) => [...current, nextAccount])
       setSession({
         email: nextAccount.email,
+        role: nextAccount.role,
         userId: nextAccount.id,
       })
 
@@ -144,6 +159,7 @@ function AuthProvider({ children }: AuthProviderProps) {
   const value = useMemo(
     () => ({
       isAuthenticated: Boolean(user),
+      isSeller: user?.role === "seller",
       login,
       logout,
       signup,

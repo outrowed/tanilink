@@ -6,12 +6,13 @@ import ProductPriceChart from "@/components/dashboard/ProductPriceChart"
 import TrendChangeBadge from "@/components/dashboard/TrendChangeBadge"
 import BackButton from "@/components/shared/BackButton"
 import { useBasket } from "@/context/basket"
+import { useMarketplace } from "@/context/seller"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Separator } from "@/components/ui/separator"
-import { formatRupiah, products, userLocation, type Product } from "@/lib/data"
+import { formatRupiah, userLocation, type Product } from "@/lib/data"
 import { categoryBadgeClass } from "@/components/dashboard/lib"
 import { rankSellers, type SellerSortMode } from "@/lib/planner"
 import { cn } from "@/lib/utils"
@@ -26,7 +27,8 @@ const sortModes: Array<{ label: string; value: SellerSortMode }> = [
 
 function ProductPage() {
   const { slug } = useParams<{ slug: Product["slug"] }>()
-  const product = products.find((item) => item.slug === slug)
+  const { getProductBySlug } = useMarketplace()
+  const product = slug ? getProductBySlug(slug) : undefined
   const [sortMode, setSortMode] = useState<SellerSortMode>("smart")
   const [sellerQuantities, setSellerQuantities] = useState<Record<number, number>>({})
   const { addItem } = useBasket()

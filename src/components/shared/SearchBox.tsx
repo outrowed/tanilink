@@ -2,6 +2,7 @@ import { useMemo, useState, type FormEvent } from "react"
 import { Clock3, Search, Sparkles, X } from "lucide-react"
 import { useLocation, useNavigate, useSearchParams } from "react-router-dom"
 
+import { useMarketplace } from "@/context/seller"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -82,11 +83,15 @@ function SearchBoxInner({
   const [searchParams] = useSearchParams()
   const [query, setQuery] = useState(initialQuery)
   const [isOpen, setIsOpen] = useState(false)
+  const { marketplaceProducts } = useMarketplace()
 
   const currentMode = getCurrentMode(location.pathname, searchParams, defaultMode)
   const isAiSelected = currentMode === "ai"
   const normalizedQuery = query.trim().toLowerCase()
-  const productSuggestions = useMemo(() => getProductSuggestions(query), [query])
+  const productSuggestions = useMemo(
+    () => getProductSuggestions(marketplaceProducts, query),
+    [marketplaceProducts, query]
+  )
   const shouldShowSuggestions = alwaysShowSuggestions || isOpen
 
   const handleNavigate = (mode: SearchMode, nextQuery = query) => {

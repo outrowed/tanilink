@@ -6,7 +6,7 @@ function PlannerLanding() {
     <div className={styles.page}>
       <div className={styles.inner}>
         <div className={styles.hero}>
-          <p className={styles.eyebrow}>AI planner & ingredient catalog</p>
+          <p className={styles.eyebrow}>AI-based marketplace & ingredients planner</p>
           <h1 className={styles.title}>Search for dishes, menus, or kitchen supply bundles</h1>
           <p className={styles.copy}>
             Describe what you want to cook or stock up on. TaniLink will turn it into ingredients,

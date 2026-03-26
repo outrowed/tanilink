@@ -1,10 +1,12 @@
-import { ArrowRight, Mail, ReceiptText, Settings2, Truck, UserRound } from "lucide-react"
+import { ArrowRight, LayoutDashboard, Mail, ReceiptText, Settings2, Truck, UserRound } from "lucide-react"
 import { Link } from "react-router-dom"
 
 import BackButton from "@/components/shared/BackButton"
 import PageHeader from "@/components/shared/PageHeader"
 import { useAuth } from "@/context/auth"
+import { useSellerStore } from "@/context/seller"
 import { accountTransactions, inboxThreads } from "@/lib/account"
+import { formatRupiah } from "@/lib/data"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
@@ -12,6 +14,7 @@ import styles from "@/pages/Account.module.css"
 
 function AccountPage() {
   const { user } = useAuth()
+  const { sellerSummary } = useSellerStore()
 
   if (!user) {
     return null
@@ -151,6 +154,36 @@ function AccountPage() {
                   </Button>
                 </CardContent>
               </Card>
+
+              {user.role === "seller" ? (
+                <Card className={styles.linkCard}>
+                  <CardHeader className={styles.panelHeader}>
+                    <div className={styles.linkIconWrap}>
+                      <LayoutDashboard className={styles.icon} />
+                    </div>
+                    <div>
+                      <CardTitle className={styles.panelTitle}>Seller hub</CardTitle>
+                      <CardDescription>
+                        Manage ingredient listings, pricing, stock, and store operations from one place.
+                      </CardDescription>
+                    </div>
+                  </CardHeader>
+                  <CardContent className={styles.linkBody}>
+                    {sellerSummary ? (
+                      <div className={styles.badgeRow}>
+                        <Badge variant="outline">{sellerSummary.activeListings} active listings</Badge>
+                        <Badge variant="outline">{formatRupiah(sellerSummary.pendingPayout)} pending payout</Badge>
+                      </div>
+                    ) : null}
+                    <Button asChild type="button" variant="secondary">
+                      <Link to="/seller">
+                        Open seller hub
+                        <ArrowRight className={styles.icon} />
+                      </Link>
+                    </Button>
+                  </CardContent>
+                </Card>
+              ) : null}
             </div>
           </section>
 

@@ -16,6 +16,7 @@ import ProductPriceChart from "@/components/dashboard/ProductPriceChart"
 import BackButton from "@/components/shared/BackButton"
 import PageHeader from "@/components/shared/PageHeader"
 import { useBasket } from "@/context/basket"
+import { useMarketplace } from "@/context/seller"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import {
@@ -28,7 +29,7 @@ import {
 } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Separator } from "@/components/ui/separator"
-import { formatRupiah, products, recentAiSearches, userLocation, type Product } from "@/lib/data"
+import { formatRupiah, recentAiSearches, userLocation, type Product } from "@/lib/data"
 import {
   buildSearchPlan,
   findBundleMatch,
@@ -49,6 +50,7 @@ const sortModes: Array<{ label: string; value: SellerSortMode }> = [
 function SearchPlanner() {
   const navigate = useNavigate()
   const [searchParams, setSearchParams] = useSearchParams()
+  const { marketplaceProducts } = useMarketplace()
   const seedQuery = searchParams.get("q")?.trim() ?? ""
   const resultMode = searchParams.get("mode") === "ai" ? "ai" : "catalog"
   const selectedProductSlug = searchParams.get("preview") as Product["slug"] | null
@@ -57,14 +59,14 @@ function SearchPlanner() {
   const { addItem } = useBasket()
 
   const matchedProducts = useMemo(
-    () => products.filter((product) => matchesProductQuery(product, seedQuery)),
-    [seedQuery]
+    () => marketplaceProducts.filter((product) => matchesProductQuery(product, seedQuery)),
+    [marketplaceProducts, seedQuery]
   )
   const aiMatch = useMemo(() => findBundleMatch(seedQuery), [seedQuery])
   const hasAiResult = Boolean(seedQuery) && aiMatch.matchType !== "fallback"
   const plannerView = useMemo(
-    () => (resultMode === "ai" && hasAiResult ? buildSearchPlan(seedQuery) : null),
-    [hasAiResult, resultMode, seedQuery]
+    () => (resultMode === "ai" && hasAiResult ? buildSearchPlan(seedQuery, marketplaceProducts) : null),
+    [hasAiResult, marketplaceProducts, resultMode, seedQuery]
   )
   const activeIngredient =
     plannerView?.ingredients.find((ingredient) => ingredient.product.slug === selectedProductSlug) ?? null
