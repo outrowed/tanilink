@@ -17,7 +17,7 @@ export interface PriceHistoryPoint {
   price: number
 }
 
-export type PriceHistoryRange = "1y" | "6m" | "1m" | "24h"
+export type PriceHistoryRange = "1y" | "6m" | "1m" | "1w" | "24h"
 
 export interface Product {
   id: number
@@ -853,6 +853,7 @@ export const priceHistoryRangeLabels: Record<PriceHistoryRange, string> = {
   "1y": "1 year",
   "6m": "6 months",
   "1m": "1 month",
+  "1w": "1 week",
   "24h": "24 hours",
 }
 
@@ -884,6 +885,12 @@ function buildOneMonthHistory(product: BaseProduct, history: PriceHistoryPoint[]
   })
 }
 
+function buildOneWeekHistory(product: BaseProduct, history: PriceHistoryPoint[]) {
+  const monthlyHistory = buildOneMonthHistory(product, history)
+
+  return monthlyHistory.slice(-7)
+}
+
 function buildTwentyFourHourHistory(product: BaseProduct, history: PriceHistoryPoint[]) {
   const latestPrice = history[history.length - 1]?.price ?? product.averagePrice
   const baseline = history[history.length - 2]?.price ?? latestPrice
@@ -912,6 +919,7 @@ function buildPriceHistoryByRange(product: BaseProduct): Record<PriceHistoryRang
     "1y": yearlyHistory,
     "6m": buildLastSixMonthHistory(yearlyHistory),
     "1m": buildOneMonthHistory(product, yearlyHistory),
+    "1w": buildOneWeekHistory(product, yearlyHistory),
     "24h": buildTwentyFourHourHistory(product, yearlyHistory),
   }
 }

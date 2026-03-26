@@ -9,7 +9,6 @@ import {
 } from "@/lib/data"
 import { buildPriceForecast } from "@/lib/forecast"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
 import {
   ChartContainer,
   ChartTooltip,
@@ -34,7 +33,7 @@ interface ProductPriceChartProps {
   tone: string
 }
 
-const rangeOrder: PriceHistoryRange[] = ["1y", "6m", "1m", "24h"]
+const rangeOrder: PriceHistoryRange[] = ["1y", "6m", "1m", "1w", "24h"]
 
 interface PriceChartRow {
   average: number
@@ -167,19 +166,20 @@ function ProductPriceChart({
             ) : null}
           </div>
           {showRangeControls && selectableRanges.length > 1 ? (
-            <div className={styles.priceRangeControls}>
-              {selectableRanges.map((range) => (
-                <Button
-                  key={range}
-                  onClick={() => setSelectedRange(range)}
-                  size="sm"
-                  type="button"
-                  variant={effectiveRange === range ? "default" : "outline"}
-                >
-                  {priceHistoryRangeLabels[range]}
-                </Button>
-              ))}
-            </div>
+            <label className={styles.priceRangeSelectWrap}>
+              <span className={styles.priceRangeSelectLabel}>Range</span>
+              <select
+                className={styles.priceRangeSelect}
+                onChange={(event) => setSelectedRange(event.target.value as PriceHistoryRange)}
+                value={effectiveRange}
+              >
+                {selectableRanges.map((range) => (
+                  <option key={range} value={range}>
+                    {priceHistoryRangeLabels[range]}
+                  </option>
+                ))}
+              </select>
+            </label>
           ) : null}
         </div>
         <div className={styles.priceChartLegend}>

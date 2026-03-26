@@ -41,6 +41,8 @@ function buildFutureLabels(history: PriceHistoryPoint[], range: PriceHistoryRang
   switch (range) {
     case "24h":
       return ["+1h", "+3h", "+6h", "+12h"]
+    case "1w":
+      return ["+1d", "+2d", "+3d", "+5d"]
     case "1m":
       return ["+2d", "+5d", "+10d", "+20d"]
     case "6m":
@@ -61,6 +63,8 @@ function getRangeTuning(range: PriceHistoryRange) {
   switch (range) {
     case "24h":
       return { driftWeight: 0.5, horizonLabel: "Next 12 hours", reversionWeight: 0.1, volatilityWeight: 0.55 }
+    case "1w":
+      return { driftWeight: 0.6, horizonLabel: "Next 5 days", reversionWeight: 0.12, volatilityWeight: 0.62 }
     case "1m":
       return { driftWeight: 0.72, horizonLabel: "Next 20 days", reversionWeight: 0.16, volatilityWeight: 0.72 }
     case "6m":
