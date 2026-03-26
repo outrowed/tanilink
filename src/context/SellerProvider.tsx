@@ -8,7 +8,9 @@ import {
   DEFAULT_SELLER_PROFILE,
   clampMoney,
   clampStockQuantity,
-  deriveListingMetrics,
+  deriveListingSnapshot,
+  getListingUnitsSold,
+  normalizeSellerListing,
   type CreateSellerListingInput,
   type SellerDeliveryOption,
   type SellerHubSummary,
@@ -45,7 +47,9 @@ function readInitialSellerState(): PersistedSellerState {
     const parsedValue = JSON.parse(storedValue) as Partial<PersistedSellerState>
 
     return {
-      listings: parsedValue.listings ?? DEFAULT_SELLER_LISTINGS,
+      listings: (parsedValue.listings ?? DEFAULT_SELLER_LISTINGS).map((listing) =>
+        normalizeSellerListing(listing)
+      ),
       profiles: parsedValue.profiles ?? [DEFAULT_SELLER_PROFILE],
     }
   } catch {
@@ -105,6 +109,7 @@ function mapListingToSeller(profile: SellerStoreProfile, listing: SellerListing)
     busyLevel: getBusyLevel(listing.activeOrders),
     activeOrders: listing.activeOrders,
     handlingTime: listing.handlingTime,
+    unitsSold: getListingUnitsSold(listing),
   }
 }
 
@@ -185,15 +190,22 @@ function SellerProvider({ children }: SellerProviderProps) {
     }
 
     const sellerListings = listings.filter((listing) => listing.sellerAccountId === currentSellerId)
+    const listingCount = sellerListings.length
     const grossRevenue = sellerListings.reduce((sum, listing) => sum + listing.monthlyRevenue, 0)
     const ordersThisMonth = sellerListings.reduce((sum, listing) => sum + listing.monthlyOrders, 0)
     const pendingPayout = sellerListings.reduce((sum, listing) => sum + listing.pendingPayout, 0)
     const activeListings = sellerListings.filter((listing) => listing.isActive).length
     const lowStockCount = sellerListings.filter((listing) => listing.isActive && listing.stockQuantity <= 20).length
+    const totalUnitsSold = sellerListings.reduce((sum, listing) => sum + getListingUnitsSold(listing), 0)
+    const totalStock = sellerListings.reduce((sum, listing) => sum + listing.stockQuantity, 0)
 
     return {
       activeListings,
       averageOrderValue: ordersThisMonth ? Math.round(grossRevenue / ordersThisMonth) : 0,
+      averageOrdersPerListing: listingCount ? Math.round(ordersThisMonth / listingCount) : 0,
+      averageRevenuePerListing: listingCount ? Math.round(grossRevenue / listingCount) : 0,
+      averageStockPerListing: listingCount ? Math.round(totalStock / listingCount) : 0,
+      averageUnitsSoldPerListing: listingCount ? Math.round(totalUnitsSold / listingCount) : 0,
       grossRevenue,
       lowStockCount,
       ordersThisMonth,
@@ -411,7 +423,12 @@ function SellerProvider({ children }: SellerProviderProps) {
         }
 
         const nextListingId = createListingId(currentListings)
-        const metrics = deriveListingMetrics(input.price, input.stockQuantity)
+        const metrics = deriveListingSnapshot(
+          input.productSlug,
+          input.price,
+          input.stockQuantity,
+          nextListingId
+        )
 
         result = {
           listingId: nextListingId,
@@ -420,7 +437,7 @@ function SellerProvider({ children }: SellerProviderProps) {
 
         return [
           ...currentListings,
-          {
+          normalizeSellerListing({
             id: nextListingId,
             sellerAccountId: currentSellerId,
             productSlug: input.productSlug,
@@ -432,7 +449,7 @@ function SellerProvider({ children }: SellerProviderProps) {
             handlingTime: input.handlingTime.trim(),
             isActive: input.isActive ?? true,
             ...metrics,
-          },
+          }),
         ]
       })
 

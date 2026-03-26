@@ -167,6 +167,10 @@
   min-width: 0;
 }
 
+.salesSection {
+  min-width: 0;
+}
+
 .bottomBody {
   display: flex;
   flex-direction: column;

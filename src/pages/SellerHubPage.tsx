@@ -5,18 +5,17 @@ import BackButton from "@/components/shared/BackButton"
 import PageHeader from "@/components/shared/PageHeader"
 import { useMarketplace, useSellerStore } from "@/context/seller"
 import { formatRupiah, type Product } from "@/lib/data"
+import { getListingSalesSummary } from "@/lib/seller"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Input } from "@/components/ui/input"
 import styles from "@/pages/Seller.module.css"
 
 type ListingStatusFilter = "all" | "active" | "inactive"
 type ListingCategoryFilter = "all" | Product["category"]
 
 function SellerHubPage() {
-  const { currentSellerListings, currentStoreProfile, sellerSummary, toggleListing, removeListing, updateListing } =
-    useSellerStore()
+  const { currentSellerListings, currentStoreProfile, sellerSummary } = useSellerStore()
   const { getProductBySlug } = useMarketplace()
   const [statusFilter, setStatusFilter] = useState<ListingStatusFilter>("all")
   const [categoryFilter, setCategoryFilter] = useState<ListingCategoryFilter>("all")
@@ -27,10 +26,13 @@ function SellerHubPage() {
         .map((listing) => ({
           listing,
           product: getProductBySlug(listing.productSlug),
+          salesSummary: getListingSalesSummary(listing),
         }))
-        .filter((entry): entry is { listing: (typeof currentSellerListings)[number]; product: Product } =>
-          Boolean(entry.product)
-        ),
+        .filter((entry): entry is {
+          listing: (typeof currentSellerListings)[number]
+          product: Product
+          salesSummary: ReturnType<typeof getListingSalesSummary>
+        } => Boolean(entry.product)),
     [currentSellerListings, getProductBySlug]
   )
 
@@ -68,7 +70,7 @@ function SellerHubPage() {
       <div className={styles.inner}>
         <PageHeader
           action={<BackButton fallbackTo="/account" label="Back" />}
-          description="Monitor store performance, edit live listings, and keep inventory details aligned with the customer marketplace."
+          description="Track store-level performance, compare average listing health, and open ingredient pages for deeper analytics or inventory edits."
           label="Seller hub"
           meta={
             <div className={styles.headerMeta}>
@@ -76,7 +78,7 @@ function SellerHubPage() {
               <Badge variant="outline">{sellerSummary.lowStockCount} low-stock alerts</Badge>
             </div>
           }
-          title={`${currentStoreProfile.storeName} product hub`}
+          title={`${currentStoreProfile.storeName} analytics hub`}
         />
 
         <main className={styles.stackLayout}>
@@ -95,26 +97,38 @@ function SellerHubPage() {
             </Card>
             <Card className={styles.surfaceCard}>
               <CardContent className={styles.metricBody}>
-                <p className={styles.metricLabel}>Average order value</p>
-                <p className={styles.metricValue}>{formatRupiah(sellerSummary.averageOrderValue)}</p>
-              </CardContent>
-            </Card>
-            <Card className={styles.surfaceCard}>
-              <CardContent className={styles.metricBody}>
                 <p className={styles.metricLabel}>Pending payout</p>
                 <p className={styles.metricValue}>{formatRupiah(sellerSummary.pendingPayout)}</p>
               </CardContent>
             </Card>
             <Card className={styles.surfaceCard}>
               <CardContent className={styles.metricBody}>
-                <p className={styles.metricLabel}>Active listings</p>
-                <p className={styles.metricValue}>{sellerSummary.activeListings}</p>
+                <p className={styles.metricLabel}>Average order value</p>
+                <p className={styles.metricValue}>{formatRupiah(sellerSummary.averageOrderValue)}</p>
               </CardContent>
             </Card>
             <Card className={styles.surfaceCard}>
               <CardContent className={styles.metricBody}>
-                <p className={styles.metricLabel}>Low-stock alerts</p>
-                <p className={styles.metricValue}>{sellerSummary.lowStockCount}</p>
+                <p className={styles.metricLabel}>Average revenue / listing</p>
+                <p className={styles.metricValue}>{formatRupiah(sellerSummary.averageRevenuePerListing)}</p>
+              </CardContent>
+            </Card>
+            <Card className={styles.surfaceCard}>
+              <CardContent className={styles.metricBody}>
+                <p className={styles.metricLabel}>Average orders / listing</p>
+                <p className={styles.metricValue}>{sellerSummary.averageOrdersPerListing}</p>
+              </CardContent>
+            </Card>
+            <Card className={styles.surfaceCard}>
+              <CardContent className={styles.metricBody}>
+                <p className={styles.metricLabel}>Average stock / listing</p>
+                <p className={styles.metricValue}>{sellerSummary.averageStockPerListing}</p>
+              </CardContent>
+            </Card>
+            <Card className={styles.surfaceCard}>
+              <CardContent className={styles.metricBody}>
+                <p className={styles.metricLabel}>Average units sold / listing</p>
+                <p className={styles.metricValue}>{sellerSummary.averageUnitsSoldPerListing}</p>
               </CardContent>
             </Card>
           </section>
@@ -125,9 +139,9 @@ function SellerHubPage() {
                 <CardHeader className={styles.surfaceHeader}>
                   <div className={styles.sectionHeader}>
                     <div>
-                      <CardTitle className={styles.surfaceTitle}>Live inventory manager</CardTitle>
+                      <CardTitle className={styles.surfaceTitle}>Ingredient analytics</CardTitle>
                       <CardDescription>
-                        Update price, stock, warehouse, and delivery-related listing details inline.
+                        Review headline performance for each listing, then open the ingredient page for detailed analytics and pricing or stock edits.
                       </CardDescription>
                     </div>
                     <Button asChild type="button" variant="outline">
@@ -170,7 +184,7 @@ function SellerHubPage() {
 
                   {visibleListings.length ? (
                     <div className={styles.listStack}>
-                      {visibleListings.map(({ listing, product }) => {
+                      {visibleListings.map(({ listing, product, salesSummary }) => {
                         const selectedDeliveryLabels = currentStoreProfile.deliveryOptions
                           .filter((option) => listing.deliveryOptionIds.includes(option.id))
                           .map((option) => option.label)
@@ -196,51 +210,13 @@ function SellerHubPage() {
                                 </div>
                               </div>
                             </CardHeader>
-                            <CardContent className={styles.surfaceBody}>
-                              <div className={styles.formGrid}>
-                                <label className={styles.fieldGroup}>
-                                  <span className={styles.fieldLabel}>Price</span>
-                                  <Input
-                                    onChange={(event) =>
-                                      updateListing(listing.id, { price: Number(event.target.value) || 0 })
-                                    }
-                                    type="number"
-                                    value={listing.price}
-                                  />
-                                </label>
-                                <label className={styles.fieldGroup}>
-                                  <span className={styles.fieldLabel}>Stock quantity</span>
-                                  <Input
-                                    onChange={(event) =>
-                                      updateListing(listing.id, { stockQuantity: Number(event.target.value) || 0 })
-                                    }
-                                    type="number"
-                                    value={listing.stockQuantity}
-                                  />
-                                </label>
-                                <label className={styles.fieldGroup}>
-                                  <span className={styles.fieldLabel}>Stock label</span>
-                                  <Input
-                                    onChange={(event) => updateListing(listing.id, { stockLabel: event.target.value })}
-                                    type="text"
-                                    value={listing.stockLabel}
-                                  />
-                                </label>
-                                <label className={styles.fieldGroup}>
-                                  <span className={styles.fieldLabel}>Handling time</span>
-                                  <Input
-                                    onChange={(event) => updateListing(listing.id, { handlingTime: event.target.value })}
-                                    type="text"
-                                    value={listing.handlingTime}
-                                  />
-                                </label>
-                              </div>
 
+                            <CardContent className={styles.surfaceBody}>
                               <div className={styles.inlineSummary}>
                                 <Card className={styles.metricTile} size="sm">
                                   <CardContent className={styles.metricTileBody}>
-                                    <p className={styles.fieldLabel}>Monthly revenue</p>
-                                    <p className={styles.metricTileValue}>{formatRupiah(listing.monthlyRevenue)}</p>
+                                    <p className={styles.fieldLabel}>Units sold</p>
+                                    <p className={styles.metricTileValue}>{salesSummary.totalUnitsSold}</p>
                                   </CardContent>
                                 </Card>
                                 <Card className={styles.metricTile} size="sm">
@@ -251,13 +227,23 @@ function SellerHubPage() {
                                 </Card>
                                 <Card className={styles.metricTile} size="sm">
                                   <CardContent className={styles.metricTileBody}>
-                                    <p className={styles.fieldLabel}>Pending payout</p>
-                                    <p className={styles.metricTileValue}>{formatRupiah(listing.pendingPayout)}</p>
+                                    <p className={styles.fieldLabel}>Revenue</p>
+                                    <p className={styles.metricTileValue}>{formatRupiah(listing.monthlyRevenue)}</p>
+                                  </CardContent>
+                                </Card>
+                                <Card className={styles.metricTile} size="sm">
+                                  <CardContent className={styles.metricTileBody}>
+                                    <p className={styles.fieldLabel}>Average sale price</p>
+                                    <p className={styles.metricTileValue}>
+                                      {formatRupiah(salesSummary.averageSalePrice)}
+                                    </p>
                                   </CardContent>
                                 </Card>
                               </div>
 
                               <div className={styles.badgeRow}>
+                                <Badge variant="secondary">{listing.stockQuantity} units in stock</Badge>
+                                <Badge variant="outline">{formatRupiah(listing.price)} live price</Badge>
                                 {selectedDeliveryLabels.map((label) => (
                                   <Badge key={`${listing.id}-${label}`} variant="outline">
                                     {label}
@@ -266,11 +252,11 @@ function SellerHubPage() {
                               </div>
 
                               <div className={styles.inlineActions}>
-                                <Button onClick={() => toggleListing(listing.id)} type="button" variant="outline">
-                                  {listing.isActive ? "Pause listing" : "Activate listing"}
-                                </Button>
-                                <Button onClick={() => removeListing(listing.id)} type="button" variant="destructive">
-                                  Remove listing
+                                <p className={styles.supportingCopy}>
+                                  Open the ingredient page to inspect detailed sale curves and update pricing, stock, warehouse, or delivery configuration.
+                                </p>
+                                <Button asChild type="button">
+                                  <Link to={`/seller/ingredients/${product.slug}`}>Open ingredient page</Link>
                                 </Button>
                               </div>
                             </CardContent>
@@ -283,7 +269,7 @@ function SellerHubPage() {
                       <CardContent className={styles.emptyStateBody}>
                         <p className={styles.emptyStateTitle}>No listings match the current filters.</p>
                         <p className={styles.emptyStateCopy}>
-                          Adjust the status or category filters, or register a new ingredient from the store page.
+                          Adjust the filters or register a new ingredient from the store setup page.
                         </p>
                       </CardContent>
                     </Card>
@@ -296,7 +282,7 @@ function SellerHubPage() {
               <Card className={styles.surfaceCard}>
                 <CardHeader className={styles.surfaceHeader}>
                   <CardTitle className={styles.surfaceTitle}>Store overview</CardTitle>
-                  <CardDescription>Seller identity and operational footprint used across your listings.</CardDescription>
+                  <CardDescription>Identity and operational footprint used across all live ingredient listings.</CardDescription>
                 </CardHeader>
                 <CardContent className={styles.surfaceBody}>
                   <p className={styles.storeName}>{currentStoreProfile.storeName}</p>
@@ -310,23 +296,29 @@ function SellerHubPage() {
 
               <Card className={styles.surfaceCard}>
                 <CardHeader className={styles.surfaceHeader}>
-                  <CardTitle className={styles.surfaceTitle}>Marketplace sync</CardTitle>
-                  <CardDescription>Active listings immediately appear on consumer product pages and seller ranking.</CardDescription>
+                  <CardTitle className={styles.surfaceTitle}>Average listing performance</CardTitle>
+                  <CardDescription>Use these averages as a baseline when comparing ingredients in the hub.</CardDescription>
                 </CardHeader>
                 <CardContent className={styles.surfaceBody}>
-                  <div className={styles.listStack}>
-                    {currentSellerListings.slice(0, 3).map((listing) => {
-                      const product = getProductBySlug(listing.productSlug)
-
-                      return product ? (
-                        <Card key={`sync-${listing.id}`} className={styles.metricTile} size="sm">
-                          <CardContent className={styles.metricTileBody}>
-                            <p className={styles.fieldLabel}>{product.name}</p>
-                            <p className={styles.metricTileValue}>{formatRupiah(listing.price)}</p>
-                          </CardContent>
-                        </Card>
-                      ) : null
-                    })}
+                  <div className={styles.inlineSummary}>
+                    <Card className={styles.metricTile} size="sm">
+                      <CardContent className={styles.metricTileBody}>
+                        <p className={styles.fieldLabel}>Avg revenue</p>
+                        <p className={styles.metricTileValue}>{formatRupiah(sellerSummary.averageRevenuePerListing)}</p>
+                      </CardContent>
+                    </Card>
+                    <Card className={styles.metricTile} size="sm">
+                      <CardContent className={styles.metricTileBody}>
+                        <p className={styles.fieldLabel}>Avg orders</p>
+                        <p className={styles.metricTileValue}>{sellerSummary.averageOrdersPerListing}</p>
+                      </CardContent>
+                    </Card>
+                    <Card className={styles.metricTile} size="sm">
+                      <CardContent className={styles.metricTileBody}>
+                        <p className={styles.fieldLabel}>Avg units sold</p>
+                        <p className={styles.metricTileValue}>{sellerSummary.averageUnitsSoldPerListing}</p>
+                      </CardContent>
+                    </Card>
                   </div>
                 </CardContent>
               </Card>

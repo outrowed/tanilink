@@ -138,6 +138,7 @@ function ProductPage() {
             <Clock3 className={styles.icon} />
             {seller.busyLevel} load
           </Badge>
+          <Badge variant="secondary">{seller.unitsSold.toLocaleString()} units sold</Badge>
           <Badge variant="secondary">{seller.activeOrders} active orders</Badge>
           <Badge variant="muted">{seller.handlingTime}</Badge>
         </div>

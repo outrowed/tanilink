@@ -10,6 +10,7 @@ export interface Seller {
   busyLevel: "Low" | "Moderate" | "High"
   activeOrders: number
   handlingTime: string
+  unitsSold: number
 }
 
 export interface PriceHistoryPoint {
@@ -18,6 +19,22 @@ export interface PriceHistoryPoint {
 }
 
 export type PriceHistoryRange = "1y" | "6m" | "1m" | "1w" | "24h"
+
+export interface SalesHistoryPoint {
+  orders: number
+  period: string
+  revenue: number
+  salePrice: number
+  unitsSold: number
+}
+
+export interface SalesHistorySummary {
+  averageSalePrice: number
+  latestSalePrice: number
+  totalOrders: number
+  totalRevenue: number
+  totalUnitsSold: number
+}
 
 export interface Product {
   id: number
@@ -36,6 +53,8 @@ export interface Product {
   chartColor: string
   priceHistory: PriceHistoryPoint[]
   priceHistoryByRange: Record<PriceHistoryRange, PriceHistoryPoint[]>
+  productSalesHistory: SalesHistoryPoint[]
+  productSalesHistoryByRange: Record<PriceHistoryRange, SalesHistoryPoint[]>
   sellers: Seller[]
 }
 
@@ -66,7 +85,14 @@ export interface UserLocationOption {
   zone: string
 }
 
-type BaseProduct = Omit<Product, "priceHistoryByRange">
+type BaseSeller = Omit<Seller, "unitsSold">
+
+type BaseProduct = Omit<
+  Product,
+  "priceHistoryByRange" | "productSalesHistory" | "productSalesHistoryByRange" | "sellers"
+> & {
+  sellers: BaseSeller[]
+}
 
 const baseProducts: BaseProduct[] = [
   {
@@ -867,6 +893,10 @@ function clampPrice(value: number) {
   return Math.max(1_000, Math.round(value / 100) * 100)
 }
 
+function clampCount(value: number, minimum = 1) {
+  return Math.max(minimum, Math.round(value))
+}
+
 function buildLastSixMonthHistory(history: PriceHistoryPoint[]) {
   return history.slice(-6)
 }
@@ -927,10 +957,141 @@ function buildPriceHistoryByRange(product: BaseProduct): Record<PriceHistoryRang
   }
 }
 
-export const products: Product[] = baseProducts.map((product) => ({
-  ...product,
-  priceHistoryByRange: buildPriceHistoryByRange(product),
-}))
+const categorySalesBaseline: Record<Product["category"], number> = {
+  Staple: 640,
+  Protein: 420,
+  Vegetable: 520,
+  Spice: 310,
+  Pantry: 560,
+}
+
+const rangeVolumeScale: Record<PriceHistoryRange, number> = {
+  "1y": 1,
+  "6m": 1,
+  "1m": 0.18,
+  "1w": 0.16,
+  "24h": 0.035,
+}
+
+function buildProductSalesHistoryForRange(
+  product: BaseProduct,
+  history: PriceHistoryPoint[],
+  range: PriceHistoryRange
+): SalesHistoryPoint[] {
+  const baselineUnits = categorySalesBaseline[product.category] * rangeVolumeScale[range]
+  const markup = 1.014 + (product.id % 4) * 0.0035
+  const orderDivisor =
+    product.category === "Staple"
+      ? 5.4
+      : product.category === "Pantry"
+        ? 6.1
+        : product.category === "Spice"
+          ? 4.2
+          : 4.8
+
+  return history.map((point, index) => {
+    const seasonalWave = Math.sin(index * 0.92 + product.id * 0.55) * baselineUnits * 0.12
+    const pricePressure = ((product.averagePrice - point.price) / Math.max(product.averagePrice, 1)) * baselineUnits * 0.32
+    const demandPulse = Math.cos(index * 0.58 + product.priceChange * 0.12) * baselineUnits * 0.06
+    const unitsSold = clampCount(baselineUnits + seasonalWave + pricePressure + demandPulse, 3)
+    const orders = clampCount(unitsSold / orderDivisor + Math.sin(index * 0.41 + product.id) * 3, 1)
+    const salePrice = clampPrice(point.price * markup)
+
+    return {
+      orders,
+      period: point.month,
+      revenue: salePrice * unitsSold,
+      salePrice,
+      unitsSold,
+    }
+  })
+}
+
+function buildProductSalesHistoryByRange(
+  product: BaseProduct,
+  priceHistoryByRange: Record<PriceHistoryRange, PriceHistoryPoint[]>
+): Record<PriceHistoryRange, SalesHistoryPoint[]> {
+  return {
+    "1y": buildProductSalesHistoryForRange(product, priceHistoryByRange["1y"], "1y"),
+    "6m": buildProductSalesHistoryForRange(product, priceHistoryByRange["6m"], "6m"),
+    "1m": buildProductSalesHistoryForRange(product, priceHistoryByRange["1m"], "1m"),
+    "1w": buildProductSalesHistoryForRange(product, priceHistoryByRange["1w"], "1w"),
+    "24h": buildProductSalesHistoryForRange(product, priceHistoryByRange["24h"], "24h"),
+  }
+}
+
+export function summarizeSalesHistory(history: SalesHistoryPoint[]): SalesHistorySummary {
+  if (!history.length) {
+    return {
+      averageSalePrice: 0,
+      latestSalePrice: 0,
+      totalOrders: 0,
+      totalRevenue: 0,
+      totalUnitsSold: 0,
+    }
+  }
+
+  const totalOrders = history.reduce((sum, point) => sum + point.orders, 0)
+  const totalRevenue = history.reduce((sum, point) => sum + point.revenue, 0)
+  const totalUnitsSold = history.reduce((sum, point) => sum + point.unitsSold, 0)
+  const latestSalePrice = history[history.length - 1]?.salePrice ?? 0
+
+  return {
+    averageSalePrice: Math.round(history.reduce((sum, point) => sum + point.salePrice, 0) / history.length),
+    latestSalePrice,
+    totalOrders,
+    totalRevenue,
+    totalUnitsSold,
+  }
+}
+
+function buildSellerUnitsSold(product: BaseProduct, totalUnitsSold: number) {
+  if (!product.sellers.length) {
+    return []
+  }
+
+  const weights = product.sellers.map((seller, index) => {
+    const priceAdvantage = Math.max(0.8, 1 + ((product.averagePrice - seller.price) / Math.max(product.averagePrice, 1)) * 1.8)
+    const ratingBoost = seller.rating / 5
+    const loadAdjustment =
+      seller.busyLevel === "Low" ? 1.08 : seller.busyLevel === "Moderate" ? 1 : 0.92
+    const positionBias = 1 + (product.sellers.length - index) * 0.06
+
+    return Math.max(0.1, priceAdvantage * ratingBoost * loadAdjustment * positionBias)
+  })
+
+  const totalWeight = weights.reduce((sum, weight) => sum + weight, 0)
+  let remainingUnits = totalUnitsSold
+
+  return product.sellers.map((seller, index) => {
+    const isLast = index === product.sellers.length - 1
+    const allocatedUnits = isLast
+      ? remainingUnits
+      : clampCount((totalUnitsSold * weights[index]) / Math.max(totalWeight, 1), 1)
+
+    remainingUnits = Math.max(0, remainingUnits - allocatedUnits)
+
+    return {
+      ...seller,
+      unitsSold: allocatedUnits,
+    }
+  })
+}
+
+export const products: Product[] = baseProducts.map((product) => {
+  const priceHistoryByRange = buildPriceHistoryByRange(product)
+  const productSalesHistoryByRange = buildProductSalesHistoryByRange(product, priceHistoryByRange)
+  const productSalesHistory = productSalesHistoryByRange["1y"]
+  const productSalesSummary = summarizeSalesHistory(productSalesHistory)
+
+  return {
+    ...product,
+    priceHistoryByRange,
+    productSalesHistory,
+    productSalesHistoryByRange,
+    sellers: buildSellerUnitsSold(product, productSalesSummary.totalUnitsSold),
+  }
+})
 
 export const defaultUserLocationId: UserLocationId = "jakarta-selatan"
 

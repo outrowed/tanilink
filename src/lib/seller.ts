@@ -1,4 +1,10 @@
-import { type Product } from "@/lib/data"
+import {
+  products as marketplaceProducts,
+  type PriceHistoryRange,
+  type Product,
+  type SalesHistoryPoint,
+  summarizeSalesHistory,
+} from "@/lib/data"
 
 export interface SellerStoreLocation {
   address: string
@@ -39,6 +45,8 @@ export interface SellerListing {
   productSlug: Product["slug"]
   rating: number
   sellerAccountId: string
+  salesHistory: SalesHistoryPoint[]
+  salesHistoryByRange: Record<PriceHistoryRange, SalesHistoryPoint[]>
   stockLabel: string
   stockQuantity: number
   warehouseLocationId: string
@@ -47,6 +55,10 @@ export interface SellerListing {
 export interface SellerHubSummary {
   activeListings: number
   averageOrderValue: number
+  averageOrdersPerListing: number
+  averageRevenuePerListing: number
+  averageStockPerListing: number
+  averageUnitsSoldPerListing: number
   grossRevenue: number
   lowStockCount: number
   ordersThisMonth: number
@@ -110,7 +122,9 @@ export const DEFAULT_SELLER_PROFILE: SellerStoreProfile = {
   ],
 }
 
-export const DEFAULT_SELLER_LISTINGS: SellerListing[] = [
+type SellerListingSeed = Omit<SellerListing, "salesHistory" | "salesHistoryByRange">
+
+const DEFAULT_SELLER_LISTING_SEEDS: SellerListingSeed[] = [
   {
     id: 9101,
     sellerAccountId: "preset-dewi-santika",
@@ -213,3 +227,116 @@ export function deriveListingMetrics(price: number, stockQuantity: number) {
     rating: 4.8,
   }
 }
+
+function buildSellerSalesHistoryByRange(
+  productSlug: Product["slug"],
+  price: number,
+  monthlyOrders: number,
+  listingSeed: number
+): Record<PriceHistoryRange, SalesHistoryPoint[]> {
+  const product = marketplaceProducts.find((entry) => entry.slug === productSlug)
+
+  if (!product) {
+    const emptyHistory: SalesHistoryPoint[] = []
+
+    return {
+      "1y": emptyHistory,
+      "6m": emptyHistory,
+      "1m": emptyHistory,
+      "1w": emptyHistory,
+      "24h": emptyHistory,
+    }
+  }
+
+  const marketMonthlyOrders =
+    product.productSalesHistoryByRange["1y"][product.productSalesHistoryByRange["1y"].length - 1]?.orders ?? 1
+  const share = Math.min(0.42, Math.max(0.08, monthlyOrders / Math.max(marketMonthlyOrders, 1)))
+
+  const mapRange = (range: PriceHistoryRange) =>
+    product.productSalesHistoryByRange[range].map((point, index) => {
+      const sellerWave = Math.sin(index * 0.57 + listingSeed * 0.11) * point.unitsSold * 0.035
+      const unitsSold = Math.max(1, Math.round(point.unitsSold * share + sellerWave))
+      const orders = Math.max(1, Math.round(point.orders * share + Math.cos(index * 0.36 + listingSeed) * 0.8))
+      const realizedSalePrice = clampMoney(
+        price *
+          (1 +
+            Math.sin(index * 0.48 + listingSeed * 0.03) * 0.014 +
+            Math.cos(index * 0.21 + listingSeed * 0.05) * 0.008)
+      )
+
+      return {
+        orders,
+        period: point.period,
+        revenue: realizedSalePrice * unitsSold,
+        salePrice: realizedSalePrice,
+        unitsSold,
+      }
+    })
+
+  return {
+    "1y": mapRange("1y"),
+    "6m": mapRange("6m"),
+    "1m": mapRange("1m"),
+    "1w": mapRange("1w"),
+    "24h": mapRange("24h"),
+  }
+}
+
+export function normalizeSellerListing(listing: SellerListingSeed | SellerListing): SellerListing {
+  const baseListing = {
+    ...listing,
+    handlingTime: listing.handlingTime.trim(),
+    price: clampMoney(listing.price),
+    stockLabel: listing.stockLabel.trim(),
+    stockQuantity: clampStockQuantity(listing.stockQuantity),
+  }
+
+  const salesHistoryByRange =
+    "salesHistoryByRange" in listing && listing.salesHistoryByRange
+      ? listing.salesHistoryByRange
+      : buildSellerSalesHistoryByRange(
+          listing.productSlug,
+          baseListing.price,
+          listing.monthlyOrders,
+          listing.id
+        )
+
+  return {
+    ...baseListing,
+    salesHistory: salesHistoryByRange["1y"],
+    salesHistoryByRange,
+  }
+}
+
+export function deriveListingSnapshot(
+  productSlug: Product["slug"],
+  price: number,
+  stockQuantity: number,
+  listingSeed: number
+) {
+  const metrics = deriveListingMetrics(price, stockQuantity)
+  const salesHistoryByRange = buildSellerSalesHistoryByRange(
+    productSlug,
+    clampMoney(price),
+    metrics.monthlyOrders,
+    listingSeed
+  )
+
+  return {
+    ...metrics,
+    salesHistory: salesHistoryByRange["1y"],
+    salesHistoryByRange,
+  }
+}
+
+export function getListingUnitsSold(listing: SellerListing) {
+  return summarizeSalesHistory(listing.salesHistory).totalUnitsSold
+}
+
+export function getListingSalesSummary(listing: SellerListing) {
+  return summarizeSalesHistory(listing.salesHistory)
+}
+
+export const DEFAULT_SELLER_LISTINGS: SellerListing[] = DEFAULT_SELLER_LISTING_SEEDS.map((listing) =>
+  normalizeSellerListing(listing)
+)

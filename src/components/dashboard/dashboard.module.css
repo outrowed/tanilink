@@ -724,6 +724,13 @@
   border-top-color: #2563eb;
 }
 
+.salesChartLegendBar {
+  width: 0.85rem;
+  height: 0.85rem;
+  border-radius: 0.22rem;
+  background: rgba(28, 25, 23, 0.22);
+}
+
 .priceChartContent {
   padding: 1.125rem 1.25rem;
 }
@@ -760,6 +767,84 @@
   margin: 0;
   font-size: 0.875rem;
   color: #78716c;
+}
+
+.salesChartFooter {
+  display: flex;
+  flex-direction: column;
+  gap: 0.9rem;
+  padding: 1rem 1.25rem;
+  border-top: 1px solid color-mix(in srgb, #d6d3d1 60%, transparent);
+  background: transparent;
+}
+
+.salesChartMetrics {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(8.5rem, 1fr));
+  gap: 0.75rem;
+  width: 100%;
+}
+
+.salesChartMetric {
+  border: 1px solid color-mix(in srgb, #d6d3d1 72%, transparent);
+  border-radius: 0.95rem;
+  background: rgba(255, 255, 255, 0.78);
+  padding: 0.75rem 0.85rem;
+}
+
+.salesChartMetricLabel {
+  margin: 0;
+  font-size: 0.72rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: #78716c;
+}
+
+.salesChartMetricValue {
+  margin: 0.35rem 0 0;
+  font-size: 0.98rem;
+  font-weight: 600;
+  color: #1c1917;
+}
+
+.salesTooltip {
+  min-width: 16rem;
+  border: 1px solid color-mix(in srgb, #d6d3d1 72%, transparent);
+  border-radius: 1rem;
+  background: rgba(255, 255, 255, 0.96);
+  box-shadow: 0 24px 64px -40px rgba(17, 24, 39, 0.38);
+  padding: 0.8rem 0.9rem;
+}
+
+.salesTooltipLabel {
+  margin: 0 0 0.65rem;
+  font-size: 0.78rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: #78716c;
+}
+
+.salesTooltipGrid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.65rem;
+}
+
+.salesTooltipItem {
+  display: flex;
+  flex-direction: column;
+  gap: 0.22rem;
+}
+
+.salesTooltipItemLabel {
+  font-size: 0.74rem;
+  color: #78716c;
+}
+
+.salesTooltipItemValue {
+  font-size: 0.86rem;
+  font-weight: 600;
+  color: #1c1917;
 }
 
 .priceForecastSummary {

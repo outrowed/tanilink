@@ -168,7 +168,7 @@ function AccountPage() {
                   <div>
                     <CardTitle className={styles.panelTitle}>Seller hub</CardTitle>
                     <CardDescription>
-                      Manage ingredient listings, store coverage, payouts, and inventory performance from one place.
+                      Review store analytics, then open ingredient pages for detailed listing controls and sales performance.
                     </CardDescription>
                   </div>
                 </CardHeader>

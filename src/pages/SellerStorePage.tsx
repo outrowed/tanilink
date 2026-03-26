@@ -58,6 +58,13 @@ function SellerStorePage() {
     () => new Set(currentSellerListings.map((listing) => listing.productSlug)),
     [currentSellerListings]
   )
+  const availableProducts = useMemo(
+    () => marketplaceProducts.filter((product) => !registeredProductSlugs.has(product.slug)),
+    [marketplaceProducts, registeredProductSlugs]
+  )
+  const selectedRegistrationSlug = availableProducts.some((product) => product.slug === listingDraft.productSlug)
+    ? listingDraft.productSlug
+    : availableProducts[0]?.slug ?? ""
 
   if (!currentStoreProfile) {
     return null
@@ -93,11 +100,24 @@ function SellerStorePage() {
   const handleRegisterListing = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault()
 
+    if (!selectedRegistrationSlug) {
+      setListingMessage("All marketplace ingredients are already registered in your seller hub.")
+      return
+    }
+
+    if (registeredProductSlugs.has(selectedRegistrationSlug)) {
+      const selectedProduct = getProductBySlug(selectedRegistrationSlug)
+      setListingMessage(
+        `${selectedProduct?.name ?? "This ingredient"} is already registered. Open its ingredient page from the seller hub to edit pricing, stock, or delivery settings.`
+      )
+      return
+    }
+
     const result = createListing({
       deliveryOptionIds: listingDraft.deliveryOptionIds,
       handlingTime: listingDraft.handlingTime,
       price: Number(listingDraft.price),
-      productSlug: listingDraft.productSlug as (typeof marketplaceProducts)[number]["slug"],
+      productSlug: selectedRegistrationSlug as (typeof marketplaceProducts)[number]["slug"],
       stockLabel: listingDraft.stockLabel,
       stockQuantity: Number(listingDraft.stockQuantity),
       warehouseLocationId: listingDraft.warehouseLocationId,
@@ -107,12 +127,18 @@ function SellerStorePage() {
       return
     }
 
-    const selectedProduct = getProductBySlug(listingDraft.productSlug as (typeof marketplaceProducts)[number]["slug"])
-    setListingMessage(
-      result.status === "created"
-        ? `${selectedProduct?.name ?? "Listing"} was added to your seller hub.`
-        : `${selectedProduct?.name ?? "Listing"} already existed, so the current seller listing was updated instead.`
-    )
+    const selectedProduct = getProductBySlug(selectedRegistrationSlug as (typeof marketplaceProducts)[number]["slug"])
+    const nextAvailableProduct = availableProducts.find((product) => product.slug !== selectedRegistrationSlug)
+
+    setListingMessage(`${selectedProduct?.name ?? "Listing"} was added to your seller hub.`)
+    setListingDraft((current) => ({
+      ...current,
+      handlingTime: "Prepared within 3 hours",
+      price: "",
+      productSlug: nextAvailableProduct?.slug ?? "",
+      stockLabel: "",
+      stockQuantity: "",
+    }))
   }
 
   return (
@@ -196,6 +222,11 @@ function SellerStorePage() {
               </CardHeader>
               <CardContent className={styles.surfaceBody}>
                 {listingMessage ? <div className={styles.noticeBanner}>{listingMessage}</div> : null}
+                {!availableProducts.length ? (
+                  <div className={styles.noticeBanner}>
+                    All marketplace ingredients are already registered. Open the seller hub to manage each ingredient from its dedicated detail page.
+                  </div>
+                ) : null}
                 <form className={styles.formStack} onSubmit={handleRegisterListing}>
                   <div className={styles.formGrid}>
                     <label className={styles.fieldGroup}>
@@ -205,9 +236,9 @@ function SellerStorePage() {
                         onChange={(event) =>
                           setListingDraft((current) => ({ ...current, productSlug: event.target.value }))
                         }
-                        value={listingDraft.productSlug}
+                        value={selectedRegistrationSlug}
                       >
-                        {marketplaceProducts.map((product) => (
+                        {availableProducts.map((product) => (
                           <option key={product.slug} value={product.slug}>
                             {product.name}
                           </option>
@@ -294,8 +325,8 @@ function SellerStorePage() {
                     </div>
                   </div>
                   <div className={styles.inlineActions}>
-                    <Button type="submit">
-                      {registeredProductSlugs.has(listingDraft.productSlug) ? "Update existing listing" : "Register ingredient"}
+                    <Button disabled={!availableProducts.length} type="submit">
+                      Register ingredient
                     </Button>
                   </div>
                 </form>
