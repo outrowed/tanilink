@@ -1,11 +1,18 @@
 import { useMemo, useState } from "react"
 import { Link } from "react-router-dom"
 
+import ProductSalesChart from "@/components/dashboard/ProductSalesChart"
 import BackButton from "@/components/shared/BackButton"
 import PageHeader from "@/components/shared/PageHeader"
 import { useMarketplace, useSellerStore } from "@/context/seller"
-import { formatRupiah, type Product } from "@/lib/data"
-import { getListingSalesSummary } from "@/lib/seller"
+import { formatRupiah, type PriceHistoryRange, type Product } from "@/lib/data"
+import {
+  buildAverageRatingHistory,
+  buildAverageSalesHistory,
+  getListingRatingSummary,
+  getListingSalesSummary,
+  summarizeRatingHistory,
+} from "@/lib/seller"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
@@ -61,6 +68,37 @@ function SellerHubPage() {
     [categoryFilter, listingsWithProducts, statusFilter]
   )
 
+  const filteredListings = useMemo(
+    () => visibleListings.map((entry) => entry.listing),
+    [visibleListings]
+  )
+
+  const averageSalesHistoryByRange = useMemo(() => {
+    const ranges: PriceHistoryRange[] = ["1y", "6m", "1m", "1w", "24h"]
+
+    return ranges.reduce(
+      (acc, range) => {
+        acc[range] = buildAverageSalesHistory(filteredListings, range)
+        return acc
+      },
+      {} as Record<PriceHistoryRange, ReturnType<typeof buildAverageSalesHistory>>
+    )
+  }, [filteredListings])
+
+  const filteredAverageRatingSummary = useMemo(() => {
+    if (!filteredListings.length) {
+      return {
+        averageRating: 0,
+        latestRating: 0,
+        strongestPeriod: "No visible listings",
+        strongestPeriodRating: 0,
+        totalReviews: 0,
+      }
+    }
+
+    return summarizeRatingHistory(buildAverageRatingHistory(filteredListings, "1y"))
+  }, [filteredListings])
+
   if (!currentStoreProfile || !sellerSummary) {
     return null
   }
@@ -109,6 +147,18 @@ function SellerHubPage() {
             </Card>
             <Card className={styles.surfaceCard}>
               <CardContent className={styles.metricBody}>
+                <p className={styles.metricLabel}>Average store rating</p>
+                <p className={styles.metricValue}>{sellerSummary.averageStoreRating.toFixed(1)} / 5</p>
+              </CardContent>
+            </Card>
+            <Card className={styles.surfaceCard}>
+              <CardContent className={styles.metricBody}>
+                <p className={styles.metricLabel}>Average reviews / listing</p>
+                <p className={styles.metricValue}>{sellerSummary.averageReviewsPerListing}</p>
+              </CardContent>
+            </Card>
+            <Card className={styles.surfaceCard}>
+              <CardContent className={styles.metricBody}>
                 <p className={styles.metricLabel}>Average revenue / listing</p>
                 <p className={styles.metricValue}>{formatRupiah(sellerSummary.averageRevenuePerListing)}</p>
               </CardContent>
@@ -132,6 +182,46 @@ function SellerHubPage() {
               </CardContent>
             </Card>
           </section>
+
+          {filteredListings.length ? (
+            <section className={styles.listStack}>
+              <ProductSalesChart
+                availableRanges={averageSalesHistoryByRange}
+                description={`Average listing sales across ${filteredListings.length} visible ingredient${filteredListings.length === 1 ? "" : "s"}. Each period averages sale price and units sold across the current filtered set.`}
+                history={averageSalesHistoryByRange["1y"]}
+                label="Store average"
+                subtitle="Filtered listing average"
+                title="Average listing sales"
+                tone="#2563eb"
+              />
+              <div className={styles.inlineSummary}>
+                <Card className={styles.metricTile} size="sm">
+                  <CardContent className={styles.metricTileBody}>
+                    <p className={styles.fieldLabel}>Filtered avg rating</p>
+                    <p className={styles.metricTileValue}>
+                      {filteredAverageRatingSummary.averageRating.toFixed(1)} / 5
+                    </p>
+                  </CardContent>
+                </Card>
+                <Card className={styles.metricTile} size="sm">
+                  <CardContent className={styles.metricTileBody}>
+                    <p className={styles.fieldLabel}>Filtered avg reviews</p>
+                    <p className={styles.metricTileValue}>
+                      {filteredListings.length
+                        ? Math.round(filteredAverageRatingSummary.totalReviews / filteredListings.length)
+                        : 0}
+                    </p>
+                  </CardContent>
+                </Card>
+                <Card className={styles.metricTile} size="sm">
+                  <CardContent className={styles.metricTileBody}>
+                    <p className={styles.fieldLabel}>Strongest rating period</p>
+                    <p className={styles.metricTileValue}>{filteredAverageRatingSummary.strongestPeriod}</p>
+                  </CardContent>
+                </Card>
+              </div>
+            </section>
+          ) : null}
 
           <section className={styles.gridLayout}>
             <section className={styles.mainColumn}>
@@ -188,6 +278,7 @@ function SellerHubPage() {
                         const selectedDeliveryLabels = currentStoreProfile.deliveryOptions
                           .filter((option) => listing.deliveryOptionIds.includes(option.id))
                           .map((option) => option.label)
+                        const ratingSummary = getListingRatingSummary(listing)
 
                         return (
                           <Card key={listing.id} className={styles.listingCard}>
@@ -237,6 +328,20 @@ function SellerHubPage() {
                                     <p className={styles.metricTileValue}>
                                       {formatRupiah(salesSummary.averageSalePrice)}
                                     </p>
+                                  </CardContent>
+                                </Card>
+                                <Card className={styles.metricTile} size="sm">
+                                  <CardContent className={styles.metricTileBody}>
+                                    <p className={styles.fieldLabel}>Rating</p>
+                                    <p className={styles.metricTileValue}>
+                                      {ratingSummary.latestRating.toFixed(1)} / 5
+                                    </p>
+                                  </CardContent>
+                                </Card>
+                                <Card className={styles.metricTile} size="sm">
+                                  <CardContent className={styles.metricTileBody}>
+                                    <p className={styles.fieldLabel}>Reviews</p>
+                                    <p className={styles.metricTileValue}>{ratingSummary.totalReviews}</p>
                                   </CardContent>
                                 </Card>
                               </div>

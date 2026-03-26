@@ -2,11 +2,12 @@ import { type ChangeEvent } from "react"
 import { Link, Navigate, useNavigate, useParams } from "react-router-dom"
 
 import ProductSalesChart from "@/components/dashboard/ProductSalesChart"
+import SellerRatingChart from "@/components/dashboard/SellerRatingChart"
 import BackButton from "@/components/shared/BackButton"
 import PageHeader from "@/components/shared/PageHeader"
 import { useMarketplace, useSellerStore } from "@/context/seller"
 import { formatRupiah, type Product } from "@/lib/data"
-import { getListingSalesSummary } from "@/lib/seller"
+import { getListingRatingSummary, getListingSalesSummary } from "@/lib/seller"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
@@ -33,6 +34,7 @@ function SellerIngredientPage() {
   }
 
   const salesSummary = getListingSalesSummary(listing)
+  const ratingSummary = getListingRatingSummary(listing)
 
   const handleDeliveryOptionChange = (deliveryOptionId: string, event: ChangeEvent<HTMLInputElement>) => {
     updateListing(listing.id, {
@@ -75,6 +77,16 @@ function SellerIngredientPage() {
               subtitle={`${product.category} listing performance`}
               title="Listing sales analytics"
               tone={product.chartColor}
+            />
+
+            <SellerRatingChart
+              availableRanges={listing.ratingHistoryByRange}
+              description="Rating trend and review volume for this ingredient listing. Use the review pattern to judge how pricing and fulfillment changes are affecting buyer sentiment."
+              history={listing.ratingHistory}
+              label={product.name}
+              subtitle={`${product.category} buyer sentiment`}
+              title="Listing rating analytics"
+              tone="#f59e0b"
             />
 
             <Card className={styles.surfaceCard}>
@@ -203,6 +215,24 @@ function SellerIngredientPage() {
                     <CardContent className={styles.metricTileBody}>
                       <p className={styles.fieldLabel}>Average sale price</p>
                       <p className={styles.metricTileValue}>{formatRupiah(salesSummary.averageSalePrice)}</p>
+                    </CardContent>
+                  </Card>
+                  <Card className={styles.metricTile} size="sm">
+                    <CardContent className={styles.metricTileBody}>
+                      <p className={styles.fieldLabel}>Latest rating</p>
+                      <p className={styles.metricTileValue}>{ratingSummary.latestRating.toFixed(1)} / 5</p>
+                    </CardContent>
+                  </Card>
+                  <Card className={styles.metricTile} size="sm">
+                    <CardContent className={styles.metricTileBody}>
+                      <p className={styles.fieldLabel}>Total reviews</p>
+                      <p className={styles.metricTileValue}>{ratingSummary.totalReviews}</p>
+                    </CardContent>
+                  </Card>
+                  <Card className={styles.metricTile} size="sm">
+                    <CardContent className={styles.metricTileBody}>
+                      <p className={styles.fieldLabel}>Strongest period</p>
+                      <p className={styles.metricTileValue}>{ratingSummary.strongestPeriod}</p>
                     </CardContent>
                   </Card>
                 </div>

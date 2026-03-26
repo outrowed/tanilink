@@ -9,6 +9,7 @@ import {
   clampMoney,
   clampStockQuantity,
   deriveListingSnapshot,
+  getListingRatingSummary,
   getListingUnitsSold,
   normalizeSellerListing,
   type CreateSellerListingInput,
@@ -198,12 +199,19 @@ function SellerProvider({ children }: SellerProviderProps) {
     const lowStockCount = sellerListings.filter((listing) => listing.isActive && listing.stockQuantity <= 20).length
     const totalUnitsSold = sellerListings.reduce((sum, listing) => sum + getListingUnitsSold(listing), 0)
     const totalStock = sellerListings.reduce((sum, listing) => sum + listing.stockQuantity, 0)
+    const totalReviews = sellerListings.reduce((sum, listing) => sum + getListingRatingSummary(listing).totalReviews, 0)
+    const totalLatestRatings = sellerListings.reduce(
+      (sum, listing) => sum + getListingRatingSummary(listing).latestRating,
+      0
+    )
 
     return {
       activeListings,
       averageOrderValue: ordersThisMonth ? Math.round(grossRevenue / ordersThisMonth) : 0,
       averageOrdersPerListing: listingCount ? Math.round(ordersThisMonth / listingCount) : 0,
+      averageReviewsPerListing: listingCount ? Math.round(totalReviews / listingCount) : 0,
       averageRevenuePerListing: listingCount ? Math.round(grossRevenue / listingCount) : 0,
+      averageStoreRating: listingCount ? Number((totalLatestRatings / listingCount).toFixed(1)) : 0,
       averageStockPerListing: listingCount ? Math.round(totalStock / listingCount) : 0,
       averageUnitsSoldPerListing: listingCount ? Math.round(totalUnitsSold / listingCount) : 0,
       grossRevenue,

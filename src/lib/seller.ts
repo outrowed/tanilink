@@ -6,6 +6,20 @@ import {
   summarizeSalesHistory,
 } from "@/lib/data"
 
+export interface RatingHistoryPoint {
+  period: string
+  rating: number
+  reviewCount: number
+}
+
+export interface RatingHistorySummary {
+  averageRating: number
+  latestRating: number
+  strongestPeriod: string
+  strongestPeriodRating: number
+  totalReviews: number
+}
+
 export interface SellerStoreLocation {
   address: string
   area: string
@@ -44,6 +58,8 @@ export interface SellerListing {
   price: number
   productSlug: Product["slug"]
   rating: number
+  ratingHistory: RatingHistoryPoint[]
+  ratingHistoryByRange: Record<PriceHistoryRange, RatingHistoryPoint[]>
   sellerAccountId: string
   salesHistory: SalesHistoryPoint[]
   salesHistoryByRange: Record<PriceHistoryRange, SalesHistoryPoint[]>
@@ -56,7 +72,9 @@ export interface SellerHubSummary {
   activeListings: number
   averageOrderValue: number
   averageOrdersPerListing: number
+  averageReviewsPerListing: number
   averageRevenuePerListing: number
+  averageStoreRating: number
   averageStockPerListing: number
   averageUnitsSoldPerListing: number
   grossRevenue: number
@@ -122,7 +140,10 @@ export const DEFAULT_SELLER_PROFILE: SellerStoreProfile = {
   ],
 }
 
-type SellerListingSeed = Omit<SellerListing, "salesHistory" | "salesHistoryByRange">
+type SellerListingSeed = Omit<
+  SellerListing,
+  "ratingHistory" | "ratingHistoryByRange" | "salesHistory" | "salesHistoryByRange"
+>
 
 const DEFAULT_SELLER_LISTING_SEEDS: SellerListingSeed[] = [
   {
@@ -282,6 +303,52 @@ function buildSellerSalesHistoryByRange(
   }
 }
 
+function clampRating(value: number) {
+  return Math.max(1, Math.min(5, Number(value.toFixed(1))))
+}
+
+function buildSellerRatingHistoryByRange(
+  productSlug: Product["slug"],
+  rating: number,
+  monthlyOrders: number,
+  listingSeed: number,
+  salesHistoryByRange: Record<PriceHistoryRange, SalesHistoryPoint[]>
+): Record<PriceHistoryRange, RatingHistoryPoint[]> {
+  const product = marketplaceProducts.find((entry) => entry.slug === productSlug)
+  const productRatingBias =
+    product?.category === "Protein"
+      ? 0.06
+      : product?.category === "Staple"
+        ? 0.03
+        : product?.category === "Vegetable"
+          ? -0.02
+          : 0
+
+  const mapRange = (range: PriceHistoryRange) =>
+    salesHistoryByRange[range].map((point, index) => {
+      const reviewBase = Math.max(4, monthlyOrders * 0.18)
+      const reviewWave = Math.cos(index * 0.49 + listingSeed * 0.07) * reviewBase * 0.18
+      const reviewCount = Math.max(1, Math.round(reviewBase + reviewWave))
+      const trendWave = Math.sin(index * 0.34 + listingSeed * 0.09) * 0.16
+      const confidenceLift = Math.min(0.12, point.unitsSold / 1200)
+      const periodRating = clampRating(rating + productRatingBias + trendWave + confidenceLift)
+
+      return {
+        period: point.period,
+        rating: periodRating,
+        reviewCount,
+      }
+    })
+
+  return {
+    "1y": mapRange("1y"),
+    "6m": mapRange("6m"),
+    "1m": mapRange("1m"),
+    "1w": mapRange("1w"),
+    "24h": mapRange("24h"),
+  }
+}
+
 export function normalizeSellerListing(listing: SellerListingSeed | SellerListing): SellerListing {
   const baseListing = {
     ...listing,
@@ -301,8 +368,21 @@ export function normalizeSellerListing(listing: SellerListingSeed | SellerListin
           listing.id
         )
 
+  const ratingHistoryByRange =
+    "ratingHistoryByRange" in listing && listing.ratingHistoryByRange
+      ? listing.ratingHistoryByRange
+      : buildSellerRatingHistoryByRange(
+          listing.productSlug,
+          listing.rating,
+          listing.monthlyOrders,
+          listing.id,
+          salesHistoryByRange
+        )
+
   return {
     ...baseListing,
+    ratingHistory: ratingHistoryByRange["1y"],
+    ratingHistoryByRange,
     salesHistory: salesHistoryByRange["1y"],
     salesHistoryByRange,
   }
@@ -321,9 +401,18 @@ export function deriveListingSnapshot(
     metrics.monthlyOrders,
     listingSeed
   )
+  const ratingHistoryByRange = buildSellerRatingHistoryByRange(
+    productSlug,
+    metrics.rating,
+    metrics.monthlyOrders,
+    listingSeed,
+    salesHistoryByRange
+  )
 
   return {
     ...metrics,
+    ratingHistory: ratingHistoryByRange["1y"],
+    ratingHistoryByRange,
     salesHistory: salesHistoryByRange["1y"],
     salesHistoryByRange,
   }
@@ -335,6 +424,101 @@ export function getListingUnitsSold(listing: SellerListing) {
 
 export function getListingSalesSummary(listing: SellerListing) {
   return summarizeSalesHistory(listing.salesHistory)
+}
+
+export function summarizeRatingHistory(history: RatingHistoryPoint[]): RatingHistorySummary {
+  if (!history.length) {
+    return {
+      averageRating: 0,
+      latestRating: 0,
+      strongestPeriod: "No rating data",
+      strongestPeriodRating: 0,
+      totalReviews: 0,
+    }
+  }
+
+  const totalReviews = history.reduce((sum, point) => sum + point.reviewCount, 0)
+  const averageRating = Number(
+    (
+      history.reduce((sum, point) => sum + point.rating, 0) /
+      Math.max(history.length, 1)
+    ).toFixed(1)
+  )
+  const latestRating = history[history.length - 1]?.rating ?? 0
+  const strongestPoint = [...history].sort((left, right) => {
+    const leftScore = left.rating * left.reviewCount
+    const rightScore = right.rating * right.reviewCount
+
+    return rightScore - leftScore
+  })[0]
+
+  return {
+    averageRating,
+    latestRating,
+    strongestPeriod: strongestPoint?.period ?? "No rating data",
+    strongestPeriodRating: strongestPoint?.rating ?? 0,
+    totalReviews,
+  }
+}
+
+export function getListingRatingSummary(listing: SellerListing): RatingHistorySummary {
+  const summary = summarizeRatingHistory(listing.ratingHistory)
+
+  return {
+    ...summary,
+    latestRating: summary.latestRating || listing.rating,
+  }
+}
+
+export function buildAverageSalesHistory(listings: SellerListing[], range: PriceHistoryRange): SalesHistoryPoint[] {
+  if (!listings.length) {
+    return []
+  }
+
+  const baseHistory = listings[0]?.salesHistoryByRange[range] ?? []
+
+  return baseHistory.map((point, index) => {
+    const periodPoints = listings
+      .map((listing) => listing.salesHistoryByRange[range][index])
+      .filter(Boolean)
+
+    const count = Math.max(periodPoints.length, 1)
+
+    return {
+      orders: Math.round(periodPoints.reduce((sum, entry) => sum + entry.orders, 0) / count),
+      period: point.period,
+      revenue: Math.round(periodPoints.reduce((sum, entry) => sum + entry.revenue, 0) / count),
+      salePrice: Math.round(periodPoints.reduce((sum, entry) => sum + entry.salePrice, 0) / count),
+      unitsSold: Math.round(periodPoints.reduce((sum, entry) => sum + entry.unitsSold, 0) / count),
+    }
+  })
+}
+
+export function buildAverageRatingHistory(listings: SellerListing[], range: PriceHistoryRange): RatingHistoryPoint[] {
+  if (!listings.length) {
+    return []
+  }
+
+  const baseHistory = listings[0]?.ratingHistoryByRange[range] ?? []
+
+  return baseHistory.map((point, index) => {
+    const periodPoints = listings
+      .map((listing) => listing.ratingHistoryByRange[range][index])
+      .filter(Boolean)
+
+    const count = Math.max(periodPoints.length, 1)
+
+    return {
+      period: point.period,
+      rating: Number(
+        (
+          periodPoints.reduce((sum, entry) => sum + entry.rating, 0) /
+          count
+        ).toFixed(1)
+      ),
+      reviewCount: Math.round(periodPoints.reduce((sum, entry) => sum + entry.reviewCount, 0) / count),
+    }
+  })
 }
 
 export const DEFAULT_SELLER_LISTINGS: SellerListing[] = DEFAULT_SELLER_LISTING_SEEDS.map((listing) =>

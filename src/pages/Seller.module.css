@@ -45,6 +45,12 @@
   min-width: 0;
 }
 
+.mainColumn {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
 .sideColumn {
   display: flex;
   flex-direction: column;
