@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react"
-import { ChevronDown, LayoutDashboard, MapPin, ShoppingBasket, UserRound } from "lucide-react"
+import { ChevronDown, LayoutDashboard, MapPin, ShoppingBasket, Store, UserRound } from "lucide-react"
 import { Link, useLocation } from "react-router-dom"
 
 import SearchBox from "@/components/shared/SearchBox"
@@ -18,7 +18,7 @@ function AppNavbar() {
   const location = useLocation()
   const [isLocationMenuOpen, setIsLocationMenuOpen] = useState(false)
   const locationMenuRef = useRef<HTMLDivElement | null>(null)
-  const isCatalogPage = location.pathname === "/catalog"
+  const isMarketplacePage = location.pathname === "/marketplace" || location.pathname === "/catalog"
   const isSellerPage = location.pathname.startsWith("/seller")
   const profileDestination = isAuthenticated ? "/account" : "/auth"
   const profileTitle = isAuthenticated ? user?.name ?? "Account" : "Sign in"
@@ -105,8 +105,9 @@ function AppNavbar() {
 
         <div className={styles.searchStack}>
           <div className={styles.navLinks}>
-            <Link className={cn(styles.catalogButton, isCatalogPage && styles.catalogButtonActive)} to="/catalog">
-              Catalog
+            <Link className={cn(styles.catalogButton, isMarketplacePage && styles.catalogButtonActive)} to="/marketplace">
+              <Store className={styles.smallIcon} />
+              Marketplace
             </Link>
             {isSeller ? (
               <Link className={cn(styles.catalogButton, isSellerPage && styles.catalogButtonActive)} to="/seller">

@@ -27,7 +27,7 @@ function Dashboard() {
           <section className={styles.catalogSection}>
             <PageHeader
               description="Browse market-tracked products, compare their price curves, and open seller-aware detail pages."
-              label="Ingredient catalog"
+              label="Ingredient marketplace"
               meta={
                 <div className={styles.catalogMeta}>
                   <Badge variant="info">{filteredProducts.length} visible products</Badge>
@@ -36,7 +36,7 @@ function Dashboard() {
                   ) : null}
                 </div>
               }
-              title="Market-tracked ingredients for kitchens and consumers"
+              title="Market-tracked ingredients across the marketplace"
             />
 
             {filteredProducts.length ? (

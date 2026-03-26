@@ -19,7 +19,7 @@ function PlannerLanding() {
           <SearchBox
             alwaysShowSuggestions
             className={styles.searchShell}
-            defaultMode="catalog"
+            defaultMode="marketplace"
             placeholder="Example: I want to cook nasi goreng for 20 portions"
             variant="hero"
           />

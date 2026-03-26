@@ -55,7 +55,7 @@ function SearchPlanner() {
   const { marketplaceProducts } = useMarketplace()
   const { currentLocation } = useLocationPreference()
   const seedQuery = searchParams.get("q")?.trim() ?? ""
-  const resultMode = searchParams.get("mode") === "ai" ? "ai" : "catalog"
+  const resultMode = searchParams.get("mode") === "ai" ? "ai" : "marketplace"
   const selectedProductSlug = searchParams.get("preview") as Product["slug"] | null
   const [sortMode, setSortMode] = useState<SellerSortMode>("smart")
   const [sellerQuantities, setSellerQuantities] = useState<Record<number, number>>({})
@@ -120,14 +120,14 @@ function SearchPlanner() {
                 hasAiResult
                   ? resultMode === "ai"
                     ? `TaniLink matched "${seedQuery}" to an AI planning bundle, then stacked direct ingredient results underneath for regular product browsing.`
-                    : `"${seedQuery}" can be expanded into an AI bundle, but catalog results stay primary until you activate the planner.`
-                  : `"${seedQuery}" looks like a direct ingredient search, so TaniLink shows normal catalog matches and keeps AI bundle suggestions collapsed by default.`
+                    : `"${seedQuery}" can be expanded into an AI bundle, but marketplace results stay primary until you activate the planner.`
+                  : `"${seedQuery}" looks like a direct ingredient search, so TaniLink shows normal marketplace matches and keeps AI bundle suggestions collapsed by default.`
               }
               label="Search results"
               meta={
                 <div className={styles.resultsMeta}>
                   <Badge variant="outline">{plannerView ? "AI plan active" : "AI hidden by default"}</Badge>
-                  <Badge variant="outline">{matchedProducts.length} catalog matches</Badge>
+                  <Badge variant="outline">{matchedProducts.length} marketplace matches</Badge>
                 </div>
               }
               title={`Results for "${seedQuery}"`}
@@ -258,7 +258,7 @@ function SearchPlanner() {
                   </CardTitle>
                   <CardDescription>
                     {hasAiResult
-                      ? `"${seedQuery}" can be expanded into a multi-ingredient sourcing plan. Activate AI on this page to show the bundle above the catalog results.`
+                      ? `"${seedQuery}" can be expanded into a multi-ingredient sourcing plan. Activate AI on this page to show the bundle above the marketplace results.`
                       : `"${seedQuery}" behaves more like a direct ingredient query. The AI planner is hidden by default, so instead TaniLink suggests a few scripted prompts that produce multi-ingredient bundles.`}
                   </CardDescription>
                 </CardHeader>
@@ -294,7 +294,7 @@ function SearchPlanner() {
             <section className={styles.catalogSection}>
               <div className={styles.sectionHeader}>
                 <div>
-                  <p className={styles.sectionLabel}>Catalog results</p>
+                  <p className={styles.sectionLabel}>Marketplace results</p>
                   <h2 className={styles.sectionTitle}>Direct ingredient and supply matches</h2>
                   <p className={styles.sectionNote}>
                     Open any product to inspect the full market curve, seller ranking, and delivery lanes.

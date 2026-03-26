@@ -23,7 +23,7 @@ function ProductCatalogSidebar({
     <aside>
       <Card className={styles.sidebarCard}>
         <CardHeader className={styles.sidebarHeader}>
-          <p className={styles.sectionLabel}>Ingredient catalog</p>
+          <p className={styles.sectionLabel}>Ingredient marketplace</p>
           <CardTitle className={styles.sectionTitle}>
             Select a product
           </CardTitle>

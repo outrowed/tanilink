@@ -11,7 +11,7 @@ import { getProductSuggestions } from "@/lib/search"
 import { cn } from "@/lib/utils"
 import styles from "@/components/shared/SearchBox.module.css"
 
-type SearchMode = "catalog" | "ai"
+type SearchMode = "marketplace" | "ai"
 type SearchBoxVariant = "navbar" | "hero"
 
 interface SearchBoxProps {
@@ -24,7 +24,7 @@ interface SearchBoxProps {
 
 function getCurrentMode(pathname: string, searchParams: URLSearchParams, defaultMode: SearchMode): SearchMode {
   if (pathname === "/search" || pathname === "/planner/results") {
-    return searchParams.get("mode") === "ai" ? "ai" : "catalog"
+    return searchParams.get("mode") === "ai" ? "ai" : "marketplace"
   }
 
   return defaultMode
@@ -45,7 +45,7 @@ function getResultsHref(query: string, mode: SearchMode) {
 function SearchBox({
   alwaysShowSuggestions = false,
   className,
-  defaultMode = "catalog",
+  defaultMode = "marketplace",
   placeholder = "Search ingredients, sellers, or ask for a dish or supply bundle",
   variant = "navbar",
 }: SearchBoxProps) {
@@ -73,7 +73,7 @@ interface SearchBoxInnerProps extends SearchBoxProps {
 function SearchBoxInner({
   alwaysShowSuggestions = false,
   className,
-  defaultMode = "catalog",
+  defaultMode = "marketplace",
   initialQuery,
   placeholder = "Search ingredients, sellers, or ask for a dish or supply bundle",
   variant = "navbar",
@@ -101,7 +101,7 @@ function SearchBoxInner({
 
   const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault()
-    handleNavigate("catalog")
+    handleNavigate("marketplace")
   }
 
   const handleReset = () => {
@@ -202,9 +202,9 @@ function SearchBoxInner({
 
           {normalizedQuery ? (
             <div className={styles.actionRow}>
-              <button className={styles.routeButton} onClick={() => handleNavigate("catalog")} type="button">
+              <button className={styles.routeButton} onClick={() => handleNavigate("marketplace")} type="button">
                 <Search className={styles.smallIcon} />
-                Search catalog for "{query.trim()}"
+                Search marketplace for "{query.trim()}"
               </button>
               <button className={styles.routeButton} onClick={() => handleNavigate("ai")} type="button">
                 <Sparkles className={styles.smallIcon} />

@@ -32,10 +32,11 @@ function App() {
             <BasketProvider>
               <Routes>
                 <Route element={<AppLayout />} path="/">
-                  <Route element={<PlannerLanding />} index />
-                  <Route element={<AuthPage />} path="auth" />
-                  <Route element={<Dashboard />} path="catalog" />
-                  <Route element={<BasketPage />} path="basket" />
+                <Route element={<PlannerLanding />} index />
+                <Route element={<AuthPage />} path="auth" />
+                <Route element={<Dashboard />} path="marketplace" />
+                <Route element={<Navigate replace to="/marketplace" />} path="catalog" />
+                <Route element={<BasketPage />} path="basket" />
                   <Route element={<ProductPage />} path="products/:slug" />
                   <Route element={<Navigate replace to="/" />} path="planner" />
                   <Route element={<SearchPlanner key={location.search} />} path="search" />

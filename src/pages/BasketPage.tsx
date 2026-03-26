@@ -110,7 +110,7 @@ function BasketPage() {
                       Clear basket
                     </Button>
                     <Button asChild type="button" variant="secondary">
-                      <Link to="/catalog">Browse ingredient catalog</Link>
+                      <Link to="/marketplace">Browse ingredient marketplace</Link>
                     </Button>
                     <Button asChild type="button">
                       <Link to="/">Return to homepage</Link>
@@ -129,7 +129,7 @@ function BasketPage() {
               </p>
               <div className={styles.emptyActions}>
                 <Button asChild type="button">
-                  <Link to="/catalog">Browse catalog</Link>
+                  <Link to="/marketplace">Browse marketplace</Link>
                 </Button>
                 <Button asChild type="button" variant="secondary">
                   <Link to="/">Open homepage</Link>

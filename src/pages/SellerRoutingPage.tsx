@@ -137,7 +137,7 @@ function SellerRoutingPage() {
 
           {currentStoreProfile.locations.length < 2 ? (
             <div className={styles.noticeBanner}>
-              Add another warehouse location to make routing more useful across your ingredient catalog.
+              Add another warehouse location to make routing more useful across your ingredient marketplace.
               <div className={styles.inlineActions}>
                 <Button asChild size="sm" type="button" variant="outline">
                   <Link to="/seller/store">Open store setup</Link>
