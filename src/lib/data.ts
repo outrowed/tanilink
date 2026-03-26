@@ -17,6 +17,8 @@ export interface PriceHistoryPoint {
   price: number
 }
 
+export type PriceHistoryRange = "1y" | "6m" | "1m" | "24h"
+
 export interface Product {
   id: number
   name: string
@@ -33,6 +35,7 @@ export interface Product {
   leadTime: string
   chartColor: string
   priceHistory: PriceHistoryPoint[]
+  priceHistoryByRange: Record<PriceHistoryRange, PriceHistoryPoint[]>
   sellers: Seller[]
 }
 
@@ -60,7 +63,9 @@ export interface UserLocation {
   zone: string
 }
 
-export const products: Product[] = [
+type BaseProduct = Omit<Product, "priceHistoryByRange">
+
+const baseProducts: BaseProduct[] = [
   {
     id: 1,
     name: "Premium Rice",
@@ -843,6 +848,78 @@ export const products: Product[] = [
     ],
   },
 ]
+
+export const priceHistoryRangeLabels: Record<PriceHistoryRange, string> = {
+  "1y": "1 year",
+  "6m": "6 months",
+  "1m": "1 month",
+  "24h": "24 hours",
+}
+
+const monthShortLabels = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]
+const weekdayLabels = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"]
+
+function clampPrice(value: number) {
+  return Math.max(1_000, Math.round(value / 100) * 100)
+}
+
+function buildLastSixMonthHistory(history: PriceHistoryPoint[]) {
+  return history.slice(-6)
+}
+
+function buildOneMonthHistory(product: BaseProduct, history: PriceHistoryPoint[]) {
+  const latestPrice = history[history.length - 1]?.price ?? product.averagePrice
+  const startPrice = history[history.length - 2]?.price ?? latestPrice
+  const dailyStep = (latestPrice - startPrice) / 29
+
+  return Array.from({ length: 30 }, (_, index) => {
+    const wave = Math.sin((index / 29) * Math.PI * 2) * (latestPrice * 0.018)
+    const bias = product.priceChange >= 0 ? index * 18 : -index * 14
+    const price = clampPrice(startPrice + dailyStep * index + wave + bias)
+
+    return {
+      month: `${weekdayLabels[index % weekdayLabels.length]} ${index + 1}`,
+      price,
+    }
+  })
+}
+
+function buildTwentyFourHourHistory(product: BaseProduct, history: PriceHistoryPoint[]) {
+  const latestPrice = history[history.length - 1]?.price ?? product.averagePrice
+  const baseline = history[history.length - 2]?.price ?? latestPrice
+  const slope = (latestPrice - baseline) / 23
+
+  return Array.from({ length: 24 }, (_, index) => {
+    const hour = String(index).padStart(2, "0")
+    const pulse = Math.cos((index / 23) * Math.PI * 3) * (latestPrice * 0.006)
+    const demandShift = index >= 17 ? latestPrice * 0.004 : index <= 6 ? -latestPrice * 0.003 : 0
+    const price = clampPrice(baseline + slope * index + pulse + demandShift)
+
+    return {
+      month: `${hour}:00`,
+      price,
+    }
+  })
+}
+
+function buildPriceHistoryByRange(product: BaseProduct): Record<PriceHistoryRange, PriceHistoryPoint[]> {
+  const yearlyHistory = product.priceHistory.map((point, index) => ({
+    month: monthShortLabels[index] ?? point.month,
+    price: point.price,
+  }))
+
+  return {
+    "1y": yearlyHistory,
+    "6m": buildLastSixMonthHistory(yearlyHistory),
+    "1m": buildOneMonthHistory(product, yearlyHistory),
+    "24h": buildTwentyFourHourHistory(product, yearlyHistory),
+  }
+}
+
+export const products: Product[] = baseProducts.map((product) => ({
+  ...product,
+  priceHistoryByRange: buildPriceHistoryByRange(product),
+}))
 
 export const userLocation: UserLocation = {
   area: "Jakarta Selatan",

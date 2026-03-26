@@ -171,8 +171,8 @@ function ProductPage() {
           <BackButton fallbackTo="/" label="Back" />
         </div>
 
-        <main className={styles.layout}>
-          <section className={styles.mainColumn}>
+        <main className={styles.pageContent}>
+          <section className={styles.topLayout}>
             <Card className={styles.overviewCard}>
               <CardHeader className={styles.overviewHeader}>
                 <div className={styles.overviewTop}>
@@ -202,12 +202,15 @@ function ProductPage() {
 
               <CardContent className={styles.chartBody}>
                 <ProductPriceChart
+                  availableRanges={product.priceHistoryByRange}
                   description="Market history for this ingredient. Seller ranking is adjusted for your Jakarta Selatan location, current price pressure, rating, and handling load."
                   history={product.priceHistory}
                   label={product.name}
                   priceChange={product.priceChange}
+                  referencePrice={product.averagePrice}
+                  showRangeControls
                   subtitle={product.leadTime}
-                  title="12 month market curve"
+                  title="Market curve"
                   tone={product.chartColor}
                 />
               </CardContent>
@@ -241,54 +244,72 @@ function ProductPage() {
                 </Card>
               </CardContent>
             </Card>
+            <aside className={styles.bestSellerColumn}>
+              <Card className={styles.sidebarCard}>
+                <CardHeader className={styles.sidebarHeader}>
+                  <div className={styles.sidebarHeaderTop}>
+                    <div>
+                      <p className={styles.sectionLabel}>Seller routing</p>
+                      <CardTitle className={styles.sidebarTitle}>Best seller candidate</CardTitle>
+                    </div>
+                    <Badge variant="warning">{product.sellers.length} sellers</Badge>
+                  </div>
+                  <CardDescription>
+                    Ranked for your location in {userLocation.area} using distance, price, rating, and current seller busyness.
+                  </CardDescription>
+                </CardHeader>
+
+                <CardContent className={styles.sidebarBody}>
+                  <div className={styles.bestMatchSection}>
+                    {renderSellerCard(smartBestSeller, { spotlight: true })}
+                  </div>
+                </CardContent>
+              </Card>
+            </aside>
           </section>
 
-              <aside className={styles.sidebar}>
-                <Card className={styles.sidebarCard}>
-                  <CardHeader className={styles.sidebarHeader}>
-                    <div className={styles.sidebarHeaderTop}>
-                      <div>
-                        <p className={styles.sectionLabel}>Seller routing</p>
-                        <CardTitle className={styles.sidebarTitle}>Best seller candidates</CardTitle>
-                      </div>
-                      <Badge variant="warning">{product.sellers.length} sellers</Badge>
-                    </div>
-                    <CardDescription>
-                      Ranked for your location in {userLocation.area} using distance, price, rating, and current seller busyness.
-                    </CardDescription>
-                  </CardHeader>
+          <section className={styles.bottomSection}>
+            <Card className={styles.sellersCard}>
+              <CardHeader className={styles.sidebarHeader}>
+                <div className={styles.sidebarHeaderTop}>
+                  <div>
+                    <p className={styles.sectionLabel}>Seller marketplace</p>
+                    <CardTitle className={styles.sidebarTitle}>Other available sellers</CardTitle>
+                  </div>
+                  <Badge variant="outline">{remainingSellers.length} more offers</Badge>
+                </div>
+                <CardDescription>
+                  Compare alternate supply lanes by smart match, location, price, or rating before adding to basket.
+                </CardDescription>
+              </CardHeader>
 
-                  <CardContent className={styles.sidebarBody}>
-                    <div className={styles.bestMatchSection}>
-                      {renderSellerCard(smartBestSeller, { spotlight: true })}
-                    </div>
+              <CardContent className={styles.bottomBody}>
+                <div className={styles.sortSection}>
+                  <div>
+                    <p className={styles.sectionLabel}>Seller sorter</p>
+                    <h3 className={styles.sortTitle}>Sort by smart match, location, price, or rating</h3>
+                  </div>
+                  <div className={styles.sortRow}>
+                    {sortModes.map((mode) => (
+                      <Button
+                        key={mode.value}
+                        onClick={() => setSortMode(mode.value)}
+                        type="button"
+                        variant={mode.value === sortMode ? "default" : "outline"}
+                      >
+                        {mode.label}
+                      </Button>
+                    ))}
+                  </div>
+                </div>
 
-                    <div className={styles.sortSection}>
-                      <div>
-                        <p className={styles.sectionLabel}>Seller sorter</p>
-                        <h3 className={styles.sortTitle}>Sort by smart match, location, price, or rating</h3>
-                      </div>
-                      <div className={styles.sortRow}>
-                        {sortModes.map((mode) => (
-                          <Button
-                            key={mode.value}
-                            onClick={() => setSortMode(mode.value)}
-                            type="button"
-                            variant={mode.value === sortMode ? "default" : "outline"}
-                          >
-                            {mode.label}
-                          </Button>
-                        ))}
-                      </div>
-                    </div>
-
-                    <div className={styles.sellerList}>
-                      {remainingSellers.map((seller) => renderSellerCard(seller))}
-                    </div>
-                  </CardContent>
-                </Card>
-              </aside>
-            </main>
+                <div className={styles.sellerList}>
+                  {remainingSellers.map((seller) => renderSellerCard(seller))}
+                </div>
+              </CardContent>
+            </Card>
+          </section>
+        </main>
       </div>
     </div>
   )

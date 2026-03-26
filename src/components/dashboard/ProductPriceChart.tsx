@@ -1,7 +1,14 @@
-import { Area, AreaChart, CartesianGrid, XAxis } from "recharts"
+import { useMemo, useState } from "react"
+import { Area, AreaChart, CartesianGrid, Legend, ReferenceLine, XAxis, YAxis } from "recharts"
 
-import { formatRupiah, type PriceHistoryPoint } from "@/lib/data"
+import {
+  formatRupiah,
+  priceHistoryRangeLabels,
+  type PriceHistoryPoint,
+  type PriceHistoryRange,
+} from "@/lib/data"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
+import { Button } from "@/components/ui/button"
 import {
   ChartContainer,
   ChartTooltip,
@@ -11,38 +18,89 @@ import {
 import styles from "@/components/dashboard/dashboard.module.css"
 
 interface ProductPriceChartProps {
+  availableRanges?: Partial<Record<PriceHistoryRange, PriceHistoryPoint[]>>
   compact?: boolean
+  defaultRange?: PriceHistoryRange
   description?: string
   history: PriceHistoryPoint[]
   label: string
   priceChange: number
+  referencePrice?: number
+  showRangeControls?: boolean
   subtitle?: string
   title?: string
   tone: string
 }
 
+const rangeOrder: PriceHistoryRange[] = ["1y", "6m", "1m", "24h"]
+
+function formatCompactRupiah(value: number) {
+  if (value >= 1_000_000) {
+    return `Rp${(value / 1_000_000).toFixed(1)}m`
+  }
+
+  if (value >= 1_000) {
+    return `Rp${(value / 1_000).toFixed(0)}k`
+  }
+
+  return formatRupiah(value)
+}
+
 function ProductPriceChart({
+  availableRanges,
   compact = false,
+  defaultRange = "1y",
   description,
   history,
   label,
   priceChange,
+  referencePrice,
+  showRangeControls = false,
   subtitle,
   title,
   tone,
 }: ProductPriceChartProps) {
   const chartId = label.toLowerCase().replace(/[^a-z0-9]+/g, "-")
+  const selectableRanges = useMemo(
+    () => rangeOrder.filter((range) => availableRanges?.[range]?.length),
+    [availableRanges]
+  )
+  const [selectedRange, setSelectedRange] = useState<PriceHistoryRange>(
+    selectableRanges.includes(defaultRange) ? defaultRange : selectableRanges[0] ?? "1y"
+  )
+
+  const effectiveRange = selectableRanges.includes(selectedRange)
+    ? selectedRange
+    : selectableRanges.includes(defaultRange)
+      ? defaultRange
+      : selectableRanges[0] ?? "1y"
+  const activeHistory =
+    showRangeControls && availableRanges?.[effectiveRange]?.length
+      ? availableRanges[effectiveRange]
+      : history
   const chartConfig = {
     price: {
       label,
       color: tone,
     },
+    average: {
+      label: "Average line",
+      color: "#57534e",
+    },
   } satisfies ChartConfig
+  const averageLine =
+    referencePrice ?? Math.round(activeHistory.reduce((sum, point) => sum + point.price, 0) / activeHistory.length)
+  const latestPoint = activeHistory[activeHistory.length - 1]
+  const chartData = activeHistory.map((point) => ({
+    label: point.month,
+    price: point.price,
+    average: averageLine,
+  }))
 
   if (compact) {
     return (
       <ChartContainer className={styles.priceChartCompact} config={chartConfig}>
-        <AreaChart accessibilityLayer data={history} margin={{ left: 4, right: 4, top: 8, bottom: 8 }}>
+        <AreaChart accessibilityLayer data={chartData} margin={{ left: 4, right: 4, top: 8, bottom: 8 }}>
           <defs>
             <linearGradient id={`fill-${chartId}`} x1="0" x2="0" y1="0" y2="1">
               <stop offset="5%" stopColor="var(--color-price)" stopOpacity={0.45} />
@@ -62,27 +120,61 @@ function ProductPriceChart({
     )
   }
 
-  const firstMonth = history[0]?.month
-  const lastMonth = history[history.length - 1]?.month
+  const firstMonth = activeHistory[0]?.month
+  const lastMonth = latestPoint?.month
   const trendCopy = priceChange >= 0 ? `up ${Math.abs(priceChange)}%` : `down ${Math.abs(priceChange)}%`
+  const activeRangeLabel = showRangeControls ? priceHistoryRangeLabels[effectiveRange] : `${firstMonth} - ${lastMonth}`
 
   return (
     <Card className={styles.priceChartCard}>
       <CardHeader className={styles.priceChartHeader}>
-        <CardTitle className={styles.priceChartTitle}>
-          {title ?? "Price history"}
-        </CardTitle>
-        {description ? (
-          <CardDescription className={styles.priceChartDescription}>
-            {description}
-          </CardDescription>
-        ) : null}
+        <div className={styles.priceChartHeaderTop}>
+          <div>
+            <CardTitle className={styles.priceChartTitle}>
+              {title ?? "Price history"}
+            </CardTitle>
+            {description ? (
+              <CardDescription className={styles.priceChartDescription}>
+                {description}
+              </CardDescription>
+            ) : null}
+          </div>
+          {showRangeControls && selectableRanges.length > 1 ? (
+            <div className={styles.priceRangeControls}>
+              {selectableRanges.map((range) => (
+                <Button
+                  key={range}
+                  onClick={() => setSelectedRange(range)}
+                  size="sm"
+                  type="button"
+                  variant={effectiveRange === range ? "default" : "outline"}
+                >
+                  {priceHistoryRangeLabels[range]}
+                </Button>
+              ))}
+            </div>
+          ) : null}
+        </div>
+        <div className={styles.priceChartLegend}>
+          <span className={styles.priceChartLegendItem}>
+            <span className={styles.priceChartLegendSwatch} style={{ backgroundColor: tone }} />
+            Market price
+          </span>
+          <span className={styles.priceChartLegendItem}>
+            <span className={styles.priceChartLegendLine} />
+            Average line
+          </span>
+          <span className={styles.priceChartLegendItem}>
+            <span className={styles.priceChartLegendGuide} />
+            Latest guide
+          </span>
+        </div>
       </CardHeader>
       <CardContent className={styles.priceChartContent}>
         <ChartContainer className={styles.priceChartExpanded} config={chartConfig}>
           <AreaChart
             accessibilityLayer
-            data={history}
+            data={chartData}
             margin={{
               left: 12,
               right: 12,
@@ -91,19 +183,42 @@ function ProductPriceChart({
           >
             <defs>
               <linearGradient id={`fill-${chartId}`} x1="0" x2="0" y1="0" y2="1">
-                <stop offset="5%" stopColor="var(--color-price)" stopOpacity={0.35} />
-                <stop offset="95%" stopColor="var(--color-price)" stopOpacity={0.05} />
-              </linearGradient>
-            </defs>
-            <CartesianGrid vertical={false} />
+              <stop offset="5%" stopColor="var(--color-price)" stopOpacity={0.35} />
+              <stop offset="95%" stopColor="var(--color-price)" stopOpacity={0.05} />
+            </linearGradient>
+          </defs>
+            <CartesianGrid strokeDasharray="4 4" vertical />
+            <Legend content={() => null} />
             <XAxis
               axisLine={false}
-              dataKey="month"
+              dataKey="label"
               minTickGap={24}
               tickLine={false}
               tickMargin={8}
-              tickFormatter={(value: string) => value.slice(0, 3)}
             />
+            <YAxis
+              axisLine={false}
+              tickFormatter={formatCompactRupiah}
+              tickLine={false}
+              tickMargin={10}
+              width={68}
+            />
+            <ReferenceLine
+              ifOverflow="extendDomain"
+              stroke="#57534e"
+              strokeDasharray="6 6"
+              strokeOpacity={0.7}
+              y={averageLine}
+            />
+            {latestPoint ? (
+              <ReferenceLine
+                ifOverflow="visible"
+                stroke="#15803d"
+                strokeDasharray="4 4"
+                strokeOpacity={0.7}
+                x={latestPoint.month}
+              />
+            ) : null}
             <ChartTooltip
               content={
                 <ChartTooltipContent
@@ -111,22 +226,22 @@ function ProductPriceChart({
                   indicator="dot"
                 />
               }
-              cursor={false}
             />
             <Area
+              activeDot={{ r: 5, strokeWidth: 0, fill: "var(--color-price)" }}
               dataKey="price"
               fill={`url(#fill-${chartId})`}
               fillOpacity={1}
               stroke="var(--color-price)"
               strokeWidth={2.5}
-              type="linear"
+              type="monotone"
             />
           </AreaChart>
         </ChartContainer>
       </CardContent>
       <CardFooter className={styles.priceChartFooter}>
         <div className={styles.priceChartFooterText}>
-          Trending {trendCopy} across the latest monthly sample.
+          Trending {trendCopy} across the latest {activeRangeLabel} window.
         </div>
         <div className={styles.priceChartFooterSubtle}>
           {subtitle ?? `${firstMonth} - ${lastMonth}`}

@@ -623,6 +623,13 @@
   border-bottom: 1px solid color-mix(in srgb, #d6d3d1 60%, transparent);
 }
 
+.priceChartHeaderTop {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
 .priceChartTitle {
   font-size: 1rem;
   letter-spacing: 0.16em;
@@ -637,12 +644,59 @@
   color: #57534e;
 }
 
+.priceRangeControls {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 0.45rem;
+}
+
+.priceChartLegend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.9rem;
+  margin-top: 0.9rem;
+}
+
+.priceChartLegendItem {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  font-size: 0.8rem;
+  color: #57534e;
+}
+
+.priceChartLegendSwatch,
+.priceChartLegendLine,
+.priceChartLegendGuide {
+  display: inline-block;
+  flex-shrink: 0;
+}
+
+.priceChartLegendSwatch {
+  width: 0.8rem;
+  height: 0.8rem;
+  border-radius: 999px;
+}
+
+.priceChartLegendLine,
+.priceChartLegendGuide {
+  width: 1.35rem;
+  height: 0;
+  border-top: 2px solid #57534e;
+}
+
+.priceChartLegendGuide {
+  border-top-style: dashed;
+  border-top-color: #15803d;
+}
+
 .priceChartContent {
   padding: 1.125rem 1.25rem;
 }
 
 .priceChartExpanded {
-  height: 17.5rem;
+  height: 20rem;
   width: 100%;
 }
 
