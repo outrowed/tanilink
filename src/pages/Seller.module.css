@@ -47,7 +47,7 @@
 
 .sideColumn {
   position: sticky;
-  top: 1.75rem;
+  top: calc(4.75rem + 1rem);
 }
 
 .surfaceCard,

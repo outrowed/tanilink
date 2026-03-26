@@ -1,9 +1,11 @@
-import { LayoutDashboard, MapPin, ShoppingBasket, UserRound } from "lucide-react"
+import { useEffect, useRef, useState } from "react"
+import { ChevronDown, LayoutDashboard, MapPin, ShoppingBasket, UserRound } from "lucide-react"
 import { Link, useLocation } from "react-router-dom"
 
 import SearchBox from "@/components/shared/SearchBox"
 import { useAuth } from "@/context/auth"
 import { useBasket } from "@/context/basket"
+import { useLocationPreference } from "@/context/location"
 import { describeUserLocation } from "@/lib/planner"
 import { Badge } from "@/components/ui/badge"
 import { cn } from "@/lib/utils"
@@ -12,13 +14,39 @@ import styles from "@/components/layout/AppNavbar.module.css"
 function AppNavbar() {
   const { itemCount } = useBasket()
   const { isAuthenticated, isSeller, user } = useAuth()
+  const { locationOptions, selectedLocationId, setSelectedLocationId } = useLocationPreference()
   const location = useLocation()
+  const [isLocationMenuOpen, setIsLocationMenuOpen] = useState(false)
+  const locationMenuRef = useRef<HTMLDivElement | null>(null)
   const isCatalogPage = location.pathname === "/catalog"
   const isSellerPage = location.pathname.startsWith("/seller")
   const profileDestination = isAuthenticated ? "/account" : "/auth"
   const profileTitle = isAuthenticated ? user?.name ?? "Account" : "Sign in"
-  const profileMeta = isAuthenticated ? (isSeller ? "Seller account" : "Account management") : "Access your account"
+  const profileMeta = isAuthenticated ? (isSeller ? "Seller account" : "Buyer account") : "Access your account"
   const avatarContent = isAuthenticated && user ? user.avatarInitials : <UserRound className={styles.smallIcon} />
+  const activeLocation = locationOptions.find((locationOption) => locationOption.id === selectedLocationId)
+
+  useEffect(() => {
+    const handlePointerDown = (event: MouseEvent) => {
+      if (!locationMenuRef.current?.contains(event.target as Node)) {
+        setIsLocationMenuOpen(false)
+      }
+    }
+
+    const handleEscape = (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
+        setIsLocationMenuOpen(false)
+      }
+    }
+
+    document.addEventListener("mousedown", handlePointerDown)
+    document.addEventListener("keydown", handleEscape)
+
+    return () => {
+      document.removeEventListener("mousedown", handlePointerDown)
+      document.removeEventListener("keydown", handleEscape)
+    }
+  }, [])
 
   return (
     <header className={styles.bar}>
@@ -27,9 +55,51 @@ function AppNavbar() {
           <Link className={styles.brandLink} to="/">
             TaniLink
           </Link>
-          <div className={styles.locationPill}>
-            <MapPin className={styles.smallIcon} />
-            <span>{describeUserLocation()}</span>
+
+          <div className={styles.locationMenuWrap} ref={locationMenuRef}>
+            <button
+              aria-expanded={isLocationMenuOpen}
+              aria-haspopup="menu"
+              className={styles.locationTag}
+              onClick={() => setIsLocationMenuOpen((current) => !current)}
+              type="button"
+            >
+              <MapPin className={styles.smallIcon} />
+              <span className={styles.locationTagText}>
+                {activeLocation ? describeUserLocation(activeLocation, "short") : "Choose area"}
+              </span>
+              <ChevronDown className={styles.locationChevron} />
+            </button>
+
+            {isLocationMenuOpen ? (
+              <div className={styles.locationMenu}>
+                <div className={styles.locationMenuHeader}>
+                  <p className={styles.locationMenuTitle}>Choose your area</p>
+                  <p className={styles.locationMenuNote}>Recommendations will re-rank instantly.</p>
+                </div>
+                <div className={styles.locationMenuList}>
+                  {locationOptions.map((locationOption) => (
+                    <button
+                      key={locationOption.id}
+                      className={cn(
+                        styles.locationMenuItem,
+                        locationOption.id === selectedLocationId && styles.locationMenuItemActive
+                      )}
+                      onClick={() => {
+                        setSelectedLocationId(locationOption.id)
+                        setIsLocationMenuOpen(false)
+                      }}
+                      type="button"
+                    >
+                      <span className={styles.locationMenuItemTitle}>
+                        {describeUserLocation(locationOption, "short")}
+                      </span>
+                      <span className={styles.locationMenuItemMeta}>{locationOption.zone}</span>
+                    </button>
+                  ))}
+                </div>
+              </div>
+            ) : null}
           </div>
         </div>
 

@@ -3,6 +3,7 @@ import RequireAuth from "@/components/shared/RequireAuth"
 import RequireSeller from "@/components/shared/RequireSeller"
 import { AuthProvider } from "@/context/AuthProvider"
 import { BasketProvider } from "@/context/BasketProvider"
+import { LocationProvider } from "@/context/LocationProvider"
 import AppLayout from "@/components/layout/AppLayout"
 import AccountInboxPage from "@/pages/AccountInboxPage"
 import AccountPage from "@/pages/AccountPage"
@@ -24,32 +25,34 @@ function App() {
   return (
     <main>
       <AuthProvider>
-        <SellerProvider>
-          <BasketProvider>
-            <Routes>
-              <Route element={<AppLayout />} path="/">
-                <Route element={<PlannerLanding />} index />
-                <Route element={<AuthPage />} path="auth" />
-                <Route element={<Dashboard />} path="catalog" />
-                <Route element={<BasketPage />} path="basket" />
-                <Route element={<ProductPage />} path="products/:slug" />
-                <Route element={<Navigate replace to="/" />} path="planner" />
-                <Route element={<SearchPlanner key={location.search} />} path="search" />
-                <Route element={<RequireAuth />} path="account">
-                  <Route element={<AccountPage />} index />
-                  <Route element={<AccountTransactionsPage />} path="transactions" />
-                  <Route element={<AccountSettingsPage />} path="settings" />
-                  <Route element={<AccountInboxPage />} path="inbox" />
+        <LocationProvider>
+          <SellerProvider>
+            <BasketProvider>
+              <Routes>
+                <Route element={<AppLayout />} path="/">
+                  <Route element={<PlannerLanding />} index />
+                  <Route element={<AuthPage />} path="auth" />
+                  <Route element={<Dashboard />} path="catalog" />
+                  <Route element={<BasketPage />} path="basket" />
+                  <Route element={<ProductPage />} path="products/:slug" />
+                  <Route element={<Navigate replace to="/" />} path="planner" />
+                  <Route element={<SearchPlanner key={location.search} />} path="search" />
+                  <Route element={<RequireAuth />} path="account">
+                    <Route element={<AccountPage />} index />
+                    <Route element={<AccountTransactionsPage />} path="transactions" />
+                    <Route element={<AccountSettingsPage />} path="settings" />
+                    <Route element={<AccountInboxPage />} path="inbox" />
+                  </Route>
+                  <Route element={<RequireSeller />} path="seller">
+                    <Route element={<SellerHubPage />} index />
+                    <Route element={<SellerStorePage />} path="store" />
+                  </Route>
                 </Route>
-                <Route element={<RequireSeller />} path="seller">
-                  <Route element={<SellerHubPage />} index />
-                  <Route element={<SellerStorePage />} path="store" />
-                </Route>
-              </Route>
-              <Route element={<Navigate replace to="/" />} path="*" />
-            </Routes>
-          </BasketProvider>
-        </SellerProvider>
+                <Route element={<Navigate replace to="/" />} path="*" />
+              </Routes>
+            </BasketProvider>
+          </SellerProvider>
+        </LocationProvider>
       </AuthProvider>
     </main>
   )

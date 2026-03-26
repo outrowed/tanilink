@@ -6,15 +6,16 @@ import ProductPriceChart from "@/components/dashboard/ProductPriceChart"
 import TrendChangeBadge from "@/components/dashboard/TrendChangeBadge"
 import BackButton from "@/components/shared/BackButton"
 import { useBasket } from "@/context/basket"
+import { useLocationPreference } from "@/context/location"
 import { useMarketplace } from "@/context/seller"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Separator } from "@/components/ui/separator"
-import { formatRupiah, userLocation, type Product } from "@/lib/data"
+import { formatRupiah, type Product } from "@/lib/data"
 import { categoryBadgeClass } from "@/components/dashboard/lib"
-import { rankSellers, type SellerSortMode } from "@/lib/planner"
+import { describeUserLocation, rankSellers, type SellerSortMode } from "@/lib/planner"
 import { cn } from "@/lib/utils"
 import styles from "@/pages/ProductPage.module.css"
 
@@ -28,18 +29,19 @@ const sortModes: Array<{ label: string; value: SellerSortMode }> = [
 function ProductPage() {
   const { slug } = useParams<{ slug: Product["slug"] }>()
   const { getProductBySlug } = useMarketplace()
+  const { currentLocation } = useLocationPreference()
   const product = slug ? getProductBySlug(slug) : undefined
   const [sortMode, setSortMode] = useState<SellerSortMode>("smart")
   const [sellerQuantities, setSellerQuantities] = useState<Record<number, number>>({})
   const { addItem } = useBasket()
 
   const sortedSellers = useMemo(
-    () => (product ? rankSellers(product, sortMode) : []),
-    [product, sortMode]
+    () => (product ? rankSellers(product, sortMode, currentLocation) : []),
+    [currentLocation, product, sortMode]
   )
   const smartBestSeller = useMemo(
-    () => (product ? rankSellers(product, "smart")[0] : null),
-    [product]
+    () => (product ? rankSellers(product, "smart", currentLocation)[0] : null),
+    [currentLocation, product]
   )
 
   if (!product || !smartBestSeller) {
@@ -60,7 +62,7 @@ function ProductPage() {
       <CardHeader className={styles.sellerHeader}>
         {options?.spotlight ? (
           <div className={styles.spotlightIntro}>
-            <p className={styles.sectionLabel}>Best match for {userLocation.area}</p>
+            <p className={styles.sectionLabel}>Best match for {currentLocation.area}</p>
             <div className={styles.spotlightBadgeRow}>
               <Badge variant="success">{seller.smartScore} smart score</Badge>
               <Badge variant="outline">{seller.marketDeltaLabel}</Badge>
@@ -203,7 +205,7 @@ function ProductPage() {
               <CardContent className={styles.chartBody}>
                 <ProductPriceChart
                   availableRanges={product.priceHistoryByRange}
-                  description="Market history for this ingredient. Seller ranking is adjusted for your Jakarta Selatan location, current price pressure, rating, and handling load."
+                  description={`Market history for this ingredient. Seller ranking is adjusted for your ${describeUserLocation(currentLocation, "short")} location, current price pressure, rating, and handling load.`}
                   history={product.priceHistory}
                   label={product.name}
                   priceChange={product.priceChange}
@@ -256,7 +258,7 @@ function ProductPage() {
                     <Badge variant="warning">{product.sellers.length} sellers</Badge>
                   </div>
                   <CardDescription>
-                    Ranked for your location in {userLocation.area} using distance, price, rating, and current seller busyness.
+                    Ranked for your location in {currentLocation.area} using distance, price, rating, and current seller busyness.
                   </CardDescription>
                 </CardHeader>
 

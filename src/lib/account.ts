@@ -99,7 +99,7 @@ export const accountTransactions: Transaction[] = [
     id: "TNL-240326-015",
     placedAt: "26 March 2026, 09:20",
     status: "In transit",
-    deliveryStatus: "Courier is moving between South Jakarta drop points.",
+    deliveryStatus: "Courier is moving between the final drop points.",
     eta: "Arrives today, 15:00 - 17:00",
     trackingCode: "JKT-TRK-880214",
     sellerNames: ["Karawang Grain Union", "Batu Agro Mandiri"],
@@ -125,7 +125,7 @@ export const accountTransactions: Transaction[] = [
       },
       {
         label: "Courier en route",
-        detail: "The mixed order is currently on the way to Jakarta Selatan.",
+        detail: "The mixed order is currently on the way to the destination area.",
         state: "current",
         timestamp: "26 Mar, 13:40",
       },

@@ -3,7 +3,7 @@ import { MapPin } from "lucide-react"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
-import { userLocation } from "@/lib/data"
+import { useLocationPreference } from "@/context/location"
 import { describeUserLocation } from "@/lib/planner"
 import styles from "@/components/dashboard/dashboard.module.css"
 
@@ -20,6 +20,8 @@ function DashboardNavbar({
   onBack,
   pageBadge = "Consumer marketplace",
 }: DashboardNavbarProps) {
+  const { currentLocation } = useLocationPreference()
+
   return (
     <Card className={styles.navbar}>
       <CardContent className={styles.navbarBody}>
@@ -44,8 +46,8 @@ function DashboardNavbar({
               <MapPin className={styles.smallIcon} />
               You are in
             </div>
-            <p className={styles.navbarLocationValue}>{describeUserLocation()}</p>
-            <p className={styles.navbarLocationSubtle}>{userLocation.zone}</p>
+            <p className={styles.navbarLocationValue}>{describeUserLocation(currentLocation)}</p>
+            <p className={styles.navbarLocationSubtle}>{currentLocation.zone}</p>
           </div>
         </div>
       </CardContent>

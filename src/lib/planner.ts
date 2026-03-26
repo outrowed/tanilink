@@ -1,12 +1,12 @@
 import {
   formatRupiah,
   searchBundles,
-  userLocation,
   type PriceHistoryPoint,
   type Product,
   type SearchBundle,
   type SearchBundleIngredient,
   type Seller,
+  type UserLocationOption,
 } from "@/lib/data"
 
 export type SellerSortMode = "smart" | "location" | "price" | "rating"
@@ -42,24 +42,83 @@ export interface BundleMatch {
   matchType: "exact" | "related" | "fallback"
 }
 
-const distanceFromSouthJakarta: Record<string, number> = {
-  Bandung: 150,
-  Batu: 890,
-  Bekasi: 28,
-  Bogor: 52,
-  Brebes: 337,
-  Cianjur: 105,
-  Cirebon: 225,
-  Depok: 18,
-  Garut: 240,
-  Karawang: 67,
-  Lembang: 172,
-  Malang: 880,
-  Pemalang: 323,
-  Subang: 118,
-  Sukabumi: 115,
-  Tangerang: 24,
-  Tegal: 304,
+const distanceMatrix: Record<UserLocationOption["id"], Record<string, number>> = {
+  "jakarta-selatan": {
+    Bandung: 150,
+    Batu: 890,
+    Bekasi: 28,
+    Bogor: 52,
+    Brebes: 337,
+    Cianjur: 105,
+    Cirebon: 225,
+    Depok: 18,
+    Garut: 240,
+    Karawang: 67,
+    Lembang: 172,
+    Malang: 880,
+    Pemalang: 323,
+    Subang: 118,
+    Sukabumi: 115,
+    Tangerang: 24,
+    Tegal: 304,
+  },
+  "beji-depok": {
+    Bandung: 165,
+    Batu: 905,
+    Bekasi: 34,
+    Bogor: 38,
+    Brebes: 352,
+    Cianjur: 92,
+    Cirebon: 242,
+    Depok: 8,
+    Garut: 258,
+    Karawang: 82,
+    Lembang: 188,
+    Malang: 895,
+    Pemalang: 338,
+    Subang: 132,
+    Sukabumi: 101,
+    Tangerang: 39,
+    Tegal: 319,
+  },
+  "bekasi-barat": {
+    Bandung: 132,
+    Batu: 872,
+    Bekasi: 9,
+    Bogor: 66,
+    Brebes: 320,
+    Cianjur: 118,
+    Cirebon: 208,
+    Depok: 31,
+    Garut: 224,
+    Karawang: 48,
+    Lembang: 155,
+    Malang: 862,
+    Pemalang: 306,
+    Subang: 94,
+    Sukabumi: 129,
+    Tangerang: 46,
+    Tegal: 287,
+  },
+  "coblong-bandung": {
+    Bandung: 11,
+    Batu: 745,
+    Bekasi: 142,
+    Bogor: 126,
+    Brebes: 229,
+    Cianjur: 83,
+    Cirebon: 134,
+    Depok: 143,
+    Garut: 73,
+    Karawang: 108,
+    Lembang: 21,
+    Malang: 736,
+    Pemalang: 212,
+    Subang: 64,
+    Sukabumi: 115,
+    Tangerang: 166,
+    Tegal: 194,
+  },
 }
 
 function normalize(value: string) {
@@ -70,8 +129,12 @@ function normalize(value: string) {
     .trim()
 }
 
-function getDistanceKm(city: string) {
-  return distanceFromSouthJakarta[city] ?? 180
+function getDistanceKm(city: string, userLocation: UserLocationOption) {
+  if (city === userLocation.city) {
+    return 12
+  }
+
+  return distanceMatrix[userLocation.id][city] ?? 180
 }
 
 function getBusyPenalty(level: Seller["busyLevel"]) {
@@ -151,11 +214,15 @@ export function findBundleMatch(query: string): BundleMatch {
   }
 }
 
-export function rankSellers(product: Product, mode: SellerSortMode = "smart") {
+export function rankSellers(
+  product: Product,
+  mode: SellerSortMode = "smart",
+  userLocation: UserLocationOption
+) {
   const latestPrice = getLatestPrice(product.priceHistory)
 
   const rankedSellers: RankedSeller[] = product.sellers.map((seller) => {
-    const distanceKm = getDistanceKm(seller.location)
+    const distanceKm = getDistanceKm(seller.location, userLocation)
     const marketDelta = seller.price - latestPrice
     const priceScore = Math.max(0, 100 + ((latestPrice - seller.price) / latestPrice) * 160)
     const locationScore = Math.max(0, 100 - distanceKm * 0.5)
@@ -200,19 +267,23 @@ export function rankSellers(product: Product, mode: SellerSortMode = "smart") {
   return sorted
 }
 
-function resolveIngredient(ingredient: SearchBundleIngredient, products: Product[]): ResolvedIngredient {
+function resolveIngredient(
+  ingredient: SearchBundleIngredient,
+  products: Product[],
+  userLocation: UserLocationOption
+): ResolvedIngredient {
   const product = products.find((item) => item.slug === ingredient.productSlug)
 
   if (!product) {
     throw new Error(`Unknown product slug: ${ingredient.productSlug}`)
   }
 
-  const rankedSellers = rankSellers(product, "smart")
+  const rankedSellers = rankSellers(product, "smart", userLocation)
   const recommendedSeller = rankedSellers[0]
   const reasons = []
 
   if (recommendedSeller.distanceKm <= 35) {
-    reasons.push("closest lane to South Jakarta")
+    reasons.push(`closest lane to ${userLocation.area}`)
   }
 
   if (recommendedSeller.marketDelta <= 0) {
@@ -237,9 +308,15 @@ function resolveIngredient(ingredient: SearchBundleIngredient, products: Product
   }
 }
 
-export function buildSearchPlan(query: string, products: Product[]): SearchPlan & { match: BundleMatch } {
+export function buildSearchPlan(
+  query: string,
+  products: Product[],
+  userLocation: UserLocationOption
+): SearchPlan & { match: BundleMatch } {
   const match = findBundleMatch(query)
-  const ingredients = match.bundle.ingredients.map((ingredient) => resolveIngredient(ingredient, products))
+  const ingredients = match.bundle.ingredients.map((ingredient) =>
+    resolveIngredient(ingredient, products, userLocation)
+  )
   const totalEstimatedCost = ingredients.reduce(
     (sum, ingredient) => sum + ingredient.recommendedSeller.price,
     0
@@ -269,9 +346,10 @@ export function getIngredientView(
   query: string,
   productSlug: Product["slug"] | null,
   sortMode: SellerSortMode,
-  products: Product[]
+  products: Product[],
+  userLocation: UserLocationOption
 ) {
-  const plan = buildSearchPlan(query, products)
+  const plan = buildSearchPlan(query, products, userLocation)
   const activeIngredient =
     plan.ingredients.find((ingredient) => ingredient.product.slug === productSlug) ??
     plan.ingredients[0]
@@ -280,11 +358,18 @@ export function getIngredientView(
     ...plan,
     activeIngredient: {
       ...activeIngredient,
-      rankedSellers: rankSellers(activeIngredient.product, sortMode),
+      rankedSellers: rankSellers(activeIngredient.product, sortMode, userLocation),
     },
   }
 }
 
-export function describeUserLocation() {
+export function describeUserLocation(
+  userLocation: UserLocationOption,
+  mode: "full" | "short" = "full"
+) {
+  if (mode === "short") {
+    return `${userLocation.area}, ${userLocation.city}`
+  }
+
   return `${userLocation.area}, ${userLocation.city}, ${userLocation.province}`
 }

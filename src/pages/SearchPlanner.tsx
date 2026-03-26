@@ -16,6 +16,7 @@ import ProductPriceChart from "@/components/dashboard/ProductPriceChart"
 import BackButton from "@/components/shared/BackButton"
 import PageHeader from "@/components/shared/PageHeader"
 import { useBasket } from "@/context/basket"
+import { useLocationPreference } from "@/context/location"
 import { useMarketplace } from "@/context/seller"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
@@ -29,9 +30,10 @@ import {
 } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Separator } from "@/components/ui/separator"
-import { formatRupiah, recentAiSearches, userLocation, type Product } from "@/lib/data"
+import { formatRupiah, recentAiSearches, type Product } from "@/lib/data"
 import {
   buildSearchPlan,
+  describeUserLocation,
   findBundleMatch,
   rankSellers,
   type SellerSortMode,
@@ -51,6 +53,7 @@ function SearchPlanner() {
   const navigate = useNavigate()
   const [searchParams, setSearchParams] = useSearchParams()
   const { marketplaceProducts } = useMarketplace()
+  const { currentLocation } = useLocationPreference()
   const seedQuery = searchParams.get("q")?.trim() ?? ""
   const resultMode = searchParams.get("mode") === "ai" ? "ai" : "catalog"
   const selectedProductSlug = searchParams.get("preview") as Product["slug"] | null
@@ -65,19 +68,22 @@ function SearchPlanner() {
   const aiMatch = useMemo(() => findBundleMatch(seedQuery), [seedQuery])
   const hasAiResult = Boolean(seedQuery) && aiMatch.matchType !== "fallback"
   const plannerView = useMemo(
-    () => (resultMode === "ai" && hasAiResult ? buildSearchPlan(seedQuery, marketplaceProducts) : null),
-    [hasAiResult, marketplaceProducts, resultMode, seedQuery]
+    () =>
+      resultMode === "ai" && hasAiResult
+        ? buildSearchPlan(seedQuery, marketplaceProducts, currentLocation)
+        : null,
+    [currentLocation, hasAiResult, marketplaceProducts, resultMode, seedQuery]
   )
   const activeIngredient =
     plannerView?.ingredients.find((ingredient) => ingredient.product.slug === selectedProductSlug) ?? null
   const activeIngredientSlug = activeIngredient?.product.slug ?? null
   const smartBestSeller = useMemo(
-    () => (activeIngredient ? rankSellers(activeIngredient.product, "smart")[0] : null),
-    [activeIngredient]
+    () => (activeIngredient ? rankSellers(activeIngredient.product, "smart", currentLocation)[0] : null),
+    [activeIngredient, currentLocation]
   )
   const visibleSellers = useMemo(
-    () => (activeIngredient ? rankSellers(activeIngredient.product, sortMode) : []),
-    [activeIngredient, sortMode]
+    () => (activeIngredient ? rankSellers(activeIngredient.product, sortMode, currentLocation) : []),
+    [activeIngredient, currentLocation, sortMode]
   )
   const detailState =
     activeIngredient && smartBestSeller
@@ -342,7 +348,7 @@ function SearchPlanner() {
                   <Card className={styles.bestSellerCard} size="sm">
                     <CardContent className={styles.bestSellerBody}>
                       <div>
-                        <p className={styles.bestSellerLabel}>Best match for {userLocation.area}</p>
+                        <p className={styles.bestSellerLabel}>Best match for {currentLocation.area}</p>
                         <p className={styles.bestSellerName}>{detailState.bestSeller.name}</p>
                       </div>
                       <div className={styles.bestSellerMeta}>
@@ -362,7 +368,7 @@ function SearchPlanner() {
                   </div>
 
                   <ProductPriceChart
-                    description={`${detailState.ingredient.product.marketStatus}. Seller ranking prefers below-market offers when price pressure rises.`}
+                    description={`${detailState.ingredient.product.marketStatus}. Seller ranking prefers below-market offers when price pressure rises for ${describeUserLocation(currentLocation, "short")}.`}
                     history={detailState.ingredient.product.priceHistory}
                     label={detailState.ingredient.product.name}
                     priceChange={detailState.ingredient.product.priceChange}

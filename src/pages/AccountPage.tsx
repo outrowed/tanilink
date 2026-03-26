@@ -14,7 +14,7 @@ import styles from "@/pages/Account.module.css"
 
 function AccountPage() {
   const { user } = useAuth()
-  const { sellerSummary } = useSellerStore()
+  const { currentSellerListings, currentStoreProfile, sellerSummary } = useSellerStore()
 
   if (!user) {
     return null
@@ -155,39 +155,95 @@ function AccountPage() {
                 </CardContent>
               </Card>
 
-              {user.role === "seller" ? (
-                <Card className={styles.linkCard}>
-                  <CardHeader className={styles.panelHeader}>
-                    <div className={styles.linkIconWrap}>
-                      <LayoutDashboard className={styles.icon} />
-                    </div>
-                    <div>
-                      <CardTitle className={styles.panelTitle}>Seller hub</CardTitle>
-                      <CardDescription>
-                        Manage ingredient listings, pricing, stock, and store operations from one place.
-                      </CardDescription>
-                    </div>
-                  </CardHeader>
-                  <CardContent className={styles.linkBody}>
-                    {sellerSummary ? (
+            </div>
+          </section>
+
+          <aside className={styles.sidebarColumn}>
+            {user.role === "seller" ? (
+              <Card className={styles.panelCard}>
+                <CardHeader className={styles.panelHeader}>
+                  <div className={styles.linkIconWrap}>
+                    <LayoutDashboard className={styles.icon} />
+                  </div>
+                  <div>
+                    <CardTitle className={styles.panelTitle}>Seller hub</CardTitle>
+                    <CardDescription>
+                      Manage ingredient listings, store coverage, payouts, and inventory performance from one place.
+                    </CardDescription>
+                  </div>
+                </CardHeader>
+                <CardContent className={styles.panelBody}>
+                  {currentStoreProfile ? (
+                    <div className={styles.sectionBlock}>
+                      <p className={styles.sideListTitle}>{currentStoreProfile.storeName}</p>
+                      <p className={styles.sideListCopy}>{currentStoreProfile.description}</p>
                       <div className={styles.badgeRow}>
-                        <Badge variant="outline">{sellerSummary.activeListings} active listings</Badge>
-                        <Badge variant="outline">{formatRupiah(sellerSummary.pendingPayout)} pending payout</Badge>
+                        <Badge variant="outline">{currentStoreProfile.locations.length} locations</Badge>
+                        <Badge variant="outline">{currentStoreProfile.deliveryOptions.length} delivery options</Badge>
+                        <Badge variant="outline">{currentSellerListings.length} total listings</Badge>
                       </div>
-                    ) : null}
+                    </div>
+                  ) : null}
+
+                  {sellerSummary ? (
+                    <div className={styles.sellerSummaryGrid}>
+                      <Card className={styles.metricCard} size="sm">
+                        <CardContent className={styles.metricBody}>
+                          <p className={styles.metricLabel}>Active listings</p>
+                          <p className={styles.metricValue}>{sellerSummary.activeListings}</p>
+                        </CardContent>
+                      </Card>
+                      <Card className={styles.metricCard} size="sm">
+                        <CardContent className={styles.metricBody}>
+                          <p className={styles.metricLabel}>Orders this month</p>
+                          <p className={styles.metricValue}>{sellerSummary.ordersThisMonth}</p>
+                        </CardContent>
+                      </Card>
+                      <Card className={styles.metricCard} size="sm">
+                        <CardContent className={styles.metricBody}>
+                          <p className={styles.metricLabel}>Pending payout</p>
+                          <p className={styles.metricValue}>{formatRupiah(sellerSummary.pendingPayout)}</p>
+                        </CardContent>
+                      </Card>
+                      <Card className={styles.metricCard} size="sm">
+                        <CardContent className={styles.metricBody}>
+                          <p className={styles.metricLabel}>Gross revenue</p>
+                          <p className={styles.metricValue}>{formatRupiah(sellerSummary.grossRevenue)}</p>
+                        </CardContent>
+                      </Card>
+                      <Card className={styles.metricCard} size="sm">
+                        <CardContent className={styles.metricBody}>
+                          <p className={styles.metricLabel}>Average order value</p>
+                          <p className={styles.metricValue}>{formatRupiah(sellerSummary.averageOrderValue)}</p>
+                        </CardContent>
+                      </Card>
+                      <Card className={styles.metricCard} size="sm">
+                        <CardContent className={styles.metricBody}>
+                          <p className={styles.metricLabel}>Low stock alerts</p>
+                          <p className={styles.metricValue}>{sellerSummary.lowStockCount}</p>
+                        </CardContent>
+                      </Card>
+                    </div>
+                  ) : null}
+
+                  <div className={styles.buttonGrid}>
                     <Button asChild type="button" variant="secondary">
                       <Link to="/seller">
                         Open seller hub
                         <ArrowRight className={styles.icon} />
                       </Link>
                     </Button>
-                  </CardContent>
-                </Card>
-              ) : null}
-            </div>
-          </section>
+                    <Button asChild type="button" variant="outline">
+                      <Link to="/seller/store">
+                        Open store setup
+                        <ArrowRight className={styles.icon} />
+                      </Link>
+                    </Button>
+                  </div>
+                </CardContent>
+              </Card>
+            ) : null}
 
-          <aside className={styles.sidebarColumn}>
             <Card className={styles.panelCard}>
               <CardHeader className={styles.panelHeader}>
                 <div className={styles.linkIconWrap}>

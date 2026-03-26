@@ -56,7 +56,10 @@ export interface SearchBundle {
   ingredients: SearchBundleIngredient[]
 }
 
-export interface UserLocation {
+export type UserLocationId = "jakarta-selatan" | "beji-depok" | "bekasi-barat" | "coblong-bandung"
+
+export interface UserLocationOption {
+  id: UserLocationId
   area: string
   city: string
   province: string
@@ -929,12 +932,38 @@ export const products: Product[] = baseProducts.map((product) => ({
   priceHistoryByRange: buildPriceHistoryByRange(product),
 }))
 
-export const userLocation: UserLocation = {
-  area: "Jakarta Selatan",
-  city: "Jakarta",
-  province: "DKI Jakarta",
-  zone: "Jabodetabek demand corridor",
-}
+export const defaultUserLocationId: UserLocationId = "jakarta-selatan"
+
+export const userLocationOptions: UserLocationOption[] = [
+  {
+    id: "jakarta-selatan",
+    area: "Jakarta Selatan",
+    city: "Jakarta",
+    province: "DKI Jakarta",
+    zone: "Jabodetabek demand corridor",
+  },
+  {
+    id: "beji-depok",
+    area: "Beji",
+    city: "Depok",
+    province: "Jawa Barat",
+    zone: "South-side peri-urban corridor",
+  },
+  {
+    id: "bekasi-barat",
+    area: "Bekasi Barat",
+    city: "Bekasi",
+    province: "Jawa Barat",
+    zone: "East-side industrial delivery corridor",
+  },
+  {
+    id: "coblong-bandung",
+    area: "Coblong",
+    city: "Bandung",
+    province: "Jawa Barat",
+    zone: "Bandung urban supply corridor",
+  },
+]
 
 export const searchBundles: SearchBundle[] = [
   {
