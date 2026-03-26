@@ -35,6 +35,9 @@ function SellerIngredientPage() {
 
   const salesSummary = getListingSalesSummary(listing)
   const ratingSummary = getListingRatingSummary(listing)
+  const assignedLocation =
+    currentStoreProfile.locations.find((location) => location.id === listing.warehouseLocationId) ??
+    currentStoreProfile.locations[0]
 
   const handleDeliveryOptionChange = (deliveryOptionId: string, event: ChangeEvent<HTMLInputElement>) => {
     updateListing(listing.id, {
@@ -69,26 +72,6 @@ function SellerIngredientPage() {
 
         <main className={styles.gridLayout}>
           <section className={styles.mainColumn}>
-            <ProductSalesChart
-              availableRanges={listing.salesHistoryByRange}
-              description="Completed sales for this listing only. Use the sales curve to compare realized buyer sale price and fulfillment volume before you update the live listing."
-              history={listing.salesHistory}
-              label={product.name}
-              subtitle={`${product.category} listing performance`}
-              title="Listing sales analytics"
-              tone={product.chartColor}
-            />
-
-            <SellerRatingChart
-              availableRanges={listing.ratingHistoryByRange}
-              description="Rating trend and review volume for this ingredient listing. Use the review pattern to judge how pricing and fulfillment changes are affecting buyer sentiment."
-              history={listing.ratingHistory}
-              label={product.name}
-              subtitle={`${product.category} buyer sentiment`}
-              title="Listing rating analytics"
-              tone="#f59e0b"
-            />
-
             <Card className={styles.surfaceCard}>
               <CardHeader className={styles.surfaceHeader}>
                 <CardTitle className={styles.surfaceTitle}>Listing controls</CardTitle>
@@ -174,6 +157,26 @@ function SellerIngredientPage() {
                 </div>
               </CardContent>
             </Card>
+            
+            <ProductSalesChart
+              availableRanges={listing.salesHistoryByRange}
+              description="Completed sales for this listing only. Use the sales curve to compare realized buyer sale price and fulfillment volume before you update the live listing."
+              history={listing.salesHistory}
+              label={product.name}
+              subtitle={`${product.category} listing performance`}
+              title="Listing sales analytics"
+              tone={product.chartColor}
+            />
+
+            <SellerRatingChart
+              availableRanges={listing.ratingHistoryByRange}
+              description="Rating trend and review volume for this ingredient listing. Use the review pattern to judge how pricing and fulfillment changes are affecting buyer sentiment."
+              history={listing.ratingHistory}
+              label={product.name}
+              subtitle={`${product.category} buyer sentiment`}
+              title="Listing rating analytics"
+              tone="#f59e0b"
+            />
           </section>
 
           <aside className={styles.sideColumn}>
@@ -245,10 +248,18 @@ function SellerIngredientPage() {
                 <CardDescription>Store-level settings still live in the store setup page.</CardDescription>
               </CardHeader>
               <CardContent className={styles.surfaceBody}>
+                <div className={styles.badgeRow}>
+                  <Badge variant="outline">
+                    Routed via {assignedLocation?.label ?? "Warehouse"} · {assignedLocation?.city ?? "Store network"}
+                  </Badge>
+                </div>
                 <p className={styles.supportingCopy}>
                   Update store profile, warehouse locations, delivery options, or register another ingredient from the store setup workflow.
                 </p>
                 <div className={styles.inlineActions}>
+                  <Button asChild type="button" variant="outline">
+                    <Link to="/seller/routing">Manage routing</Link>
+                  </Button>
                   <Button asChild type="button" variant="outline">
                     <Link to="/seller/store">Open store setup</Link>
                   </Button>

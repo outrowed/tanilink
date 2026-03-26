@@ -20,12 +20,16 @@ import styles from "@/pages/Seller.module.css"
 
 type ListingStatusFilter = "all" | "active" | "inactive"
 type ListingCategoryFilter = "all" | Product["category"]
+type ListingStockFilter = "all" | "low-stock"
+
+const LOW_STOCK_THRESHOLD = 20
 
 function SellerHubPage() {
   const { currentSellerListings, currentStoreProfile, sellerSummary } = useSellerStore()
   const { getProductBySlug } = useMarketplace()
   const [statusFilter, setStatusFilter] = useState<ListingStatusFilter>("all")
   const [categoryFilter, setCategoryFilter] = useState<ListingCategoryFilter>("all")
+  const [stockFilter, setStockFilter] = useState<ListingStockFilter>("all")
 
   const listingsWithProducts = useMemo(
     () =>
@@ -63,9 +67,13 @@ function SellerHubPage() {
           return false
         }
 
+        if (stockFilter === "low-stock" && listing.stockQuantity > LOW_STOCK_THRESHOLD) {
+          return false
+        }
+
         return true
       }),
-    [categoryFilter, listingsWithProducts, statusFilter]
+    [categoryFilter, listingsWithProducts, statusFilter, stockFilter]
   )
 
   const filteredListings = useMemo(
@@ -98,6 +106,54 @@ function SellerHubPage() {
 
     return summarizeRatingHistory(buildAverageRatingHistory(filteredListings, "1y"))
   }, [filteredListings])
+
+  const filteredListingSummary = useMemo(() => {
+    if (!filteredListings.length) {
+      return {
+        averageOrdersPerListing: 0,
+        averageRevenuePerListing: 0,
+        averageReviewsPerListing: 0,
+        averageStockPerListing: 0,
+        averageUnitsSoldPerListing: 0,
+      }
+    }
+
+    const totalRevenue = filteredListings.reduce((sum, listing) => sum + listing.monthlyRevenue, 0)
+    const totalOrders = filteredListings.reduce((sum, listing) => sum + listing.monthlyOrders, 0)
+    const totalStock = filteredListings.reduce((sum, listing) => sum + listing.stockQuantity, 0)
+    const totalUnitsSold = filteredListings.reduce(
+      (sum, listing) => sum + getListingSalesSummary(listing).totalUnitsSold,
+      0
+    )
+    const totalReviews = filteredListings.reduce(
+      (sum, listing) => sum + getListingRatingSummary(listing).totalReviews,
+      0
+    )
+
+    return {
+      averageOrdersPerListing: Math.round(totalOrders / filteredListings.length),
+      averageRevenuePerListing: Math.round(totalRevenue / filteredListings.length),
+      averageReviewsPerListing: Math.round(totalReviews / filteredListings.length),
+      averageStockPerListing: Math.round(totalStock / filteredListings.length),
+      averageUnitsSoldPerListing: Math.round(totalUnitsSold / filteredListings.length),
+    }
+  }, [filteredListings])
+
+  const filteredStateLabel = useMemo(() => {
+    const labels = []
+
+    labels.push(statusFilter === "all" ? "All statuses" : statusFilter === "active" ? "Active only" : "Inactive only")
+    labels.push(categoryFilter === "all" ? "All categories" : categoryFilter)
+    labels.push(stockFilter === "all" ? "All stock levels" : "Low stock only")
+
+    return labels.join(" · ")
+  }, [categoryFilter, statusFilter, stockFilter])
+
+  function resetFilters() {
+    setStatusFilter("all")
+    setCategoryFilter("all")
+    setStockFilter("all")
+  }
 
   if (!currentStoreProfile || !sellerSummary) {
     return null
@@ -135,96 +191,20 @@ function SellerHubPage() {
             </Card>
             <Card className={styles.surfaceCard}>
               <CardContent className={styles.metricBody}>
-                <p className={styles.metricLabel}>Pending payout</p>
-                <p className={styles.metricValue}>{formatRupiah(sellerSummary.pendingPayout)}</p>
-              </CardContent>
-            </Card>
-            <Card className={styles.surfaceCard}>
-              <CardContent className={styles.metricBody}>
-                <p className={styles.metricLabel}>Average order value</p>
-                <p className={styles.metricValue}>{formatRupiah(sellerSummary.averageOrderValue)}</p>
-              </CardContent>
-            </Card>
-            <Card className={styles.surfaceCard}>
-              <CardContent className={styles.metricBody}>
                 <p className={styles.metricLabel}>Average store rating</p>
                 <p className={styles.metricValue}>{sellerSummary.averageStoreRating.toFixed(1)} / 5</p>
               </CardContent>
             </Card>
             <Card className={styles.surfaceCard}>
               <CardContent className={styles.metricBody}>
-                <p className={styles.metricLabel}>Average reviews / listing</p>
-                <p className={styles.metricValue}>{sellerSummary.averageReviewsPerListing}</p>
-              </CardContent>
-            </Card>
-            <Card className={styles.surfaceCard}>
-              <CardContent className={styles.metricBody}>
-                <p className={styles.metricLabel}>Average revenue / listing</p>
-                <p className={styles.metricValue}>{formatRupiah(sellerSummary.averageRevenuePerListing)}</p>
-              </CardContent>
-            </Card>
-            <Card className={styles.surfaceCard}>
-              <CardContent className={styles.metricBody}>
-                <p className={styles.metricLabel}>Average orders / listing</p>
-                <p className={styles.metricValue}>{sellerSummary.averageOrdersPerListing}</p>
-              </CardContent>
-            </Card>
-            <Card className={styles.surfaceCard}>
-              <CardContent className={styles.metricBody}>
-                <p className={styles.metricLabel}>Average stock / listing</p>
-                <p className={styles.metricValue}>{sellerSummary.averageStockPerListing}</p>
-              </CardContent>
-            </Card>
-            <Card className={styles.surfaceCard}>
-              <CardContent className={styles.metricBody}>
-                <p className={styles.metricLabel}>Average units sold / listing</p>
-                <p className={styles.metricValue}>{sellerSummary.averageUnitsSoldPerListing}</p>
+                <p className={styles.metricLabel}>Active listings</p>
+                <p className={styles.metricValue}>{sellerSummary.activeListings}</p>
               </CardContent>
             </Card>
           </section>
 
-          {filteredListings.length ? (
-            <section className={styles.listStack}>
-              <ProductSalesChart
-                availableRanges={averageSalesHistoryByRange}
-                description={`Average listing sales across ${filteredListings.length} visible ingredient${filteredListings.length === 1 ? "" : "s"}. Each period averages sale price and units sold across the current filtered set.`}
-                history={averageSalesHistoryByRange["1y"]}
-                label="Store average"
-                subtitle="Filtered listing average"
-                title="Average listing sales"
-                tone="#2563eb"
-              />
-              <div className={styles.inlineSummary}>
-                <Card className={styles.metricTile} size="sm">
-                  <CardContent className={styles.metricTileBody}>
-                    <p className={styles.fieldLabel}>Filtered avg rating</p>
-                    <p className={styles.metricTileValue}>
-                      {filteredAverageRatingSummary.averageRating.toFixed(1)} / 5
-                    </p>
-                  </CardContent>
-                </Card>
-                <Card className={styles.metricTile} size="sm">
-                  <CardContent className={styles.metricTileBody}>
-                    <p className={styles.fieldLabel}>Filtered avg reviews</p>
-                    <p className={styles.metricTileValue}>
-                      {filteredListings.length
-                        ? Math.round(filteredAverageRatingSummary.totalReviews / filteredListings.length)
-                        : 0}
-                    </p>
-                  </CardContent>
-                </Card>
-                <Card className={styles.metricTile} size="sm">
-                  <CardContent className={styles.metricTileBody}>
-                    <p className={styles.fieldLabel}>Strongest rating period</p>
-                    <p className={styles.metricTileValue}>{filteredAverageRatingSummary.strongestPeriod}</p>
-                  </CardContent>
-                </Card>
-              </div>
-            </section>
-          ) : null}
-
-          <section className={styles.gridLayout}>
-            <section className={styles.mainColumn}>
+          <section className={`${styles.gridLayout} ${styles.hubGridLayout}`}>
+            <section className={`${styles.mainColumn} ${styles.hubMainColumn}`}>
               <Card className={styles.surfaceCard}>
                 <CardHeader className={styles.surfaceHeader}>
                   <div className={styles.sectionHeader}>
@@ -234,23 +214,50 @@ function SellerHubPage() {
                         Review headline performance for each listing, then open the ingredient page for detailed analytics and pricing or stock edits.
                       </CardDescription>
                     </div>
-                    <Button asChild type="button" variant="outline">
-                      <Link to="/seller/store">Open store setup</Link>
-                    </Button>
+                    <div className={styles.filterRow}>
+                      <Button asChild type="button" variant="outline">
+                        <Link to="/seller/routing">Manage routing</Link>
+                      </Button>
+                      <Button asChild type="button" variant="outline">
+                        <Link to="/seller/store">Open store setup</Link>
+                      </Button>
+                    </div>
                   </div>
                 </CardHeader>
                 <CardContent className={styles.surfaceBody}>
-                  <div className={styles.filterRow}>
-                    {(["all", "active", "inactive"] as ListingStatusFilter[]).map((filter) => (
-                      <Button
-                        key={filter}
-                        onClick={() => setStatusFilter(filter)}
-                        type="button"
-                        variant={statusFilter === filter ? "default" : "outline"}
+                  <div className={styles.noticeBanner}>
+                    Showing {visibleListings.length} ingredient{visibleListings.length === 1 ? "" : "s"} · {filteredStateLabel}
+                  </div>
+                  <div className={styles.filterToolbar}>
+                    <div className={styles.fieldGroup}>
+                      <label className={styles.fieldLabel} htmlFor="seller-hub-status-filter">
+                        Status
+                      </label>
+                      <select
+                        className={styles.select}
+                        id="seller-hub-status-filter"
+                        onChange={(event) => setStatusFilter(event.target.value as ListingStatusFilter)}
+                        value={statusFilter}
                       >
-                        {filter === "all" ? "All statuses" : filter === "active" ? "Active only" : "Inactive only"}
-                      </Button>
-                    ))}
+                        <option value="all">All statuses</option>
+                        <option value="active">Active only</option>
+                        <option value="inactive">Inactive only</option>
+                      </select>
+                    </div>
+                    <div className={styles.fieldGroup}>
+                      <label className={styles.fieldLabel} htmlFor="seller-hub-stock-filter">
+                        Stock
+                      </label>
+                      <select
+                        className={styles.select}
+                        id="seller-hub-stock-filter"
+                        onChange={(event) => setStockFilter(event.target.value as ListingStockFilter)}
+                        value={stockFilter}
+                      >
+                        <option value="all">All stock levels</option>
+                        <option value="low-stock">Low stock only</option>
+                      </select>
+                    </div>
                   </div>
                   <div className={styles.filterRow}>
                     <Button
@@ -297,7 +304,9 @@ function SellerHubPage() {
                                   <Badge variant={listing.isActive ? "success" : "outline"}>
                                     {listing.isActive ? "Active" : "Inactive"}
                                   </Badge>
-                                  {listing.stockQuantity <= 20 ? <Badge variant="warning">Low stock</Badge> : null}
+                                  {listing.stockQuantity <= LOW_STOCK_THRESHOLD ? (
+                                    <Badge variant="warning">Low stock</Badge>
+                                  ) : null}
                                 </div>
                               </div>
                             </CardHeader>
@@ -374,8 +383,16 @@ function SellerHubPage() {
                       <CardContent className={styles.emptyStateBody}>
                         <p className={styles.emptyStateTitle}>No listings match the current filters.</p>
                         <p className={styles.emptyStateCopy}>
-                          Adjust the filters or register a new ingredient from the store setup page.
+                          Reset the current filters or register a new ingredient from the store setup page.
                         </p>
+                        <div className={styles.inlineActions}>
+                          <Button onClick={resetFilters} type="button" variant="outline">
+                            Reset filters
+                          </Button>
+                          <Button asChild type="button">
+                            <Link to="/seller/store">Open store setup</Link>
+                          </Button>
+                        </div>
                       </CardContent>
                     </Card>
                   )}
@@ -383,7 +400,7 @@ function SellerHubPage() {
               </Card>
             </section>
 
-            <aside className={styles.sideColumn}>
+            <aside className={`${styles.sideColumn} ${styles.hubSideColumn}`}>
               <Card className={styles.surfaceCard}>
                 <CardHeader className={styles.surfaceHeader}>
                   <CardTitle className={styles.surfaceTitle}>Store overview</CardTitle>
@@ -395,38 +412,100 @@ function SellerHubPage() {
                   <div className={styles.badgeRow}>
                     <Badge variant="outline">{currentStoreProfile.locations.length} locations</Badge>
                     <Badge variant="outline">{currentStoreProfile.deliveryOptions.length} delivery options</Badge>
+                    <Badge variant="outline">{filteredStateLabel}</Badge>
                   </div>
                 </CardContent>
               </Card>
 
-              <Card className={styles.surfaceCard}>
-                <CardHeader className={styles.surfaceHeader}>
-                  <CardTitle className={styles.surfaceTitle}>Average listing performance</CardTitle>
-                  <CardDescription>Use these averages as a baseline when comparing ingredients in the hub.</CardDescription>
-                </CardHeader>
-                <CardContent className={styles.surfaceBody}>
-                  <div className={styles.inlineSummary}>
-                    <Card className={styles.metricTile} size="sm">
-                      <CardContent className={styles.metricTileBody}>
-                        <p className={styles.fieldLabel}>Avg revenue</p>
-                        <p className={styles.metricTileValue}>{formatRupiah(sellerSummary.averageRevenuePerListing)}</p>
-                      </CardContent>
-                    </Card>
-                    <Card className={styles.metricTile} size="sm">
-                      <CardContent className={styles.metricTileBody}>
-                        <p className={styles.fieldLabel}>Avg orders</p>
-                        <p className={styles.metricTileValue}>{sellerSummary.averageOrdersPerListing}</p>
-                      </CardContent>
-                    </Card>
-                    <Card className={styles.metricTile} size="sm">
-                      <CardContent className={styles.metricTileBody}>
-                        <p className={styles.fieldLabel}>Avg units sold</p>
-                        <p className={styles.metricTileValue}>{sellerSummary.averageUnitsSoldPerListing}</p>
-                      </CardContent>
-                    </Card>
-                  </div>
-                </CardContent>
-              </Card>
+              {filteredListings.length ? (
+                <>
+                  <ProductSalesChart
+                    availableRanges={averageSalesHistoryByRange}
+                    description={`Average listing sales across ${filteredListings.length} visible ingredient${filteredListings.length === 1 ? "" : "s"}. Each period averages sale price and units sold across the current filtered set.`}
+                    history={averageSalesHistoryByRange["1y"]}
+                    label="Store average"
+                    subtitle={filteredStateLabel}
+                    title="Average listing sales"
+                    tone="#2563eb"
+                  />
+
+                  <Card className={styles.surfaceCard}>
+                    <CardHeader className={styles.surfaceHeader}>
+                      <CardTitle className={styles.surfaceTitle}>Filtered listing averages</CardTitle>
+                      <CardDescription>
+                        Secondary performance baselines for the ingredients currently visible in the hub.
+                      </CardDescription>
+                    </CardHeader>
+                    <CardContent className={styles.surfaceBody}>
+                      <div className={styles.inlineSummary}>
+                        <Card className={styles.metricTile} size="sm">
+                          <CardContent className={styles.metricTileBody}>
+                            <p className={styles.fieldLabel}>Avg revenue</p>
+                            <p className={styles.metricTileValue}>
+                              {formatRupiah(filteredListingSummary.averageRevenuePerListing)}
+                            </p>
+                          </CardContent>
+                        </Card>
+                        <Card className={styles.metricTile} size="sm">
+                          <CardContent className={styles.metricTileBody}>
+                            <p className={styles.fieldLabel}>Avg orders</p>
+                            <p className={styles.metricTileValue}>
+                              {filteredListingSummary.averageOrdersPerListing}
+                            </p>
+                          </CardContent>
+                        </Card>
+                        <Card className={styles.metricTile} size="sm">
+                          <CardContent className={styles.metricTileBody}>
+                            <p className={styles.fieldLabel}>Avg stock</p>
+                            <p className={styles.metricTileValue}>
+                              {filteredListingSummary.averageStockPerListing}
+                            </p>
+                          </CardContent>
+                        </Card>
+                        <Card className={styles.metricTile} size="sm">
+                          <CardContent className={styles.metricTileBody}>
+                            <p className={styles.fieldLabel}>Avg units sold</p>
+                            <p className={styles.metricTileValue}>
+                              {filteredListingSummary.averageUnitsSoldPerListing}
+                            </p>
+                          </CardContent>
+                        </Card>
+                        <Card className={styles.metricTile} size="sm">
+                          <CardContent className={styles.metricTileBody}>
+                            <p className={styles.fieldLabel}>Avg rating</p>
+                            <p className={styles.metricTileValue}>
+                              {filteredAverageRatingSummary.averageRating.toFixed(1)} / 5
+                            </p>
+                          </CardContent>
+                        </Card>
+                        <Card className={styles.metricTile} size="sm">
+                          <CardContent className={styles.metricTileBody}>
+                            <p className={styles.fieldLabel}>Avg reviews</p>
+                            <p className={styles.metricTileValue}>
+                              {filteredListingSummary.averageReviewsPerListing}
+                            </p>
+                          </CardContent>
+                        </Card>
+                      </div>
+                      <div className={styles.noticeBanner}>
+                        Strongest rating period: {filteredAverageRatingSummary.strongestPeriod}
+                      </div>
+                    </CardContent>
+                  </Card>
+                </>
+              ) : (
+                <Card className={styles.emptyStateCard}>
+                  <CardContent className={styles.emptyStateBody}>
+                    <p className={styles.emptyStateTitle}>No analytics available for this filter set.</p>
+                    <p className={styles.emptyStateCopy}>
+                      Clear the filters to restore store-level averages and comparison trends.
+                    </p>
+                    <Button onClick={resetFilters} type="button" variant="outline">
+                      Reset filters
+                    </Button>
+                  </CardContent>
+                </Card>
+              )}
             </aside>
           </section>
         </main>

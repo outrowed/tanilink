@@ -17,6 +17,7 @@ import ProductPage from "@/pages/ProductPage"
 import SearchPlanner from "@/pages/SearchPlanner"
 import SellerIngredientPage from "@/pages/SellerIngredientPage"
 import SellerHubPage from "@/pages/SellerHubPage"
+import SellerRoutingPage from "@/pages/SellerRoutingPage"
 import SellerStorePage from "@/pages/SellerStorePage"
 import { SellerProvider } from "@/context/SellerProvider"
 
@@ -47,6 +48,7 @@ function App() {
                   <Route element={<RequireSeller />} path="seller">
                     <Route element={<SellerHubPage />} index />
                     <Route element={<SellerIngredientPage />} path="ingredients/:slug" />
+                    <Route element={<SellerRoutingPage />} path="routing" />
                     <Route element={<SellerStorePage />} path="store" />
                   </Route>
                 </Route>

@@ -337,8 +337,17 @@ function SellerStorePage() {
           <aside className={styles.sideColumn}>
             <Card className={styles.surfaceCard}>
               <CardHeader className={styles.surfaceHeader}>
-                <CardTitle className={styles.surfaceTitle}>Warehouse locations</CardTitle>
-                <CardDescription>Manage the pickup points and warehouse references attached to your listings.</CardDescription>
+                <div className={styles.sectionHeader}>
+                  <div>
+                    <CardTitle className={styles.surfaceTitle}>Warehouse locations</CardTitle>
+                    <CardDescription>
+                      Manage the pickup points and warehouse references attached to your listings.
+                    </CardDescription>
+                  </div>
+                  <Button asChild type="button" variant="outline">
+                    <Link to="/seller/routing">Open routing board</Link>
+                  </Button>
+                </div>
               </CardHeader>
               <CardContent className={styles.surfaceBody}>
                 <div className={styles.listStack}>
