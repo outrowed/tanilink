@@ -3,7 +3,6 @@ import {
   ChevronDown,
   LayoutDashboard,
   LogOut,
-  MapPin,
   MessageSquareText,
   Settings,
   ShoppingBasket,
@@ -16,8 +15,6 @@ import { Link, useLocation, useNavigate } from "react-router-dom"
 import SearchBox from "@/components/shared/SearchBox"
 import { useAuth } from "@/context/auth"
 import { useBasket } from "@/context/basket"
-import { useLocationPreference } from "@/context/location"
-import { describeUserLocation } from "@/lib/planner"
 import { Badge } from "@/components/ui/badge"
 import { cn } from "@/lib/utils"
 import styles from "@/components/layout/AppNavbar.module.css"
@@ -26,18 +23,14 @@ function AppNavbar() {
   const { itemCount } = useBasket()
   const navigate = useNavigate()
   const { isAuthenticated, isSeller, logout, user } = useAuth()
-  const { locationOptions, selectedLocationId, setSelectedLocationId } = useLocationPreference()
   const location = useLocation()
-  const [isLocationMenuOpen, setIsLocationMenuOpen] = useState(false)
   const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false)
-  const locationMenuRef = useRef<HTMLDivElement | null>(null)
   const profileMenuRef = useRef<HTMLDivElement | null>(null)
   const isMarketplacePage = location.pathname === "/marketplace" || location.pathname === "/catalog"
   const isSellerPage = location.pathname.startsWith("/seller")
   const profileTitle = isAuthenticated ? user?.name ?? "Account" : "Sign in"
   const profileMeta = isAuthenticated ? (isSeller ? "Seller account" : "Buyer account") : "Access your account"
   const avatarContent = isAuthenticated && user ? user.avatarInitials : <UserRound className={styles.smallIcon} />
-  const activeLocation = locationOptions.find((locationOption) => locationOption.id === selectedLocationId)
   const profileLinks = isAuthenticated
     ? [
         { icon: UserRound, label: "Account overview", to: "/account" },
@@ -53,10 +46,6 @@ function AppNavbar() {
 
   useEffect(() => {
     const handlePointerDown = (event: MouseEvent) => {
-      if (!locationMenuRef.current?.contains(event.target as Node)) {
-        setIsLocationMenuOpen(false)
-      }
-
       if (!profileMenuRef.current?.contains(event.target as Node)) {
         setIsProfileMenuOpen(false)
       }
@@ -64,7 +53,6 @@ function AppNavbar() {
 
     const handleEscape = (event: KeyboardEvent) => {
       if (event.key === "Escape") {
-        setIsLocationMenuOpen(false)
         setIsProfileMenuOpen(false)
       }
     }
@@ -91,52 +79,6 @@ function AppNavbar() {
           <Link className={styles.brandLink} to="/">
             TaniLink
           </Link>
-
-          <div className={styles.locationMenuWrap} ref={locationMenuRef}>
-            <button
-              aria-expanded={isLocationMenuOpen}
-              aria-haspopup="menu"
-              className={styles.locationTag}
-              onClick={() => setIsLocationMenuOpen((current) => !current)}
-              type="button"
-            >
-              <MapPin className={styles.smallIcon} />
-              <span className={styles.locationTagText}>
-                {activeLocation ? describeUserLocation(activeLocation, "short") : "Choose area"}
-              </span>
-              <ChevronDown className={styles.locationChevron} />
-            </button>
-
-            {isLocationMenuOpen ? (
-              <div className={styles.locationMenu}>
-                <div className={styles.locationMenuHeader}>
-                  <p className={styles.locationMenuTitle}>Choose your area</p>
-                  <p className={styles.locationMenuNote}>Recommendations will re-rank instantly.</p>
-                </div>
-                <div className={styles.locationMenuList}>
-                  {locationOptions.map((locationOption) => (
-                    <button
-                      key={locationOption.id}
-                      className={cn(
-                        styles.locationMenuItem,
-                        locationOption.id === selectedLocationId && styles.locationMenuItemActive
-                      )}
-                      onClick={() => {
-                        setSelectedLocationId(locationOption.id)
-                        setIsLocationMenuOpen(false)
-                      }}
-                      type="button"
-                    >
-                      <span className={styles.locationMenuItemTitle}>
-                        {describeUserLocation(locationOption, "short")}
-                      </span>
-                      <span className={styles.locationMenuItemMeta}>{locationOption.zone}</span>
-                    </button>
-                  ))}
-                </div>
-              </div>
-            ) : null}
-          </div>
         </div>
 
         <div className={styles.searchStack}>

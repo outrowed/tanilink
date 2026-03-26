@@ -3,6 +3,7 @@ import { useState } from "react"
 import { Outlet } from "react-router-dom"
 
 import AppNavbar from "@/components/layout/AppNavbar"
+import FloatingLocationSwitcher from "@/components/layout/FloatingLocationSwitcher"
 import { Button } from "@/components/ui/button"
 import styles from "@/components/layout/AppLayout.module.css"
 
@@ -37,6 +38,13 @@ function AppLayout() {
         </div>
       ) : null}
       <AppNavbar />
+      <div
+        className={`${styles.floatingLocationDock} ${
+          isWarningVisible ? styles.floatingLocationDockWithWarning : ""
+        }`}
+      >
+        <FloatingLocationSwitcher />
+      </div>
       <Outlet />
     </>
   )

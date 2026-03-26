@@ -1,0 +1,134 @@
+.wrap {
+  position: relative;
+}
+
+.trigger {
+  appearance: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.42rem;
+  max-width: 100%;
+  padding: 0.34rem 0.68rem;
+  border: 1px solid rgba(214, 211, 209, 0.9);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.92);
+  box-shadow: 0 8px 24px -20px rgba(28, 25, 23, 0.35);
+  font: inherit;
+  color: #44403c;
+  cursor: pointer;
+  transition:
+    border-color 160ms ease,
+    background-color 160ms ease,
+    transform 160ms ease;
+}
+
+.trigger:hover {
+  transform: translateY(-1px);
+  border-color: rgba(168, 162, 158, 0.95);
+  background: rgba(255, 255, 255, 0.98);
+}
+
+.trigger:focus-visible {
+  outline: none;
+  border-color: #854d0e;
+  box-shadow: 0 0 0 3px color-mix(in srgb, #f59e0b 18%, transparent);
+}
+
+.icon,
+.chevron {
+  width: 0.92rem;
+  height: 0.92rem;
+}
+
+.value {
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: #1c1917;
+}
+
+.chevron {
+  color: #78716c;
+  flex-shrink: 0;
+}
+
+.menu {
+  position: absolute;
+  top: calc(100% + 0.7rem);
+  left: 50%;
+  transform: translateX(-50%);
+  width: 18.5rem;
+  padding: 0.8rem;
+  border: 1px solid rgba(214, 211, 209, 0.88);
+  border-radius: 1.1rem;
+  background: rgba(255, 255, 255, 0.98);
+  box-shadow: 0 28px 60px -42px rgba(28, 25, 23, 0.45);
+  backdrop-filter: blur(18px);
+}
+
+.menuHeader {
+  padding: 0.2rem 0.2rem 0.7rem;
+}
+
+.menuTitle {
+  margin: 0;
+  font-size: 0.88rem;
+  font-weight: 600;
+  color: #1c1917;
+}
+
+.menuNote {
+  margin: 0.22rem 0 0;
+  font-size: 0.78rem;
+  color: #78716c;
+}
+
+.menuList {
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
+}
+
+.menuItem {
+  appearance: none;
+  display: flex;
+  flex-direction: column;
+  gap: 0.18rem;
+  width: 100%;
+  padding: 0.75rem 0.85rem;
+  border: 1px solid rgba(231, 229, 228, 0.88);
+  border-radius: 0.95rem;
+  background: rgba(247, 244, 238, 0.68);
+  font: inherit;
+  text-align: left;
+  color: #1c1917;
+  cursor: pointer;
+  transition:
+    border-color 160ms ease,
+    background-color 160ms ease,
+    transform 160ms ease;
+}
+
+.menuItem:hover {
+  transform: translateY(-1px);
+  border-color: rgba(168, 162, 158, 0.85);
+}
+
+.menuItemActive {
+  border-color: #1c1917;
+  background: #1c1917;
+  color: white;
+}
+
+.menuItemTitle {
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+
+.menuItemMeta {
+  font-size: 0.78rem;
+  color: inherit;
+  opacity: 0.82;
+}

@@ -10,13 +10,13 @@
 
 .inner {
   display: grid;
-  grid-template-columns: minmax(15rem, 1fr) minmax(24rem, 38rem) auto;
+  grid-template-columns: max-content minmax(0, 1fr) auto;
   align-items: center;
   gap: 1rem;
   width: 100%;
   max-width: 1600px;
   margin: 0 auto;
-  padding: 0.95rem 1.75rem;
+  padding: 0.6em 0.75rem;
 }
 
 .brandBlock {
@@ -25,6 +25,7 @@
   align-items: center;
   gap: 0.65rem;
   min-width: 0;
+  flex-shrink: 0;
 }
 
 .brandLink {
@@ -88,6 +89,7 @@
   align-items: center;
   gap: 0.7rem;
   min-width: 0;
+  width: 100%;
 }
 
 .navLinks {
@@ -100,6 +102,7 @@
 .searchRegion {
   min-width: 0;
   flex: 1;
+  width: 100%;
 }
 
 .catalogButton {
