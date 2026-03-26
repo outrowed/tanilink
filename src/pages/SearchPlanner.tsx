@@ -56,6 +56,7 @@ function SearchPlanner() {
   const { currentLocation } = useLocationPreference()
   const seedQuery = searchParams.get("q")?.trim() ?? ""
   const resultMode = searchParams.get("mode") === "ai" ? "ai" : "marketplace"
+  const categoryParam = searchParams.get("category")
   const selectedProductSlug = searchParams.get("preview") as Product["slug"] | null
   const [sortMode, setSortMode] = useState<SellerSortMode>("smart")
   const [sellerQuantities, setSellerQuantities] = useState<Record<number, number>>({})
@@ -64,6 +65,24 @@ function SearchPlanner() {
   const matchedProducts = useMemo(
     () => marketplaceProducts.filter((product) => matchesProductQuery(product, seedQuery)),
     [marketplaceProducts, seedQuery]
+  )
+  const resultCategories = useMemo(
+    () => Array.from(new Set(matchedProducts.map((product) => product.category))),
+    [matchedProducts]
+  )
+  const selectedCategory = useMemo(
+    () =>
+      categoryParam && resultCategories.includes(categoryParam as Product["category"])
+        ? (categoryParam as Product["category"])
+        : "all",
+    [categoryParam, resultCategories]
+  )
+  const filteredMatchedProducts = useMemo(
+    () =>
+      matchedProducts.filter((product) =>
+        selectedCategory === "all" ? true : product.category === selectedCategory
+      ),
+    [matchedProducts, selectedCategory]
   )
   const aiMatch = useMemo(() => findBundleMatch(seedQuery), [seedQuery])
   const hasAiResult = Boolean(seedQuery) && aiMatch.matchType !== "fallback"
@@ -127,7 +146,8 @@ function SearchPlanner() {
               meta={
                 <div className={styles.resultsMeta}>
                   <Badge variant="outline">{plannerView ? "AI plan active" : "AI hidden by default"}</Badge>
-                  <Badge variant="outline">{matchedProducts.length} marketplace matches</Badge>
+                  <Badge variant="outline">{filteredMatchedProducts.length} marketplace matches</Badge>
+                  {selectedCategory !== "all" ? <Badge variant="outline">{selectedCategory}</Badge> : null}
                 </div>
               }
               title={`Results for "${seedQuery}"`}
@@ -300,12 +320,44 @@ function SearchPlanner() {
                     Open any product to inspect the full market curve, seller ranking, and delivery lanes.
                   </p>
                 </div>
-                <Badge variant="outline">{matchedProducts.length} matches</Badge>
+                <Badge variant="outline">{filteredMatchedProducts.length} matches</Badge>
               </div>
 
-              {matchedProducts.length ? (
+              {resultCategories.length ? (
+                <div className={styles.categoryFilterRow}>
+                  <button
+                    className={styles.categoryFilterButton}
+                    data-active={selectedCategory === "all"}
+                    onClick={() => {
+                      const nextSearchParams = new URLSearchParams(searchParams)
+                      nextSearchParams.delete("category")
+                      setSearchParams(nextSearchParams, { replace: true })
+                    }}
+                    type="button"
+                  >
+                    All categories
+                  </button>
+                  {resultCategories.map((category) => (
+                    <button
+                      key={category}
+                      className={styles.categoryFilterButton}
+                      data-active={selectedCategory === category}
+                      onClick={() => {
+                        const nextSearchParams = new URLSearchParams(searchParams)
+                        nextSearchParams.set("category", category)
+                        setSearchParams(nextSearchParams, { replace: true })
+                      }}
+                      type="button"
+                    >
+                      {category}
+                    </button>
+                  ))}
+                </div>
+              ) : null}
+
+              {filteredMatchedProducts.length ? (
                 <div className={styles.catalogList}>
-                  {matchedProducts.map((product) => (
+                  {filteredMatchedProducts.map((product) => (
                     <div key={product.id} className={styles.catalogItem}>
                       <ProductCard
                         isActive={false}
@@ -318,9 +370,9 @@ function SearchPlanner() {
               ) : (
                 <Card className={styles.emptyStateCard}>
                   <CardContent className={styles.emptyStateBody}>
-                    <p className={styles.emptyStateTitle}>No direct product matches for this query.</p>
+                    <p className={styles.emptyStateTitle}>No direct product matches for this filter.</p>
                     <p className={styles.emptyStateCopy}>
-                      Try another ingredient name, seller location, or switch to one of the scripted AI prompts above.
+                      Try another ingredient name, adjust the category filter, or switch to one of the scripted AI prompts above.
                     </p>
                   </CardContent>
                 </Card>
@@ -380,8 +432,7 @@ function SearchPlanner() {
                   <div className={styles.sortSection}>
                     <div className={styles.sectionHeader}>
                       <div>
-                        <p className={styles.sectionLabel}>Seller sorter</p>
-                        <h3 className={styles.sortTitle}>Sort by location, price, rating, or smart match</h3>
+                        <h3 className={styles.sortTitle}>Sort sellers by location, price, rating, or smart match</h3>
                       </div>
                     </div>
                     <div className={styles.sortRow}>
@@ -458,6 +509,7 @@ function SearchPlanner() {
                             </div>
 
                             <div className={styles.sellerMetrics}>
+                              <Badge variant="success">{seller.smartScore} smart score</Badge>
                               <Badge variant="outline">
                                 <PackageCheck className={styles.badgeIcon} />
                                 {seller.marketDeltaLabel}

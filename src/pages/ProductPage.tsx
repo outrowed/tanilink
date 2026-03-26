@@ -122,6 +122,7 @@ function ProductPage() {
         </div>
 
         <div className={styles.badgeList}>
+          {!options?.spotlight ? <Badge variant="success">{seller.smartScore} smart score</Badge> : null}
           <Badge variant="outline">
             <PackageCheck className={styles.icon} />
             {seller.marketDeltaLabel}
@@ -290,8 +291,7 @@ function ProductPage() {
               <CardContent className={styles.bottomBody}>
                 <div className={styles.sortSection}>
                   <div>
-                    <p className={styles.sectionLabel}>Seller sorter</p>
-                    <h3 className={styles.sortTitle}>Sort by smart match, location, price, or rating</h3>
+                    <h3 className={styles.sortTitle}>Sort sellers by smart match, location, price, or rating</h3>
                   </div>
                   <div className={styles.sortRow}>
                     {sortModes.map((mode) => (

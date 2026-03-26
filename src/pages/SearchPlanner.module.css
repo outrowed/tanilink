@@ -222,6 +222,39 @@
   gap: 0.8rem;
 }
 
+.categoryFilterRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.55rem;
+}
+
+.categoryFilterButton {
+  appearance: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 2.5rem;
+  padding: 0.48rem 0.85rem;
+  border: 1px solid rgba(214, 211, 209, 0.9);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.72);
+  color: #1c1917;
+  font: inherit;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition:
+    background-color 160ms ease,
+    border-color 160ms ease,
+    color 160ms ease;
+}
+
+.categoryFilterButton[data-active="true"] {
+  background: #1c1917;
+  border-color: #1c1917;
+  color: #fafaf9;
+}
+
 .sectionHeader {
   display: flex;
   align-items: end;
