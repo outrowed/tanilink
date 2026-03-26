@@ -1,0 +1,33 @@
+.root {
+  appearance: none;
+  width: 100%;
+  min-width: 0;
+  min-height: 2rem;
+  border-radius: 0.75rem;
+  border: 1px solid var(--input);
+  background: transparent;
+  padding: 0.5rem 0.75rem;
+  font: inherit;
+  font-size: 1rem;
+  color: inherit;
+  transition:
+    border-color 160ms ease,
+    box-shadow 160ms ease,
+    background-color 160ms ease;
+}
+
+.root::placeholder {
+  color: var(--muted-foreground);
+}
+
+.root:focus-visible {
+  outline: none;
+  border-color: var(--ring);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--ring) 35%, transparent);
+}
+
+.root:disabled {
+  cursor: not-allowed;
+  background: color-mix(in srgb, var(--input) 50%, transparent);
+  opacity: 0.6;
+}

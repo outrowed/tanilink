@@ -1,0 +1,518 @@
+.page {
+  min-height: 100vh;
+  background:
+    radial-gradient(circle at top left, rgba(251, 191, 36, 0.14), transparent 24%),
+    radial-gradient(circle at bottom right, rgba(14, 165, 233, 0.12), transparent 30%),
+    linear-gradient(180deg, #f3efe6 0%, #f7f5ef 28%, #ece7da 100%);
+}
+
+.inner {
+  margin: 0 auto;
+  max-width: 1560px;
+  padding: 1.75rem;
+}
+
+.buttonIcon,
+.badgeIcon,
+.panelIcon,
+.infoIcon,
+.footerIcon {
+  width: 1rem;
+  height: 1rem;
+}
+
+.layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 0;
+  gap: 1.25rem;
+  margin-top: 1rem;
+  align-items: start;
+  transition: grid-template-columns 220ms ease;
+}
+
+.layoutExpanded {
+  grid-template-columns: minmax(0, 1.2fr) minmax(400px, 0.88fr);
+}
+
+.mainColumn {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.resultsMeta {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 0.5rem;
+}
+
+.summaryCard,
+.sidebarCard,
+.aiSuggestionCard,
+.emptyStateCard {
+  border-radius: 1.35rem;
+  border-color: rgba(231, 229, 228, 0.85);
+  background: rgba(255, 255, 255, 0.88);
+  box-shadow: 0 28px 80px -56px rgba(17, 24, 39, 0.55);
+}
+
+.compactHeader {
+  padding: 1.15rem 1.25rem 0.95rem;
+}
+
+.summaryTitle,
+.sidebarTitle {
+  font-size: 1.55rem;
+  line-height: 1.1;
+  color: #1c1917;
+}
+
+.sidebarBody {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  padding: 0 1.25rem 1.25rem;
+}
+
+.summaryTop {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.summaryBadgeRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-bottom: 0.7rem;
+}
+
+.locationCard,
+.metricCard,
+.bestSellerCard {
+  border-radius: 1rem;
+  background: #f7f4ee;
+  border-color: rgba(231, 229, 228, 0.9);
+  box-shadow: none;
+}
+
+.locationCardBody,
+.metricBody,
+.bestSellerBody {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.85rem 1rem;
+}
+
+.metricBody {
+  text-align: center;
+  vertical-align: middle;
+  flex-direction: column;
+}
+
+.locationCardLabel,
+.metricLabel,
+.infoLabel,
+.bestSellerLabel {
+  margin: 0;
+  font-size: 0.75rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: #78716c;
+}
+
+.locationCardValue,
+.metricValue,
+.sellerPrice,
+.bestSellerName {
+  margin: 0.3rem 0 0;
+  font-size: 1.05rem;
+  font-weight: 600;
+  color: #1c1917;
+}
+
+.summaryStats {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 0.75rem;
+  padding: 1rem 1.25rem;
+}
+
+.summaryIngredientList {
+  padding: 1rem 1.25rem;
+}
+
+.summaryIngredientChips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.55rem;
+  margin-top: 0.8rem;
+}
+
+.summaryFooter {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.7rem;
+  padding: 0.95rem 1.25rem 1.15rem;
+  border-top: 1px solid rgba(214, 211, 209, 0.7);
+  color: #57534e;
+}
+
+.summaryFootnote {
+  margin: 0;
+  line-height: 1.65;
+}
+
+.aiSuggestionBody {
+  padding: 0 1.25rem 1.25rem;
+}
+
+.activateRow {
+  display: flex;
+  justify-content: flex-start;
+  margin-bottom: 0.95rem;
+}
+
+.promptList {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.65rem;
+}
+
+.promptButton {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 0.95rem;
+  border: 1px solid rgba(214, 211, 209, 0.9);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.9);
+  color: #44403c;
+  cursor: pointer;
+}
+
+.promptButton:hover {
+  background: #fff7ed;
+}
+
+.ingredientSection {
+  display: flex;
+  flex-direction: column;
+  gap: 0.8rem;
+}
+
+.aiIngredientList {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.75rem;
+  align-items: stretch;
+}
+
+.aiIngredientItem {
+  min-width: 0;
+  height: 100%;
+}
+
+.catalogSection {
+  display: flex;
+  flex-direction: column;
+  gap: 0.8rem;
+}
+
+.sectionHeader {
+  display: flex;
+  align-items: end;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+.sectionLabel {
+  margin: 0;
+  font-size: 0.77rem;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  color: #78716c;
+}
+
+.sectionTitle,
+.sortTitle {
+  margin: 0.35rem 0 0;
+  font-size: 1.2rem;
+  color: #1c1917;
+}
+
+.sectionNote {
+  margin: 0.55rem 0 0;
+  color: #78716c;
+  line-height: 1.6;
+}
+
+.ingredientGrid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.8rem;
+}
+
+.ingredientCard {
+  appearance: none;
+  width: 100%;
+  border: 1px solid rgba(231, 229, 228, 0.95);
+  border-radius: 1.15rem;
+  background: rgba(255, 255, 255, 0.88);
+  padding: 1rem;
+  text-align: left;
+  cursor: pointer;
+  transition:
+    transform 150ms ease,
+    border-color 150ms ease,
+    box-shadow 150ms ease,
+    background-color 150ms ease;
+}
+
+.ingredientCard:hover {
+  transform: translateY(-1px);
+  border-color: rgba(168, 162, 158, 0.9);
+}
+
+.ingredientCardActive {
+  border-color: #1c1917;
+  background: #1f1a15;
+  box-shadow: 0 24px 50px -34px rgba(17, 24, 39, 0.7);
+}
+
+.ingredientCardActive .ingredientName,
+.ingredientCardActive .ingredientQuantity,
+.ingredientCardActive .ingredientRole,
+.ingredientCardActive .ingredientMeta,
+.ingredientCardActive .ingredientReason {
+  color: #fafaf9;
+}
+
+.ingredientCardTop {
+  display: flex;
+  align-items: start;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+.ingredientQuantity {
+  margin: 0;
+  font-size: 0.75rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: #a16207;
+}
+
+.ingredientName {
+  margin: 0.35rem 0 0;
+  font-size: 1.15rem;
+  color: #1c1917;
+}
+
+.ingredientRole {
+  margin: 0.7rem 0 0;
+  color: #57534e;
+  line-height: 1.55;
+}
+
+.ingredientMeta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  margin-top: 0.8rem;
+  font-size: 0.92rem;
+  color: #292524;
+}
+
+.ingredientBadges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+  margin-top: 0.8rem;
+}
+
+.ingredientReason {
+  margin: 0.8rem 0 0;
+  font-size: 0.88rem;
+  line-height: 1.6;
+  color: #78716c;
+}
+
+.catalogList {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+
+.catalogItem {
+  flex: 1 1 calc(50% - 0.375rem);
+  min-width: 23rem;
+}
+
+.emptyStateBody {
+  padding: 1.5rem;
+}
+
+.emptyStateTitle {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 600;
+  color: #1c1917;
+}
+
+.emptyStateCopy {
+  margin: 0.55rem 0 0;
+  color: #57534e;
+  line-height: 1.65;
+}
+
+.sidebar {
+  position: sticky;
+  top: 1.75rem;
+  min-width: 0;
+  overflow: hidden;
+  transition:
+    opacity 220ms ease,
+    transform 220ms ease;
+}
+
+.sidebarCollapsed {
+  opacity: 0;
+  pointer-events: none;
+  transform: translateX(2rem);
+}
+
+.sidebarExpanded {
+  opacity: 1;
+  transform: translateX(0);
+}
+
+.sidebarHeaderTop {
+  display: flex;
+  align-items: start;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+.bestSellerBody {
+  justify-content: space-between;
+}
+
+.bestSellerMeta {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 0.45rem;
+}
+
+.detailActions {
+  display: flex;
+  justify-content: flex-start;
+}
+
+.sortSection {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.sortRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.55rem;
+}
+
+.sortButton {
+  min-width: 0;
+}
+
+.sellerList {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.sellerCard {
+  border-radius: 1.15rem;
+  border-color: rgba(231, 229, 228, 0.9);
+  background: #fffdf9;
+}
+
+.sellerHeaderRow {
+  display: flex;
+  align-items: start;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+.sellerNameRow {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.sellerName {
+  font-size: 1.05rem;
+  color: #1c1917;
+}
+
+.priceWrap {
+  text-align: right;
+}
+
+.sellerBody {
+  display: flex;
+  flex-direction: column;
+  gap: 0.9rem;
+  padding: 1rem 1.25rem 1.15rem;
+}
+
+.sellerInfoGrid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.65rem;
+}
+
+.infoPill {
+  display: flex;
+  align-items: start;
+  gap: 0.65rem;
+  border-radius: 0.95rem;
+  background: #f7f4ee;
+  padding: 0.8rem 0.9rem;
+}
+
+.infoValue {
+  margin: 0.28rem 0 0;
+  line-height: 1.45;
+  color: #1c1917;
+}
+
+.sellerMetrics {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.basketControls {
+  display: flex;
+  align-items: end;
+  justify-content: space-between;
+  gap: 0.85rem;
+  flex-wrap: wrap;
+}
+
+.quantityGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
+}
+
+.quantityInput {
+  width: 6rem;
+}

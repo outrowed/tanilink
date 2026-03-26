@@ -1,0 +1,208 @@
+.root {
+  position: relative;
+}
+
+.rootHero {
+  width: min(52rem, 100%);
+  margin: 0 auto;
+}
+
+.searchForm {
+  display: block;
+}
+
+.searchInputWrap {
+  position: relative;
+}
+
+.searchIcon {
+  position: absolute;
+  top: 50%;
+  left: 0.95rem;
+  width: 1rem;
+  height: 1rem;
+  color: #57534e;
+  transform: translateY(-50%);
+}
+
+.searchInput {
+  min-height: 3rem;
+  padding-left: 2.75rem;
+  padding-right: 6.9rem;
+  border-color: rgba(214, 211, 209, 0.95);
+  background: rgba(255, 253, 249, 0.96);
+  color: #1c1917;
+  box-shadow: 0 16px 36px -28px rgba(17, 24, 39, 0.3);
+}
+
+.searchInput::placeholder {
+  color: #78716c;
+}
+
+.searchInputHero {
+  min-height: 3.7rem;
+  font-size: 1rem;
+  padding-right: 7.5rem;
+}
+
+.searchActions {
+  position: absolute;
+  top: 50%;
+  right: 0.55rem;
+  display: inline-flex;
+  gap: 0.55rem;
+  align-items: center;
+  transform: translateY(-50%);
+}
+
+.actionButton {
+  min-height: 2.2rem;
+  border-radius: 999px;
+}
+
+.aiButton {
+  padding-inline: 0.8rem;
+}
+
+.aiText {
+  font-size: 0.74rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.activeTabButton {
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.12);
+}
+
+.resetButton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.85rem;
+  height: 1.85rem;
+  border: 0;
+  border-radius: 999px;
+  background: transparent;
+  color: #78716c;
+  cursor: pointer;
+}
+
+.resetButton:hover {
+  background: rgba(231, 229, 228, 0.9);
+  color: #44403c;
+}
+
+.suggestionPanel {
+  position: absolute;
+  top: calc(100% + 0.65rem);
+  left: 0;
+  right: 0;
+  z-index: 20;
+  border: 1px solid rgba(214, 211, 209, 0.88);
+  border-radius: 1rem;
+  background: rgba(255, 252, 247, 0.99);
+  box-shadow: 0 28px 72px -38px rgba(17, 24, 39, 0.5);
+  overflow: hidden;
+}
+
+.rootHero .suggestionPanel {
+  position: static;
+  margin-top: 0.75rem;
+}
+
+.suggestionSection,
+.recentSection {
+  padding: 0.8rem;
+}
+
+.suggestionLabel {
+  margin: 0;
+  font-size: 0.74rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: #78716c;
+}
+
+.suggestionButton,
+.routeButton {
+  display: flex;
+  width: 100%;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding: 0.75rem 0.8rem;
+  border: 0;
+  background: transparent;
+  text-align: left;
+  cursor: pointer;
+}
+
+.suggestionButton:hover,
+.routeButton:hover,
+.recentButton:hover {
+  background: #f7f4ee;
+}
+
+.suggestionTitle {
+  margin: 0;
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: #1c1917;
+}
+
+.suggestionMeta {
+  margin: 0.22rem 0 0;
+  font-size: 0.82rem;
+  color: #78716c;
+}
+
+.suggestionEmpty {
+  margin: 0;
+  padding: 0.65rem 0.8rem;
+  color: #78716c;
+}
+
+.recentSection {
+  border-top: 1px solid rgba(231, 229, 228, 0.9);
+}
+
+.recentHeader {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+}
+
+.recentList {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.55rem;
+  margin-top: 0.8rem;
+}
+
+.recentButton {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  padding: 0.65rem 0.9rem;
+  border: 1px solid rgba(214, 211, 209, 0.85);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.86);
+  color: #44403c;
+  cursor: pointer;
+}
+
+.actionRow {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  border-top: 1px solid rgba(231, 229, 228, 0.9);
+}
+
+.routeButton {
+  justify-content: flex-start;
+  color: #44403c;
+}
+
+.smallIcon {
+  width: 1rem;
+  height: 1rem;
+}

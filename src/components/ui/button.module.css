@@ -1,0 +1,113 @@
+.root {
+  appearance: none;
+  border: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  white-space: nowrap;
+  border-radius: var(--radius-md);
+  font-size: 0.875rem;
+  font-weight: 500;
+  line-height: 1;
+  transition:
+    background-color 160ms ease,
+    border-color 160ms ease,
+    color 160ms ease,
+    box-shadow 160ms ease,
+    transform 160ms ease,
+    opacity 160ms ease;
+  cursor: pointer;
+}
+
+.root:disabled {
+  pointer-events: none;
+  opacity: 0.5;
+}
+
+.root:focus-visible {
+  outline: none;
+  box-shadow:
+    0 0 0 2px color-mix(in srgb, var(--ring) 55%, transparent),
+    0 0 0 4px color-mix(in srgb, var(--background) 85%, transparent);
+}
+
+.default {
+  background: var(--primary);
+  color: var(--primary-foreground);
+}
+
+.default:hover {
+  background: color-mix(in srgb, var(--primary) 90%, white);
+}
+
+.destructive {
+  background: var(--destructive);
+  color: white;
+}
+
+.destructive:hover {
+  background: color-mix(in srgb, var(--destructive) 90%, black);
+}
+
+.outline {
+  border: 1px solid var(--input);
+  background: var(--background);
+  color: var(--foreground);
+}
+
+.outline:hover {
+  background: var(--accent);
+  color: var(--accent-foreground);
+}
+
+.secondary {
+  background: var(--secondary);
+  color: var(--secondary-foreground);
+}
+
+.secondary:hover {
+  background: color-mix(in srgb, var(--secondary) 84%, black);
+}
+
+.ghost {
+  background: transparent;
+  color: inherit;
+}
+
+.ghost:hover {
+  background: var(--accent);
+  color: var(--accent-foreground);
+}
+
+.link {
+  background: transparent;
+  color: var(--primary);
+  text-underline-offset: 4px;
+}
+
+.link:hover {
+  text-decoration: underline;
+}
+
+.sizeDefault {
+  min-height: 2.5rem;
+  padding: 0.625rem 1rem;
+}
+
+.sizeSm {
+  min-height: 2.25rem;
+  padding: 0.5rem 0.875rem;
+}
+
+.sizeLg {
+  min-height: 2.75rem;
+  padding: 0.75rem 1.5rem;
+}
+
+.sizeIcon {
+  width: 2.5rem;
+  min-width: 2.5rem;
+  min-height: 2.5rem;
+  padding: 0;
+}

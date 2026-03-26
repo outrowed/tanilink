@@ -1,0 +1,290 @@
+.page {
+  min-height: 100vh;
+  background:
+    radial-gradient(circle at top left, rgba(251, 191, 36, 0.14), transparent 24%),
+    radial-gradient(circle at bottom right, rgba(34, 197, 94, 0.14), transparent 28%),
+    linear-gradient(180deg, #f3efe6 0%, #f7f5ef 28%, #ece7da 100%);
+}
+
+.inner {
+  margin: 0 auto;
+  max-width: 1600px;
+  padding: 1.75rem;
+}
+
+.backRow {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 0.25rem;
+}
+
+.metricLabel,
+.infoLabel,
+.sectionLabel {
+  margin: 0;
+  font-size: 0.75rem;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: #78716c;
+}
+
+.layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1.1fr) minmax(380px, 0.9fr);
+  gap: 1.25rem;
+  margin-top: 1rem;
+  align-items: start;
+}
+
+.mainColumn {
+  min-width: 0;
+}
+
+.overviewCard,
+.sidebarCard {
+  border-radius: 1.25rem;
+  border-color: rgba(231, 229, 228, 0.9);
+  background: rgba(255, 255, 255, 0.9);
+  box-shadow: 0 28px 72px -52px rgba(17, 24, 39, 0.58);
+}
+
+.overviewHeader,
+.sidebarHeader {
+  padding: 1.25rem;
+}
+
+.overviewTop,
+.sellerHeaderTop,
+.sidebarHeaderTop {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+.identityRow {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.875rem;
+}
+
+.iconCard {
+  width: 4rem;
+  height: 4rem;
+  border-radius: 1rem;
+  background: #1c1917;
+  color: white;
+  box-shadow: none;
+}
+
+.iconBody {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  padding: 0;
+  font-size: 0.875rem;
+  font-weight: 600;
+  letter-spacing: 0.24em;
+}
+
+.badgeRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-bottom: 0.55rem;
+}
+
+.categoryBadge {
+  font-size: 0.75rem;
+}
+
+.title,
+.sidebarTitle {
+  font-size: 1.85rem;
+  line-height: 1.1;
+  color: #1c1917;
+}
+
+.description {
+  margin-top: 0.7rem;
+  max-width: 44rem;
+  color: #57534e;
+  line-height: 1.7;
+}
+
+.chartBody {
+  padding: 1.25rem;
+}
+
+.statsGrid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 0.75rem;
+  padding: 1.25rem;
+}
+
+.metricCard {
+  border-radius: 1rem;
+  background: #f7f4ee;
+  border-color: rgba(231, 229, 228, 0.9);
+  box-shadow: none;
+}
+
+.metricBody {
+  padding: 0.875rem 1rem;
+}
+
+.metricValue,
+.priceValue {
+  margin: 0.3rem 0 0;
+  font-size: 1.05rem;
+  font-weight: 600;
+  color: #1c1917;
+}
+
+.sidebar {
+  position: sticky;
+  top: 1.75rem;
+}
+
+.sidebarBody {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  padding: 0 1.25rem 1.25rem;
+}
+
+.bestMatchSection {
+  display: flex;
+  flex-direction: column;
+}
+
+.spotlightIntro {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.6rem;
+  margin-bottom: 0.9rem;
+}
+
+.spotlightBadgeRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+}
+
+.sortSection {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.sortTitle {
+  margin: 0.4rem 0 0;
+  font-size: 1.1rem;
+  color: #1c1917;
+}
+
+.sortRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.55rem;
+}
+
+.sellerList {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.sellerCard {
+  border-radius: 1.1rem;
+  border-color: rgba(231, 229, 228, 0.9);
+  background: #fffdf9;
+}
+
+.sellerCardSpotlight {
+  border-color: rgba(34, 197, 94, 0.24);
+  background: linear-gradient(180deg, rgba(245, 251, 244, 0.98) 0%, rgba(255, 253, 249, 1) 100%);
+  box-shadow: 0 20px 48px -40px rgba(21, 128, 61, 0.5);
+}
+
+.sellerHeader {
+  padding: 1rem 1.15rem;
+}
+
+.sellerTitleRow {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.sellerTitle {
+  font-size: 1.05rem;
+  color: #1c1917;
+}
+
+.priceBlock {
+  text-align: right;
+}
+
+.sellerBody {
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
+  padding: 1rem 1.15rem 1.15rem;
+}
+
+.infoGrid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.65rem;
+}
+
+.infoPill {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.65rem;
+  border-radius: 0.95rem;
+  background: #f7f4ee;
+  padding: 0.8rem 0.9rem;
+}
+
+.infoValue {
+  margin: 0.3rem 0 0;
+  color: #1c1917;
+  line-height: 1.45;
+}
+
+.badgeList {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.basketControls {
+  display: flex;
+  align-items: end;
+  justify-content: space-between;
+  gap: 0.85rem;
+  flex-wrap: wrap;
+}
+
+.quantityGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
+}
+
+.quantityInput {
+  width: 6rem;
+}
+
+.icon {
+  width: 1rem;
+  height: 1rem;
+}

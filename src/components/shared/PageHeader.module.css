@@ -1,0 +1,52 @@
+.header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+  padding-inline: 0.2rem;
+}
+
+.copy {
+  min-width: 0;
+}
+
+.label {
+  margin: 0;
+  font-size: 0.75rem;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: #78716c;
+}
+
+.title {
+  margin: 0.4rem 0 0;
+  font-size: 1.4rem;
+  line-height: 1.15;
+  color: #1c1917;
+}
+
+.description {
+  margin: 0.6rem 0 0;
+  max-width: 42rem;
+  color: #57534e;
+  line-height: 1.65;
+}
+
+.side {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 0.65rem;
+}
+
+.action {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.meta {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 0.5rem;
+}

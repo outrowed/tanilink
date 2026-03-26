@@ -1,0 +1,412 @@
+.page {
+  min-height: 100vh;
+  background:
+    radial-gradient(circle at top left, rgba(251, 191, 36, 0.14), transparent 24%),
+    radial-gradient(circle at bottom right, rgba(34, 197, 94, 0.14), transparent 28%),
+    linear-gradient(180deg, #f3efe6 0%, #f7f5ef 28%, #ece7da 100%);
+}
+
+.inner {
+  margin: 0 auto;
+  max-width: 1600px;
+  padding: 1.75rem;
+}
+
+.headerMeta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  justify-content: flex-end;
+}
+
+.dashboardLayout {
+  display: grid;
+  grid-template-columns: minmax(0, 1.1fr) minmax(22rem, 0.78fr);
+  gap: 1.25rem;
+  margin-top: 1rem;
+  align-items: start;
+}
+
+.splitLayout {
+  display: grid;
+  grid-template-columns: minmax(21rem, 0.85fr) minmax(0, 1.15fr);
+  gap: 1.25rem;
+  margin-top: 1rem;
+  align-items: start;
+}
+
+.singleColumnLayout {
+  margin-top: 1rem;
+}
+
+.mainColumn,
+.listColumn,
+.detailColumn,
+.sidebarColumn {
+  min-width: 0;
+}
+
+.sidebarColumn,
+.detailColumn {
+  position: sticky;
+  top: 1.75rem;
+}
+
+.panelCard,
+.linkCard,
+.emptyStateCard {
+  border-radius: 1.25rem;
+  border-color: rgba(231, 229, 228, 0.9);
+  background: rgba(255, 255, 255, 0.9);
+  box-shadow: 0 28px 72px -52px rgba(17, 24, 39, 0.58);
+}
+
+.panelHeader {
+  padding: 1.2rem 1.25rem 0.95rem;
+}
+
+.panelBody {
+  display: flex;
+  flex-direction: column;
+  gap: 0.95rem;
+  padding: 0 1.25rem 1.25rem;
+}
+
+.panelTitle {
+  font-size: 1.35rem;
+  color: #1c1917;
+}
+
+.identityRow {
+  display: flex;
+  align-items: center;
+  gap: 0.9rem;
+}
+
+.avatarBadge,
+.itemIcon,
+.linkIconWrap {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 1rem;
+  background: #1c1917;
+  color: white;
+}
+
+.avatarBadge {
+  width: 3.9rem;
+  height: 3.9rem;
+  font-size: 1rem;
+  font-weight: 600;
+  letter-spacing: 0.18em;
+}
+
+.linkIconWrap {
+  width: 2.75rem;
+  height: 2.75rem;
+  flex-shrink: 0;
+}
+
+.identityMetaGrid,
+.summaryGrid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.75rem;
+}
+
+.metricCard,
+.sideListCard,
+.listSurface {
+  border-radius: 1rem;
+  background: #f7f4ee;
+  border-color: rgba(231, 229, 228, 0.9);
+  box-shadow: none;
+}
+
+.metricBody,
+.sideListBody,
+.listSurfaceBody {
+  padding: 0.9rem 1rem;
+}
+
+.metricLabel {
+  margin: 0;
+  font-size: 0.75rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: #78716c;
+}
+
+.metricValue,
+.selectionTitle,
+.sideListTitle {
+  margin: 0.35rem 0 0;
+  font-size: 1rem;
+  font-weight: 600;
+  color: #1c1917;
+}
+
+.linkGrid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.75rem;
+  margin-top: 0.75rem;
+}
+
+.linkBody {
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
+  padding: 0 1.25rem 1.25rem;
+}
+
+.sideList {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.sideListHeader,
+.selectionHeader,
+.selectionFooter,
+.detailHeaderRow,
+.logoutRow {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+.sideListCopy,
+.selectionMeta {
+  margin: 0.3rem 0 0;
+  color: #57534e;
+  line-height: 1.55;
+}
+
+.selectionCard {
+  appearance: none;
+  width: 100%;
+  border: 1px solid rgba(231, 229, 228, 0.95);
+  border-radius: 1.1rem;
+  background: #fffdf9;
+  padding: 1rem 1.05rem;
+  text-align: left;
+  cursor: pointer;
+  transition:
+    border-color 160ms ease,
+    background-color 160ms ease,
+    box-shadow 160ms ease,
+    transform 160ms ease;
+}
+
+.selectionCard:hover {
+  border-color: rgba(120, 113, 108, 0.24);
+  box-shadow: 0 16px 36px -28px rgba(17, 24, 39, 0.45);
+}
+
+.selectionCardActive {
+  border-color: rgba(28, 25, 23, 0.88);
+  background: #1c1917;
+}
+
+.selectionCardActive .selectionTitle,
+.selectionCardActive .selectionMeta,
+.selectionCardActive .selectionCopy,
+.selectionCardActive .selectionFooter {
+  color: white;
+}
+
+.selectionCopy {
+  margin: 0.6rem 0 0;
+  color: #57534e;
+  line-height: 1.55;
+}
+
+.selectionFooter {
+  margin-top: 0.75rem;
+  color: #78716c;
+  font-size: 0.88rem;
+}
+
+.filterRow,
+.badgeRow,
+.buttonGrid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.65rem;
+}
+
+.listStack,
+.itemList,
+.timelineList,
+.messageList {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.sectionBlock {
+  display: flex;
+  flex-direction: column;
+  gap: 0.7rem;
+}
+
+.itemPrimary,
+.messageRow {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.85rem;
+}
+
+.itemPrimary {
+  min-width: 0;
+}
+
+.itemIcon {
+  width: 3.2rem;
+  height: 3.2rem;
+  font-size: 0.85rem;
+  font-weight: 600;
+  letter-spacing: 0.18em;
+  flex-shrink: 0;
+}
+
+.itemActions {
+  display: flex;
+  flex-direction: column;
+  gap: 0.55rem;
+  align-items: flex-end;
+}
+
+.timelineItem {
+  display: flex;
+  gap: 0.8rem;
+  align-items: flex-start;
+}
+
+.timelineDot {
+  width: 0.9rem;
+  height: 0.9rem;
+  border-radius: 999px;
+  margin-top: 0.35rem;
+  flex-shrink: 0;
+}
+
+.timelineDotDone {
+  background: #16a34a;
+}
+
+.timelineDotCurrent {
+  background: #2563eb;
+}
+
+.timelineDotPending {
+  background: #d6d3d1;
+}
+
+.timelineDotIssue {
+  background: #e11d48;
+}
+
+.timelineCopy {
+  min-width: 0;
+  flex: 1;
+}
+
+.settingsGrid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1rem;
+}
+
+.messageRowUser {
+  justify-content: flex-end;
+}
+
+.messageBubble {
+  max-width: min(34rem, 88%);
+  border-radius: 1rem;
+  background: #f7f4ee;
+  padding: 0.95rem 1rem;
+}
+
+.messageBubbleUser {
+  background: #1c1917;
+}
+
+.messageBubbleUser .messageAuthor,
+.messageBubbleUser .messageText,
+.messageBubbleUser .messageTime {
+  color: white;
+}
+
+.messageAuthor,
+.messageText,
+.messageTime {
+  margin: 0;
+}
+
+.messageAuthor {
+  font-size: 0.86rem;
+  font-weight: 600;
+  color: #1c1917;
+}
+
+.messageText {
+  margin-top: 0.45rem;
+  line-height: 1.65;
+  color: #57534e;
+}
+
+.messageTime {
+  margin-top: 0.55rem;
+  font-size: 0.8rem;
+  color: #78716c;
+}
+
+.composerBlock {
+  display: flex;
+  flex-direction: column;
+  gap: 0.7rem;
+}
+
+.composerArea {
+  appearance: none;
+  width: 100%;
+  min-height: 7rem;
+  resize: none;
+  border: 1px solid rgba(214, 211, 209, 0.9);
+  border-radius: 1rem;
+  background: rgba(255, 255, 255, 0.84);
+  padding: 0.85rem 1rem;
+  color: #57534e;
+  font: inherit;
+}
+
+.emptyStateCard {
+  margin-top: 1rem;
+}
+
+.emptyStateBody {
+  padding: 1.4rem;
+}
+
+.emptyStateTitle {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 600;
+  color: #1c1917;
+}
+
+.emptyStateCopy {
+  margin: 0.55rem 0 0;
+  color: #57534e;
+  line-height: 1.65;
+}
+
+.icon {
+  width: 1rem;
+  height: 1rem;
+}

@@ -1,0 +1,206 @@
+.page {
+  min-height: 100vh;
+  background:
+    radial-gradient(circle at top left, rgba(251, 191, 36, 0.14), transparent 24%),
+    radial-gradient(circle at bottom right, rgba(34, 197, 94, 0.14), transparent 28%),
+    linear-gradient(180deg, #f3efe6 0%, #f7f5ef 28%, #ece7da 100%);
+}
+
+.inner {
+  margin: 0 auto;
+  max-width: 1600px;
+  padding: 1.75rem;
+}
+
+.headerMeta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  justify-content: flex-end;
+}
+
+.layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1.1fr) minmax(320px, 0.82fr);
+  gap: 1.25rem;
+  margin-top: 1rem;
+  align-items: start;
+}
+
+.lineList,
+.summaryColumn {
+  min-width: 0;
+}
+
+.summaryColumn {
+  position: sticky;
+  top: 1.75rem;
+}
+
+.lineList {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.lineCard,
+.summaryCard,
+.emptyStateCard {
+  border-radius: 1.25rem;
+  border-color: rgba(231, 229, 228, 0.9);
+  background: rgba(255, 255, 255, 0.9);
+  box-shadow: 0 28px 72px -52px rgba(17, 24, 39, 0.58);
+}
+
+.lineBody {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 1rem 1.15rem;
+}
+
+.linePrimary {
+  display: flex;
+  align-items: center;
+  gap: 0.9rem;
+  min-width: 0;
+}
+
+.iconBadge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 3.5rem;
+  height: 3.5rem;
+  border-radius: 1rem;
+  background: #1c1917;
+  color: white;
+  font-size: 0.875rem;
+  font-weight: 600;
+  letter-spacing: 0.2em;
+  flex-shrink: 0;
+}
+
+.lineCopy {
+  min-width: 0;
+}
+
+.lineTitle {
+  margin: 0;
+  font-size: 1.05rem;
+  font-weight: 600;
+  color: #1c1917;
+}
+
+.lineMeta {
+  margin: 0.32rem 0 0;
+  color: #57534e;
+}
+
+.lineControls {
+  display: flex;
+  align-items: end;
+  gap: 1rem;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+
+.quantityGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
+}
+
+.quantityInput {
+  width: 6rem;
+}
+
+.priceGroup {
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.fieldLabel {
+  margin: 0;
+  font-size: 0.75rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: #78716c;
+}
+
+.valueText,
+.summaryValue {
+  margin: 0.35rem 0 0;
+  font-size: 1rem;
+  font-weight: 600;
+  color: #1c1917;
+}
+
+.summaryHeader {
+  padding: 1.2rem 1.25rem 0.95rem;
+}
+
+.summaryTitle {
+  font-size: 1.35rem;
+  color: #1c1917;
+}
+
+.summaryBody {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  padding: 0 1.25rem 1.25rem;
+}
+
+.metricCard {
+  border-radius: 1rem;
+  background: #f7f4ee;
+  border-color: rgba(231, 229, 228, 0.9);
+  box-shadow: none;
+}
+
+.metricBody {
+  padding: 0.85rem 1rem;
+}
+
+.actionStack {
+  display: flex;
+  flex-direction: column;
+  gap: 0.65rem;
+  margin-top: 0.5rem;
+}
+
+.emptyStateBody {
+  padding: 1.5rem;
+}
+
+.emptyStateCard {
+  margin-top: 1rem;
+}
+
+.emptyStateTitle {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 600;
+  color: #1c1917;
+}
+
+.emptyStateCopy {
+  margin: 0.55rem 0 0;
+  color: #57534e;
+  line-height: 1.65;
+}
+
+.emptyActions {
+  display: flex;
+  gap: 0.75rem;
+  margin-top: 1.1rem;
+  flex-wrap: wrap;
+}
+
+.icon {
+  width: 1rem;
+  height: 1rem;
+}

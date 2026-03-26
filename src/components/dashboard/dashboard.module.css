@@ -1,0 +1,961 @@
+.section {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.sectionHeader {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding-inline: 0.25rem;
+}
+
+.sectionLabel {
+  margin: 0;
+  font-size: 0.875rem;
+  letter-spacing: 0.25em;
+  text-transform: uppercase;
+  color: #78716c;
+}
+
+.sectionTitle {
+  margin: 0.5rem 0 0;
+  font-size: 1.875rem;
+  line-height: 1.1;
+  font-weight: 600;
+  letter-spacing: -0.03em;
+  color: #1c1917;
+}
+
+.sectionNote {
+  margin: 0;
+  max-width: 22rem;
+  text-align: right;
+  font-size: 0.875rem;
+  line-height: 1.7;
+  color: #78716c;
+}
+
+.navbar {
+  border-color: color-mix(in srgb, #d6d3d1 80%, transparent);
+  background: rgba(255, 255, 255, 0.75);
+  border-radius: 1.25rem;
+  box-shadow: 0 22px 60px -46px rgba(44, 33, 15, 0.45);
+}
+
+.navbarBody {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1.5rem;
+  padding: 1.125rem 1.375rem;
+}
+
+.navbarPrimary {
+  display: flex;
+  align-items: center;
+  gap: 0.875rem;
+  min-width: 0;
+}
+
+.navbarCopy {
+  min-width: 0;
+}
+
+.wordmark {
+  margin: 0;
+  font-size: 1.9rem;
+  font-weight: 600;
+  letter-spacing: -0.05em;
+  color: #1c1917;
+}
+
+.navbarNote {
+  margin: 0.2rem 0 0;
+  font-size: 0.9rem;
+  color: #78716c;
+}
+
+.navbarMeta {
+  display: flex;
+  align-items: center;
+  gap: 0.875rem;
+}
+
+.navbarLocation {
+  min-width: 18rem;
+  border: 1px solid rgba(231, 229, 228, 0.95);
+  border-radius: 0.95rem;
+  background: rgba(247, 244, 238, 0.92);
+  padding: 0.75rem 0.95rem;
+  text-align: right;
+}
+
+.navbarLocationLabel {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 0.4rem;
+  font-size: 0.72rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: #78716c;
+}
+
+.navbarLocationValue {
+  margin: 0.28rem 0 0;
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: #1c1917;
+}
+
+.navbarLocationSubtle {
+  margin: 0.18rem 0 0;
+  font-size: 0.84rem;
+  color: #57534e;
+}
+
+.unstyledButton {
+  appearance: none;
+  border: 0;
+  background: transparent;
+  padding: 0;
+  margin: 0;
+  width: 100%;
+  text-align: left;
+  font: inherit;
+  color: inherit;
+  cursor: pointer;
+}
+
+.itemCard {
+  border-radius: 2rem;
+  height: 100%;
+  padding-block: 0;
+  transition:
+    transform 160ms ease,
+    border-color 160ms ease,
+    background-color 160ms ease,
+    box-shadow 160ms ease;
+}
+
+.itemCard:hover {
+  transform: translateY(-2px);
+}
+
+.itemCardMuted {
+  border-color: #e7e5e4;
+  background: rgba(255, 255, 255, 0.88);
+  color: #1c1917;
+}
+
+.itemCardActive {
+  border-color: #1c1917;
+  background: #1c1917;
+  background-color: #1c1917;
+  color: white;
+  box-shadow: 0 26px 70px -40px rgba(20, 20, 20, 0.8);
+}
+
+.itemCard.itemCardActive {
+  background: #1c1917;
+  background-color: #1c1917;
+  border-color: #1c1917;
+}
+
+.itemCardBody {
+  padding: 0.875rem;
+}
+
+.itemRow {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.875rem;
+}
+
+.iconCardLarge,
+.iconCardMedium,
+.iconCardSmall {
+  border: 0;
+  box-shadow: none;
+  flex-shrink: 0;
+}
+
+.iconCardLarge {
+  width: 4rem;
+  height: 4rem;
+  border-radius: 1.1rem;
+  background: #1c1917;
+  color: white;
+}
+
+.iconCardMedium {
+  width: 3.5rem;
+  height: 3.5rem;
+  border-radius: 1rem;
+  background: #f5f5f4;
+  color: #44403c;
+}
+
+.iconCardMediumActive {
+  background: rgba(255, 255, 255, 0.1);
+  color: white;
+}
+
+.iconCardSmall {
+  width: 3rem;
+  height: 3rem;
+  border-radius: 1rem;
+  background: #f5f5f4;
+  color: #44403c;
+}
+
+.iconCardBody {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  padding: 0;
+  font-weight: 600;
+}
+
+.iconLargeText {
+  font-size: 0.875rem;
+  letter-spacing: 0.25em;
+}
+
+.iconMediumText {
+  font-size: 0.875rem;
+  letter-spacing: 0.2em;
+}
+
+.iconSmallText {
+  font-size: 0.75rem;
+  letter-spacing: 0.22em;
+}
+
+.itemMain {
+  min-width: 0;
+  flex: 1;
+}
+
+.itemTop {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+.itemTitle {
+  margin: 0;
+  font-size: 1.125rem;
+  font-weight: 600;
+}
+
+.itemTitleActive {
+  color: #fafaf9;
+}
+
+.itemTitleSmall {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 600;
+  color: #1c1917;
+}
+
+.itemSubtitle {
+  margin: 0.25rem 0 0;
+  font-size: 0.875rem;
+  color: #78716c;
+}
+
+.itemSubtitleActive {
+  color: #d6d3d1;
+}
+
+.itemDetail {
+  margin-top: 0.8rem;
+}
+
+.itemDetailIcon {
+  width: 0.9rem;
+  height: 0.9rem;
+  flex-shrink: 0;
+}
+
+.itemDetailRole {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  margin: 0;
+  color: #57534e;
+  line-height: 1.55;
+}
+
+.itemDetailMeta {
+  margin: 0.75rem 0 0;
+  font-size: 0.9rem;
+  color: #292524;
+}
+
+.itemDetailReason {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  margin: 0.75rem 0 0;
+  color: #78716c;
+  line-height: 1.55;
+  font-size: 0.88rem;
+}
+
+.itemDetailActive .itemDetailRole {
+  color: #fafaf9;
+}
+
+.itemDetailActive .itemDetailMeta {
+  color: #f5f5f4;
+}
+
+.itemDetailActive .itemDetailReason {
+  color: #d6d3d1;
+}
+
+.itemChart {
+  margin-top: 0.75rem;
+}
+
+.itemFooter {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 0.75rem;
+  margin-top: 0.75rem;
+}
+
+.metricLabel {
+  margin: 0;
+  font-size: 0.75rem;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  color: #78716c;
+}
+
+.metricLabelActive {
+  color: #a8a29e;
+}
+
+.metricValue {
+  margin: 0.5rem 0 0;
+  font-size: 1.25rem;
+  font-weight: 600;
+}
+
+.metricValueActive {
+  color: #fafaf9;
+}
+
+.categoryBadge {
+  padding: 0.25rem 0.75rem;
+  font-size: 0.75rem;
+}
+
+.categoryBadgeActive {
+  border-color: transparent;
+  background: rgba(255, 255, 255, 0.1);
+  color: #e7e5e4;
+}
+
+.badgeStaple {
+  background: #fef3c7;
+  color: #92400e;
+  border-color: transparent;
+}
+
+.badgeProtein {
+  background: #ede9fe;
+  color: #5b21b6;
+  border-color: transparent;
+}
+
+.badgeVegetable {
+  background: #dcfce7;
+  color: #166534;
+  border-color: transparent;
+}
+
+.badgeSpice {
+  background: #ffe4e6;
+  color: #be123c;
+  border-color: transparent;
+}
+
+.badgePantry {
+  background: #e0f2fe;
+  color: #0369a1;
+  border-color: transparent;
+}
+
+.overviewCard {
+  border-radius: 1.25rem;
+  border-color: #e7e5e4;
+  background: rgba(255, 255, 255, 0.92);
+  box-shadow: 0 32px 80px -48px rgba(17, 24, 39, 0.65);
+}
+
+.overviewHeader {
+  padding: 1.375rem;
+}
+
+.overviewContent {
+  padding: 1.375rem;
+}
+
+.overviewStats {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 0.75rem;
+  padding: 1.375rem;
+}
+
+.selectedBadge {
+  margin-bottom: 0.5rem;
+  padding: 0.25rem 0.75rem;
+  font-size: 0.7rem;
+  letter-spacing: 0.28em;
+}
+
+.overviewDescription {
+  margin: 0.75rem 0 0;
+  max-width: 42rem;
+  font-size: 0.875rem;
+  line-height: 1.75;
+  color: #57534e;
+}
+
+.sellerSectionHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding-inline: 0.25rem;
+}
+
+.sellerCountBadge {
+  padding: 0.5rem 1rem;
+  font-size: 0.875rem;
+}
+
+.sellerList {
+  display: grid;
+  gap: 0.75rem;
+}
+
+.sellerCard {
+  border-radius: 1.5rem;
+  border-color: #e7e5e4;
+  background: rgba(255, 255, 255, 0.8);
+  box-shadow: 0 18px 44px -36px rgba(17, 24, 39, 0.55);
+}
+
+.sellerHeader {
+  padding: 1.125rem 1.25rem;
+}
+
+.sellerHeaderRow {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.sellerTitle {
+  margin: 0;
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: #1c1917;
+}
+
+.sellerStock {
+  margin: 0.25rem 0 0;
+  font-size: 0.875rem;
+  color: #78716c;
+}
+
+.sellerPriceCard {
+  border-radius: 0.875rem;
+  border-color: #1c1917;
+  background: #1c1917;
+  color: white;
+  box-shadow: none;
+}
+
+.sellerPriceBody {
+  padding: 0.625rem 0.875rem;
+  text-align: right;
+}
+
+.sellerPriceLabel {
+  margin: 0;
+  font-size: 0.75rem;
+  letter-spacing: 0.25em;
+  text-transform: uppercase;
+  color: #a8a29e;
+}
+
+.sellerPriceValue {
+  margin: 0.25rem 0 0;
+  font-size: 1.125rem;
+  font-weight: 600;
+}
+
+.sellerBody {
+  padding: 1.125rem 1.25rem;
+}
+
+.sellerMetaGrid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.625rem;
+}
+
+.sellerRating {
+  margin-top: 0.75rem;
+  padding: 0.375rem 0.75rem;
+  font-size: 0.875rem;
+}
+
+.ratingIcon {
+  width: 1rem;
+  height: 1rem;
+}
+
+.ratingIconFilled {
+  fill: currentColor;
+}
+
+.infoTile {
+  gap: 0;
+  border-radius: 0.875rem;
+  border-color: color-mix(in srgb, #e7e5e4 70%, transparent);
+  background: #f5f5f4;
+  box-shadow: none;
+}
+
+.infoTileBody {
+  padding: 0.875rem;
+}
+
+.infoTileLabelRow {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.infoTileLabel {
+  color: #78716c;
+}
+
+.infoTileValue {
+  margin: 0.375rem 0 0;
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: #1c1917;
+}
+
+.infoTileCompact {
+  padding: 0.625rem;
+}
+
+.infoTileCompactValue {
+  font-size: 1rem;
+}
+
+.smallIcon {
+  width: 1rem;
+  height: 1rem;
+}
+
+.trendBadge {
+  gap: 0.25rem;
+  padding: 0.25rem 0.75rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+}
+
+.trendPositive {
+  background: #fff1f2;
+  color: #be123c;
+}
+
+.trendNegative {
+  background: #ecfdf3;
+  color: #027a48;
+}
+
+.trendPositiveActive {
+  background: rgba(255, 255, 255, 0.08);
+  color: #fecdd3;
+}
+
+.trendNegativeActive {
+  background: rgba(255, 255, 255, 0.08);
+  color: #bbf7d0;
+}
+
+.priceChartCompact {
+  height: 5rem;
+  width: 100%;
+}
+
+.priceChartCard {
+  border-radius: 1.25rem;
+  border-color: color-mix(in srgb, #e7e5e4 70%, transparent);
+  background: linear-gradient(135deg, #fff7ed 0%, #ffffff 38%, #eef8f1 100%);
+  box-shadow: none;
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, #d6d3d1 60%, transparent);
+}
+
+.priceChartHeader {
+  padding: 1.125rem 1.25rem;
+  border-bottom: 1px solid color-mix(in srgb, #d6d3d1 60%, transparent);
+}
+
+.priceChartTitle {
+  font-size: 1rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: #78716c;
+}
+
+.priceChartDescription {
+  margin-top: 0.375rem;
+  font-size: 0.875rem;
+  line-height: 1.7;
+  color: #57534e;
+}
+
+.priceChartContent {
+  padding: 1.125rem 1.25rem;
+}
+
+.priceChartExpanded {
+  height: 17.5rem;
+  width: 100%;
+}
+
+.priceChartFooter {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 1rem 1.25rem;
+  border-top: 1px solid color-mix(in srgb, #d6d3d1 60%, transparent);
+  background: transparent;
+}
+
+.priceChartFooterText {
+  margin: 0;
+  font-size: 0.875rem;
+  color: #57534e;
+}
+
+.priceChartFooterSubtle {
+  margin: 0;
+  font-size: 0.875rem;
+  color: #78716c;
+}
+
+.mosaicGrid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.75rem;
+}
+
+.mosaicCard {
+  border-radius: 2rem;
+  border-color: #e7e5e4;
+  background: rgba(255, 255, 255, 0.88);
+  box-shadow: 0 24px 60px -42px rgba(17, 24, 39, 0.5);
+  padding-block: 0;
+  transition:
+    transform 160ms ease,
+    border-color 160ms ease;
+}
+
+.mosaicCard:hover {
+  transform: translateY(-2px);
+  border-color: #d6d3d1;
+}
+
+.mosaicHeader {
+  padding: 1rem;
+}
+
+.mosaicHeaderRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+.mosaicMeta {
+  display: flex;
+  align-items: center;
+  gap: 0.625rem;
+}
+
+.mosaicArrow {
+  width: 1rem;
+  height: 1rem;
+  color: #a8a29e;
+}
+
+.mosaicBody {
+  padding: 0 1rem 1rem;
+}
+
+.mosaicChartCard {
+  border-radius: 1.25rem;
+  border-color: #f0ebe5;
+  background: #f7f5f2;
+  box-shadow: none;
+}
+
+.mosaicChartBody {
+  padding: 0.875rem;
+}
+
+.mosaicFooter {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  margin-top: 0.75rem;
+}
+
+.sidebarCard {
+  position: sticky;
+  top: 2rem;
+  border-radius: 1.25rem;
+  border-color: color-mix(in srgb, #e7e5e4 80%, transparent);
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.95), rgba(249, 248, 245, 0.92));
+  box-shadow: 0 30px 90px -56px rgba(17, 24, 39, 0.6);
+}
+
+.sidebarHeader {
+  padding: 1.125rem 1.25rem;
+}
+
+.sidebarClearButton {
+  border-radius: 999px;
+  background: #f5f5f4;
+  color: #57534e;
+  font-size: 0.875rem;
+  font-weight: 600;
+}
+
+.sidebarClearButton:hover {
+  background: #e7e5e4;
+}
+
+.sidebarBody {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  padding: 1.125rem 1.25rem;
+}
+
+.floatingShell {
+  position: fixed;
+  left: 50%;
+  bottom: 1.75rem;
+  z-index: 40;
+  width: min(24rem, calc(100vw - 2.5rem));
+  transform: translateX(-50%);
+  transition: width 180ms ease;
+}
+
+.floatingShell:hover,
+.floatingShell:focus-within {
+  width: min(44rem, calc(100vw - 2.5rem));
+}
+
+.floatingCard {
+  overflow: hidden;
+  border-radius: 1.25rem;
+  border-color: rgba(28, 25, 23, 0.2);
+  background: rgba(28, 25, 23, 0.92);
+  color: white;
+  box-shadow: 0 46px 120px -42px rgba(15, 23, 42, 0.9);
+  backdrop-filter: blur(24px);
+  box-shadow:
+    0 46px 120px -42px rgba(15, 23, 42, 0.9),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.1);
+  transition:
+    border-radius 180ms ease,
+    transform 180ms ease,
+    box-shadow 180ms ease;
+}
+
+.floatingShell:hover .floatingCard,
+.floatingShell:focus-within .floatingCard {
+  box-shadow:
+    0 38px 98px -40px rgba(15, 23, 42, 0.88),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.12);
+}
+
+.floatingBody {
+  padding: 0.875rem 1rem;
+}
+
+.floatingRow {
+  display: flex;
+  align-items: center;
+  gap: 0.875rem;
+}
+
+.floatingIconCard {
+  width: 2.875rem;
+  height: 2.875rem;
+  border-radius: 0.875rem;
+  border-color: transparent;
+  background: rgba(255, 255, 255, 0.08);
+  box-shadow: none;
+  transition: background-color 180ms ease;
+}
+
+.floatingShell:hover .floatingIconCard,
+.floatingShell:focus-within .floatingIconCard {
+  background: rgba(255, 255, 255, 0.12);
+}
+
+.floatingIconBody {
+  display: flex;
+  width: 100%;
+  height: 100%;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+}
+
+.floatingSearchIcon {
+  width: 1rem;
+  height: 1rem;
+  color: #fde68a;
+}
+
+.floatingMain {
+  min-width: 0;
+  flex: 1;
+}
+
+.floatingLabel {
+  margin: 0;
+  font-size: 0.72rem;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  color: #a8a29e;
+}
+
+.floatingHint {
+  margin: 0.2rem 0 0;
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: #fafaf9;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.floatingControls {
+  display: flex;
+  gap: 0.75rem;
+  max-height: 0;
+  margin-top: 0;
+  overflow: hidden;
+  opacity: 0;
+  transform: translateY(0.35rem);
+  pointer-events: none;
+  transition:
+    max-height 180ms ease,
+    margin-top 180ms ease,
+    opacity 150ms ease,
+    transform 180ms ease;
+}
+
+.floatingShell:hover .floatingControls,
+.floatingShell:focus-within .floatingControls {
+  max-height: 4rem;
+  margin-top: 0.625rem;
+  opacity: 1;
+  transform: translateY(0);
+  pointer-events: auto;
+}
+
+.floatingInput {
+  min-height: 3.125rem;
+  border-radius: 0.9rem;
+  border-color: rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.06);
+  color: white;
+}
+
+.floatingInput::placeholder {
+  color: #78716c;
+}
+
+.floatingButton {
+  min-height: 3.125rem;
+  border-radius: 0.9rem;
+  background: #fbbf24;
+  color: #1c1917;
+  font-size: 1rem;
+  font-weight: 600;
+}
+
+.floatingButton:hover {
+  background: #fcd34d;
+}
+
+.floatingPromptList {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  max-height: 0;
+  margin-top: 0;
+  padding-left: 3.75rem;
+  overflow: hidden;
+  opacity: 0;
+  transform: translateY(0.35rem);
+  pointer-events: none;
+  transition:
+    max-height 180ms ease,
+    margin-top 180ms ease,
+    opacity 150ms ease,
+    transform 180ms ease;
+}
+
+.floatingShell:hover .floatingPromptList,
+.floatingShell:focus-within .floatingPromptList {
+  max-height: 8rem;
+  margin-top: 0.75rem;
+  opacity: 1;
+  transform: translateY(0);
+  pointer-events: auto;
+}
+
+.floatingPromptButton {
+  padding: 0.4rem 0.85rem;
+  border-radius: 999px;
+  border-color: rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.06);
+  color: #d6d3d1;
+  font-size: 0.8125rem;
+}
+
+.floatingPromptButton:hover {
+  background: rgba(255, 255, 255, 0.1);
+  color: white;
+}
