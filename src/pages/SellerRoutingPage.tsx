@@ -1,4 +1,5 @@
 import { useMemo, useState, type DragEvent } from "react"
+import { GripVertical } from "lucide-react"
 import { Link } from "react-router-dom"
 
 import PageSurface, { PageSection } from "@/components/layout/PageSurface"
@@ -198,10 +199,13 @@ function SellerRoutingPage() {
                             onDragEnd={handleDragEnd}
                             onDragStart={handleDragStart(listing.id)}
                           >
+                            <div aria-hidden="true" className={styles.routingCardHandle}>
+                              <GripVertical className={styles.routingDragIcon} />
+                            </div>
                             <div className={styles.listingTopRow}>
                               <div className={styles.productIdentity}>
                                 <div className={styles.iconBadge}>{product.icon}</div>
-                                <div>
+                                <div className={styles.routingCardText}>
                                   <Link className={styles.routingCardLink} to={`/seller/ingredients/${product.slug}`}>
                                     {product.name}
                                   </Link>
