@@ -1,6 +1,6 @@
 import { createContext, useContext } from "react"
 
-import { type AccountResource, type InboxThread, type SettingsSection, type Transaction } from "@/lib/account"
+import { type AccountResource, type InboxThread, type SettingsSection, type TransactionRecord } from "@/lib/account"
 import { type AuthResource, type StoredAccount } from "@/lib/auth"
 import {
   type MarketplaceResource,
@@ -17,7 +17,7 @@ import {
 
 export interface MockDataContextValue {
   accountResource: AccountResource
-  accountTransactions: Transaction[]
+  accountTransactions: TransactionRecord[]
   authResource: AuthResource
   baseMarketplaceProducts: Product[]
   defaultSellerListingSeeds: SellerListingSeed[]

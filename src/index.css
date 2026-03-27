@@ -66,11 +66,12 @@ body,
 
 html {
   font-family: var(--font-sans);
+  background: #ece7da;
 }
 
 body {
   margin: 0;
-  background: var(--background);
+  background: #ece7da;
   color: var(--foreground);
   font-family: var(--font-sans);
   -webkit-font-smoothing: antialiased;

@@ -1,9 +1,9 @@
 import { useMemo, useState } from "react"
-import { Link } from "react-router-dom"
+import { Link, useSearchParams } from "react-router-dom"
 
 import BackButton from "@/components/shared/BackButton"
 import PageHeader from "@/components/shared/PageHeader"
-import { useMockData } from "@/context/mock-data"
+import { useBuyerOrders } from "@/context/buyer-orders"
 import { type TransactionStatus } from "@/lib/account"
 import { formatRupiah } from "@/lib/data"
 import { cn } from "@/lib/utils"
@@ -40,9 +40,13 @@ function getStatusVariant(status: TransactionStatus) {
 }
 
 function AccountTransactionsPage() {
-  const { accountTransactions } = useMockData()
+  const { accountTransactions } = useBuyerOrders()
+  const [searchParams, setSearchParams] = useSearchParams()
   const [filter, setFilter] = useState<TransactionFilter>("All")
-  const [selectedTransactionId, setSelectedTransactionId] = useState(accountTransactions[0]?.id ?? "")
+  const [selectedTransactionId, setSelectedTransactionId] = useState(
+    searchParams.get("selected") || accountTransactions[0]?.id || ""
+  )
+  const preferredSelectedTransactionId = searchParams.get("selected") || selectedTransactionId
 
   const filteredTransactions = useMemo(
     () =>
@@ -53,13 +57,18 @@ function AccountTransactionsPage() {
   )
 
   const activeSelectedTransactionId = filteredTransactions.some(
-    (transaction) => transaction.id === selectedTransactionId
+    (transaction) => transaction.id === preferredSelectedTransactionId
   )
-    ? selectedTransactionId
+    ? preferredSelectedTransactionId
     : filteredTransactions[0]?.id ?? ""
 
   const selectedTransaction =
     filteredTransactions.find((transaction) => transaction.id === activeSelectedTransactionId) ?? null
+
+  const handleSelectTransaction = (transactionId: string) => {
+    setSelectedTransactionId(transactionId)
+    setSearchParams({ selected: transactionId }, { replace: true })
+  }
 
   return (
     <div className={styles.page}>
@@ -106,7 +115,7 @@ function AccountTransactionsPage() {
                         styles.selectionCard,
                         activeSelectedTransactionId === transaction.id && styles.selectionCardActive
                       )}
-                      onClick={() => setSelectedTransactionId(transaction.id)}
+                      onClick={() => handleSelectTransaction(transaction.id)}
                       type="button"
                     >
                       <div className={styles.selectionHeader}>
@@ -154,6 +163,18 @@ function AccountTransactionsPage() {
                         <p className={styles.metricValue}>{selectedTransaction.trackingCode}</p>
                       </CardContent>
                     </Card>
+                    <Card className={styles.metricCard} size="sm">
+                      <CardContent className={styles.metricBody}>
+                        <p className={styles.metricLabel}>Payment</p>
+                        <p className={styles.metricValue}>{selectedTransaction.paymentMethod}</p>
+                      </CardContent>
+                    </Card>
+                    <Card className={styles.metricCard} size="sm">
+                      <CardContent className={styles.metricBody}>
+                        <p className={styles.metricLabel}>Delivery</p>
+                        <p className={styles.metricValue}>{selectedTransaction.deliveryMethod}</p>
+                      </CardContent>
+                    </Card>
                   </div>
 
                   <div className={styles.sectionBlock}>
@@ -164,6 +185,30 @@ function AccountTransactionsPage() {
                           {sellerName}
                         </Badge>
                       ))}
+                    </div>
+                  </div>
+
+                  <div className={styles.sectionBlock}>
+                    <p className={styles.metricLabel}>Delivery details</p>
+                    <div className={styles.summaryGrid}>
+                      <Card className={styles.metricCard} size="sm">
+                        <CardContent className={styles.metricBody}>
+                          <p className={styles.metricLabel}>Recipient</p>
+                          <p className={styles.metricValue}>{selectedTransaction.recipientName}</p>
+                        </CardContent>
+                      </Card>
+                      <Card className={styles.metricCard} size="sm">
+                        <CardContent className={styles.metricBody}>
+                          <p className={styles.metricLabel}>Phone</p>
+                          <p className={styles.metricValue}>{selectedTransaction.recipientPhone}</p>
+                        </CardContent>
+                      </Card>
+                      <Card className={styles.metricCard} size="sm">
+                        <CardContent className={styles.metricBody}>
+                          <p className={styles.metricLabel}>Address</p>
+                          <p className={styles.metricValue}>{selectedTransaction.deliveryAddress}</p>
+                        </CardContent>
+                      </Card>
                     </div>
                   </div>
 

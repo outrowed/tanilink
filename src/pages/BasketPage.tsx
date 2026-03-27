@@ -106,13 +106,16 @@ function BasketPage() {
                   </Card>
 
                   <div className={styles.actionStack}>
+                    <Button asChild type="button">
+                      <Link to="/checkout">Continue to checkout</Link>
+                    </Button>
                     <Button onClick={clearBasket} type="button" variant="outline">
                       Clear basket
                     </Button>
                     <Button asChild type="button" variant="secondary">
                       <Link to="/marketplace">Browse ingredient marketplace</Link>
                     </Button>
-                    <Button asChild type="button">
+                    <Button asChild type="button" variant="outline">
                       <Link to="/">Return to homepage</Link>
                     </Button>
                   </div>
