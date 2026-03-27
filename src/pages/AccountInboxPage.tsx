@@ -1,5 +1,6 @@
 import { useState } from "react"
 
+import PageSurface, { PageSection, StickySidebar } from "@/components/layout/PageSurface"
 import BackButton from "@/components/shared/BackButton"
 import PageHeader from "@/components/shared/PageHeader"
 import { useMockData } from "@/context/mock-data"
@@ -16,23 +17,22 @@ function AccountInboxPage() {
   const unreadCount = inboxThreads.filter((thread) => thread.unread).length
 
   return (
-    <div className={styles.page}>
-      <div className={styles.inner}>
-        <PageHeader
-          action={<BackButton fallbackTo="/account" label="Back" />}
-          description="Keep delivery updates, seller messages, and support conversations together in one inbox."
-          label="Inbox"
-          meta={
-            <div className={styles.headerMeta}>
-              <Badge variant="outline">{inboxThreads.length} conversations</Badge>
-              <Badge variant="outline">{unreadCount} unread</Badge>
-            </div>
-          }
-          title="Messages and support updates"
-        />
+    <PageSurface>
+      <PageHeader
+        action={<BackButton fallbackTo="/account" label="Back" />}
+        description="Keep delivery updates, seller messages, and support conversations together in one inbox."
+        label="Inbox"
+        meta={
+          <div className={styles.headerMeta}>
+            <Badge variant="outline">{inboxThreads.length} conversations</Badge>
+            <Badge variant="outline">{unreadCount} unread</Badge>
+          </div>
+        }
+        title="Messages and support updates"
+      />
 
-        <main className={styles.splitLayout}>
-          <section className={styles.listColumn}>
+      <PageSection as="main" className={styles.splitLayout}>
+        <section className={styles.listColumn}>
             <Card className={styles.panelCard}>
               <CardHeader className={styles.panelHeader}>
                 <CardTitle className={styles.panelTitle}>Conversation list</CardTitle>
@@ -67,7 +67,7 @@ function AccountInboxPage() {
             </Card>
           </section>
 
-          <aside className={styles.detailColumn}>
+        <StickySidebar className={styles.detailColumn}>
             {selectedThread ? (
               <Card className={styles.panelCard}>
                 <CardHeader className={styles.panelHeader}>
@@ -112,10 +112,9 @@ function AccountInboxPage() {
                 </CardContent>
               </Card>
             ) : null}
-          </aside>
-        </main>
-      </div>
-    </div>
+        </StickySidebar>
+      </PageSection>
+    </PageSurface>
   )
 }
 

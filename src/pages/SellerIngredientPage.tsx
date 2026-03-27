@@ -3,6 +3,7 @@ import { Link, Navigate, useNavigate, useParams } from "react-router-dom"
 
 import ProductSalesChart from "@/components/dashboard/ProductSalesChart"
 import SellerRatingChart from "@/components/dashboard/SellerRatingChart"
+import PageSurface, { PageSection, StickySidebar } from "@/components/layout/PageSurface"
 import BackButton from "@/components/shared/BackButton"
 import PageHeader from "@/components/shared/PageHeader"
 import { useMarketplace, useSellerStore } from "@/context/seller"
@@ -53,25 +54,24 @@ function SellerIngredientPage() {
   }
 
   return (
-    <div className={styles.page}>
-      <div className={styles.inner}>
-        <PageHeader
-          action={<BackButton fallbackTo="/seller" label="Back" />}
-          description="Inspect the ingredient’s sales curve, compare fulfillment metrics, and update the public listing configuration used across the marketplace."
-          label="Seller ingredient"
-          meta={
-            <div className={styles.headerMeta}>
-              <Badge variant={listing.isActive ? "success" : "outline"}>
-                {listing.isActive ? "Active listing" : "Inactive listing"}
-              </Badge>
-              {listing.stockQuantity <= 20 ? <Badge variant="warning">Low stock</Badge> : null}
-            </div>
-          }
-          title={`${product.name} listing detail`}
-        />
+    <PageSurface>
+      <PageHeader
+        action={<BackButton fallbackTo="/seller" label="Back" />}
+        description="Inspect the ingredient’s sales curve, compare fulfillment metrics, and update the public listing configuration used across the marketplace."
+        label="Seller ingredient"
+        meta={
+          <div className={styles.headerMeta}>
+            <Badge variant={listing.isActive ? "success" : "outline"}>
+              {listing.isActive ? "Active listing" : "Inactive listing"}
+            </Badge>
+            {listing.stockQuantity <= 20 ? <Badge variant="warning">Low stock</Badge> : null}
+          </div>
+        }
+        title={`${product.name} listing detail`}
+      />
 
-        <main className={styles.gridLayout}>
-          <section className={styles.mainColumn}>
+      <PageSection as="main" className={styles.gridLayout}>
+        <section className={styles.mainColumn}>
             <Card className={styles.surfaceCard}>
               <CardHeader className={styles.surfaceHeader}>
                 <CardTitle className={styles.surfaceTitle}>Listing controls</CardTitle>
@@ -179,7 +179,7 @@ function SellerIngredientPage() {
             />
           </section>
 
-          <aside className={styles.sideColumn}>
+        <StickySidebar className={styles.sideColumn}>
             <Card className={styles.surfaceCard}>
               <CardHeader className={styles.surfaceHeader}>
                 <CardTitle className={styles.surfaceTitle}>Ingredient snapshot</CardTitle>
@@ -266,10 +266,9 @@ function SellerIngredientPage() {
                 </div>
               </CardContent>
             </Card>
-          </aside>
-        </main>
-      </div>
-    </div>
+        </StickySidebar>
+      </PageSection>
+    </PageSurface>
   )
 }
 

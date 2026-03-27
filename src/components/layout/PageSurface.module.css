@@ -1,0 +1,37 @@
+.page {
+  --page-shell-max-width: 1600px;
+  --page-shell-background:
+    radial-gradient(circle at top left, rgba(251, 191, 36, 0.14), transparent 24%),
+    radial-gradient(circle at bottom right, rgba(34, 197, 94, 0.14), transparent 28%),
+    linear-gradient(180deg, #f3efe6 0%, #f7f5ef 28%, #ece7da 100%);
+  --page-shell-sticky-top: calc(4.75rem + 1rem);
+  min-height: 100vh;
+  background: var(--page-shell-background);
+}
+
+.toneCool {
+  --page-shell-background:
+    radial-gradient(circle at top left, rgba(251, 191, 36, 0.14), transparent 24%),
+    radial-gradient(circle at bottom right, rgba(14, 165, 233, 0.12), transparent 30%),
+    linear-gradient(180deg, #f3efe6 0%, #f7f5ef 28%, #ece7da 100%);
+}
+
+.widthSearch {
+  --page-shell-max-width: 1560px;
+}
+
+.inner {
+  margin: 0 auto;
+  max-width: var(--page-shell-max-width);
+  padding: 1.75rem;
+}
+
+.section {
+  margin-top: 1rem;
+}
+
+.stickySidebar {
+  position: sticky;
+  top: var(--page-shell-sticky-top);
+  align-self: start;
+}

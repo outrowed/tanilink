@@ -1,6 +1,7 @@
 import { useMemo, useState, type FormEvent } from "react"
 import { Link } from "react-router-dom"
 
+import PageSurface, { PageSection, StickySidebar } from "@/components/layout/PageSurface"
 import BackButton from "@/components/shared/BackButton"
 import PageHeader from "@/components/shared/PageHeader"
 import { useMarketplace, useSellerStore } from "@/context/seller"
@@ -142,23 +143,22 @@ function SellerStorePage() {
   }
 
   return (
-    <div className={styles.page}>
-      <div className={styles.inner}>
-        <PageHeader
-          action={<BackButton fallbackTo="/seller" label="Back" />}
-          description="Configure your store identity, warehouse coverage, delivery options, and ingredient listings used in the public marketplace."
-          label="Store setup"
-          meta={
-            <div className={styles.headerMeta}>
-              <Badge variant="outline">{currentStoreProfile.locations.length} locations</Badge>
-              <Badge variant="outline">{currentStoreProfile.deliveryOptions.length} delivery options</Badge>
-            </div>
-          }
-          title="Store profile and listing registration"
-        />
+    <PageSurface>
+      <PageHeader
+        action={<BackButton fallbackTo="/seller" label="Back" />}
+        description="Configure your store identity, warehouse coverage, delivery options, and ingredient listings used in the public marketplace."
+        label="Store setup"
+        meta={
+          <div className={styles.headerMeta}>
+            <Badge variant="outline">{currentStoreProfile.locations.length} locations</Badge>
+            <Badge variant="outline">{currentStoreProfile.deliveryOptions.length} delivery options</Badge>
+          </div>
+        }
+        title="Store profile and listing registration"
+      />
 
-        <main className={styles.gridLayout}>
-          <section className={styles.mainColumn}>
+      <PageSection as="main" className={styles.gridLayout}>
+        <section className={styles.mainColumn}>
             <Card className={styles.surfaceCard}>
               <CardHeader className={styles.surfaceHeader}>
                 <CardTitle className={styles.surfaceTitle}>Store profile</CardTitle>
@@ -334,7 +334,7 @@ function SellerStorePage() {
             </Card>
           </section>
 
-          <aside className={styles.sideColumn}>
+        <StickySidebar className={styles.sideColumn}>
             <Card className={styles.surfaceCard}>
               <CardHeader className={styles.surfaceHeader}>
                 <div className={styles.sectionHeader}>
@@ -546,10 +546,9 @@ function SellerStorePage() {
                 </form>
               </CardContent>
             </Card>
-          </aside>
-        </main>
-      </div>
-    </div>
+        </StickySidebar>
+      </PageSection>
+    </PageSurface>
   )
 }
 

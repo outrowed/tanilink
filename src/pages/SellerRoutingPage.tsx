@@ -1,6 +1,7 @@
 import { useMemo, useState, type DragEvent } from "react"
 import { Link } from "react-router-dom"
 
+import PageSurface, { PageSection } from "@/components/layout/PageSurface"
 import BackButton from "@/components/shared/BackButton"
 import PageHeader from "@/components/shared/PageHeader"
 import { useMarketplace, useSellerStore } from "@/context/seller"
@@ -98,23 +99,22 @@ function SellerRoutingPage() {
   }
 
   return (
-    <div className={styles.page}>
-      <div className={styles.inner}>
-        <PageHeader
-          action={<BackButton fallbackTo="/seller" label="Back" />}
-          description="Move ingredients between warehouse locations to keep routing aligned with live stock availability and fulfillment lanes."
-          label="Warehouse routing"
-          meta={
-            <div className={styles.headerMeta}>
-              <Badge variant="outline">{currentStoreProfile.locations.length} locations</Badge>
-              <Badge variant="outline">{currentSellerListings.length} routed listings</Badge>
-            </div>
-          }
-          title="Current warehouse routing"
-        />
+    <PageSurface>
+      <PageHeader
+        action={<BackButton fallbackTo="/seller" label="Back" />}
+        description="Move ingredients between warehouse locations to keep routing aligned with live stock availability and fulfillment lanes."
+        label="Warehouse routing"
+        meta={
+          <div className={styles.headerMeta}>
+            <Badge variant="outline">{currentStoreProfile.locations.length} locations</Badge>
+            <Badge variant="outline">{currentSellerListings.length} routed listings</Badge>
+          </div>
+        }
+        title="Current warehouse routing"
+      />
 
-        <main className={styles.stackLayout}>
-          <section className={styles.summaryGrid}>
+      <PageSection as="main" className={styles.stackLayout}>
+        <section className={styles.summaryGrid}>
             <Card className={styles.surfaceCard}>
               <CardContent className={styles.metricBody}>
                 <p className={styles.metricLabel}>Warehouse locations</p>
@@ -249,9 +249,8 @@ function SellerRoutingPage() {
               </div>
             </CardContent>
           </Card>
-        </main>
-      </div>
-    </div>
+      </PageSection>
+    </PageSurface>
   )
 }
 

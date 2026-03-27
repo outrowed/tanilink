@@ -1,6 +1,7 @@
 import { ArrowRight, LayoutDashboard, Mail, ReceiptText, Settings2, Truck, UserRound } from "lucide-react"
 import { Link } from "react-router-dom"
 
+import PageSurface, { PageSection, StickySidebar } from "@/components/layout/PageSurface"
 import BackButton from "@/components/shared/BackButton"
 import PageHeader from "@/components/shared/PageHeader"
 import { useAuth } from "@/context/auth"
@@ -27,24 +28,23 @@ function AccountPage() {
   const unreadThreads = inboxThreads.filter((thread) => thread.unread).length
 
   return (
-    <div className={styles.page}>
-      <div className={styles.inner}>
-        <PageHeader
-          action={<BackButton fallbackTo="/" label="Back" />}
-          description="Manage your account, monitor deliveries, and keep up with seller and support conversations."
-          label="Account"
-          meta={
-            <div className={styles.headerMeta}>
-              <Badge variant="outline">{accountTransactions.length} orders</Badge>
-              <Badge variant="outline">{activeDeliveries} active deliveries</Badge>
-              <Badge variant="outline">{unreadThreads} unread threads</Badge>
-            </div>
-          }
-          title={`Hello, ${user.name}`}
-        />
+    <PageSurface>
+      <PageHeader
+        action={<BackButton fallbackTo="/" label="Back" />}
+        description="Manage your account, monitor deliveries, and keep up with seller and support conversations."
+        label="Account"
+        meta={
+          <div className={styles.headerMeta}>
+            <Badge variant="outline">{accountTransactions.length} orders</Badge>
+            <Badge variant="outline">{activeDeliveries} active deliveries</Badge>
+            <Badge variant="outline">{unreadThreads} unread threads</Badge>
+          </div>
+        }
+        title={`Hello, ${user.name}`}
+      />
 
-        <main className={styles.dashboardLayout}>
-          <section className={styles.mainColumn}>
+      <PageSection as="main" className={styles.dashboardLayout}>
+        <section className={styles.mainColumn}>
             <Card className={styles.panelCard}>
               <CardHeader className={styles.panelHeader}>
                 <div className={styles.identityRow}>
@@ -161,7 +161,7 @@ function AccountPage() {
             </div>
           </section>
 
-          <aside className={styles.sidebarColumn}>
+        <StickySidebar className={styles.sidebarColumn}>
             {user.role === "seller" ? (
               <Card className={styles.panelCard}>
                 <CardHeader className={styles.panelHeader}>
@@ -292,10 +292,9 @@ function AccountPage() {
                 <p className={styles.sideListCopy}>{user.phone || "Phone not added yet"}</p>
               </CardContent>
             </Card>
-          </aside>
-        </main>
-      </div>
-    </div>
+        </StickySidebar>
+      </PageSection>
+    </PageSurface>
   )
 }
 

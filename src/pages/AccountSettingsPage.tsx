@@ -1,5 +1,6 @@
 import { useNavigate } from "react-router-dom"
 
+import PageSurface, { PageSection } from "@/components/layout/PageSurface"
 import BackButton from "@/components/shared/BackButton"
 import PageHeader from "@/components/shared/PageHeader"
 import { useAuth } from "@/context/auth"
@@ -24,18 +25,17 @@ function AccountSettingsPage() {
   }
 
   return (
-    <div className={styles.page}>
-      <div className={styles.inner}>
-        <PageHeader
-          action={<BackButton fallbackTo="/account" label="Back" />}
-          description="Review account controls, delivery preferences, payment setup, and security actions from one page."
-          label="Settings"
-          meta={<Badge variant="outline">{settingsSections.length} setting groups</Badge>}
-          title="Account management"
-        />
+    <PageSurface>
+      <PageHeader
+        action={<BackButton fallbackTo="/account" label="Back" />}
+        description="Review account controls, delivery preferences, payment setup, and security actions from one page."
+        label="Settings"
+        meta={<Badge variant="outline">{settingsSections.length} setting groups</Badge>}
+        title="Account management"
+      />
 
-        <main className={styles.singleColumnLayout}>
-          <div className={styles.settingsGrid}>
+      <PageSection as="main" className={styles.singleColumnLayout}>
+        <div className={styles.settingsGrid}>
             {settingsSections.map((section) => (
               <Card key={section.id} className={styles.panelCard}>
                 <CardHeader className={styles.panelHeader}>
@@ -71,10 +71,9 @@ function AccountSettingsPage() {
                 </div>
               </CardContent>
             </Card>
-          </div>
-        </main>
-      </div>
-    </div>
+        </div>
+      </PageSection>
+    </PageSurface>
   )
 }
 

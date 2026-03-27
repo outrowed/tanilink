@@ -2,6 +2,7 @@ import { useState, type FormEvent } from "react"
 import { KeyRound, Sparkles, UserRound } from "lucide-react"
 import { Navigate, useNavigate, useSearchParams } from "react-router-dom"
 
+import PageSurface, { PageSection } from "@/components/layout/PageSurface"
 import PageHeader from "@/components/shared/PageHeader"
 import { useAuth } from "@/context/auth"
 import { useMockData } from "@/context/mock-data"
@@ -76,22 +77,21 @@ function AuthPage() {
   }
 
   return (
-    <div className={styles.page}>
-      <div className={styles.inner}>
-        <PageHeader
-          description="Sign in to access your buyer account or seller tools, including orders, inventory, inbox, and store management."
-          label="Account access"
-          meta={
-            <div className={styles.headerMeta}>
-              <Badge variant="outline">Account hub</Badge>
-              <Badge variant="info">Buyer and seller access</Badge>
-            </div>
-          }
-          title="Welcome to your TaniLink account"
-        />
+    <PageSurface>
+      <PageHeader
+        description="Sign in to access your buyer account or seller tools, including orders, inventory, inbox, and store management."
+        label="Account access"
+        meta={
+          <div className={styles.headerMeta}>
+            <Badge variant="outline">Account hub</Badge>
+            <Badge variant="info">Buyer and seller access</Badge>
+          </div>
+        }
+        title="Welcome to your TaniLink account"
+      />
 
-        <main className={styles.layout}>
-          <section className={styles.cardStack}>
+      <PageSection as="main" className={styles.layout}>
+        <section className={styles.cardStack}>
             <Card className={styles.introCard}>
               <CardHeader className={styles.surfaceHeader}>
                 <div className={styles.eyebrowRow}>
@@ -174,7 +174,7 @@ function AuthPage() {
             </Card>
           </section>
 
-          <Card className={styles.authCard}>
+        <Card className={styles.authCard}>
             <CardHeader className={styles.surfaceHeader}>
               <div className={styles.modeRow}>
                 <Button
@@ -271,10 +271,9 @@ function AuthPage() {
                 </form>
               )}
             </CardContent>
-          </Card>
-        </main>
-      </div>
-    </div>
+        </Card>
+      </PageSection>
+    </PageSurface>
   )
 }
 

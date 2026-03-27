@@ -3,6 +3,7 @@ import { CircleHelp, X } from "lucide-react"
 import { Link } from "react-router-dom"
 
 import ProductSalesChart from "@/components/dashboard/ProductSalesChart"
+import PageSurface, { PageSection } from "@/components/layout/PageSurface"
 import BackButton from "@/components/shared/BackButton"
 import PageHeader from "@/components/shared/PageHeader"
 import { useMarketplace, useSellerStore } from "@/context/seller"
@@ -325,31 +326,30 @@ function SellerHubPage() {
   }
 
   return (
-    <div className={styles.page}>
-      <div className={styles.inner}>
-        <PageHeader
-          action={
-            <div className={styles.headerActions}>
-              <BackButton fallbackTo="/account" label="Back" />
-              <Button onClick={() => setIsStatsGuideOpen(true)} type="button" variant="outline">
-                <CircleHelp className={styles.helpMenuIcon} />
-                Stats guide
-              </Button>
-            </div>
-          }
-          description="Track store-level performance, compare average listing health, and open ingredient pages for deeper analytics or inventory edits."
-          label="Seller hub"
-          meta={
-            <div className={styles.headerMeta}>
-              <Badge variant="outline">{sellerSummary.activeListings} active listings</Badge>
-              <Badge variant="outline">{sellerSummary.lowStockCount} low-stock alerts</Badge>
-            </div>
-          }
-          title={`${currentStoreProfile.storeName} analytics hub`}
-        />
+    <PageSurface>
+      <PageHeader
+        action={
+          <div className={styles.headerActions}>
+            <BackButton fallbackTo="/account" label="Back" />
+            <Button onClick={() => setIsStatsGuideOpen(true)} type="button" variant="outline">
+              <CircleHelp className={styles.helpMenuIcon} />
+              Stats guide
+            </Button>
+          </div>
+        }
+        description="Track store-level performance, compare average listing health, and open ingredient pages for deeper analytics or inventory edits."
+        label="Seller hub"
+        meta={
+          <div className={styles.headerMeta}>
+            <Badge variant="outline">{sellerSummary.activeListings} active listings</Badge>
+            <Badge variant="outline">{sellerSummary.lowStockCount} low-stock alerts</Badge>
+          </div>
+        }
+        title={`${currentStoreProfile.storeName} analytics hub`}
+      />
 
-        <main className={styles.stackLayout}>
-          <section className={styles.summaryGrid}>
+      <PageSection as="main" className={styles.stackLayout}>
+        <section className={styles.summaryGrid}>
             <Card className={styles.surfaceCard}>
               <CardContent className={styles.metricBody}>
                 <p className={styles.metricLabel}>Gross revenue</p>
@@ -699,8 +699,7 @@ function SellerHubPage() {
               )}
             </aside>
           </section>
-        </main>
-      </div>
+      </PageSection>
 
       {isStatsGuideOpen ? (
         <div
@@ -751,7 +750,7 @@ function SellerHubPage() {
           </div>
         </div>
       ) : null}
-    </div>
+    </PageSurface>
   )
 }
 

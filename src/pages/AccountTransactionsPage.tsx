@@ -1,6 +1,7 @@
 import { useMemo, useState } from "react"
 import { Link, useSearchParams } from "react-router-dom"
 
+import PageSurface, { PageSection, StickySidebar } from "@/components/layout/PageSurface"
 import BackButton from "@/components/shared/BackButton"
 import PageHeader from "@/components/shared/PageHeader"
 import { useBuyerOrders } from "@/context/buyer-orders"
@@ -71,23 +72,22 @@ function AccountTransactionsPage() {
   }
 
   return (
-    <div className={styles.page}>
-      <div className={styles.inner}>
-        <PageHeader
-          action={<BackButton fallbackTo="/account" label="Back" />}
-          description="Review your ingredient purchases, compare totals, and follow every delivery step from seller confirmation to handoff."
-          label="Transactions"
-          meta={
-            <div className={styles.headerMeta}>
-              <Badge variant="outline">{filteredTransactions.length} visible orders</Badge>
-              {selectedTransaction ? <Badge variant="outline">Selected {selectedTransaction.id}</Badge> : null}
-            </div>
-          }
-          title="Order history and delivery status"
-        />
+    <PageSurface>
+      <PageHeader
+        action={<BackButton fallbackTo="/account" label="Back" />}
+        description="Review your ingredient purchases, compare totals, and follow every delivery step from seller confirmation to handoff."
+        label="Transactions"
+        meta={
+          <div className={styles.headerMeta}>
+            <Badge variant="outline">{filteredTransactions.length} visible orders</Badge>
+            {selectedTransaction ? <Badge variant="outline">Selected {selectedTransaction.id}</Badge> : null}
+          </div>
+        }
+        title="Order history and delivery status"
+      />
 
-        <main className={styles.splitLayout}>
-          <section className={styles.listColumn}>
+      <PageSection as="main" className={styles.splitLayout}>
+        <section className={styles.listColumn}>
             <Card className={styles.panelCard}>
               <CardHeader className={styles.panelHeader}>
                 <CardTitle className={styles.panelTitle}>Transaction list</CardTitle>
@@ -137,7 +137,7 @@ function AccountTransactionsPage() {
             </Card>
           </section>
 
-          <aside className={styles.detailColumn}>
+        <StickySidebar className={styles.detailColumn}>
             {selectedTransaction ? (
               <Card className={styles.panelCard}>
                 <CardHeader className={styles.panelHeader}>
@@ -298,10 +298,9 @@ function AccountTransactionsPage() {
                 </CardContent>
               </Card>
             )}
-          </aside>
-        </main>
-      </div>
-    </div>
+        </StickySidebar>
+      </PageSection>
+    </PageSurface>
   )
 }
 
