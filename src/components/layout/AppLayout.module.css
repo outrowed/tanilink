@@ -27,28 +27,8 @@
   height: 1rem;
 }
 
-.floatingLocationDock {
-  position: fixed;
-  top: 5.4rem;
-  left: 50%;
-  transform: translateX(-50%);
-  z-index: 45;
-}
-
-.floatingLocationDockWithWarning {
-  top: 8rem;
-}
-
 @media (max-width: 900px) {
   .warningInner {
     padding-inline: 1rem;
-  }
-
-  .floatingLocationDock,
-  .floatingLocationDockWithWarning {
-    top: auto;
-    left: 50%;
-    transform: translateX(-50%);
-    bottom: 1rem;
   }
 }

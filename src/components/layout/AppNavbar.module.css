@@ -1,7 +1,15 @@
-.bar {
+.stickyShell {
   position: sticky;
   top: 0;
   z-index: 50;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+  overflow: visible;
+}
+
+.bar {
   width: 100%;
   border-bottom: 1px solid rgba(214, 211, 209, 0.8);
   background: rgba(247, 245, 239, 0.9);
@@ -319,6 +327,24 @@
   margin: 0.22rem 0 0;
   font-size: 0.78rem;
   color: #78716c;
+}
+
+.locationShelf {
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  z-index: 1;
+  display: flex;
+  justify-content: center;
+  width: max-content;
+  max-width: calc(100% - 2rem);
+  padding: 0;
+  transform: translate(-50%, 0.45rem);
+  pointer-events: none;
+}
+
+.locationShelf > * {
+  pointer-events: auto;
 }
 
 .profileMenuList {

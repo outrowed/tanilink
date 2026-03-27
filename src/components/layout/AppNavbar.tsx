@@ -12,6 +12,7 @@ import {
 } from "lucide-react"
 import { Link, useLocation, useNavigate } from "react-router-dom"
 
+import FloatingLocationSwitcher from "@/components/layout/FloatingLocationSwitcher"
 import SearchBox from "@/components/shared/SearchBox"
 import { useAuth } from "@/context/auth"
 import { useBasket } from "@/context/basket"
@@ -73,105 +74,111 @@ function AppNavbar() {
   }
 
   return (
-    <header className={styles.bar}>
-      <div className={styles.inner}>
-        <div className={styles.brandBlock}>
-          <Link className={styles.brandLink} to="/">
-            TaniLink
-          </Link>
-        </div>
-
-        <div className={styles.searchStack}>
-          <div className={styles.navLinks}>
-            <Link className={cn(styles.catalogButton, isMarketplacePage && styles.catalogButtonActive)} to="/marketplace">
-              <Store className={styles.smallIcon} />
-              Marketplace
+    <div className={styles.stickyShell}>
+      <header className={styles.bar}>
+        <div className={styles.inner}>
+          <div className={styles.brandBlock}>
+            <Link className={styles.brandLink} to="/">
+              TaniLink
             </Link>
-            {isSeller ? (
-              <Link className={cn(styles.catalogButton, isSellerPage && styles.catalogButtonActive)} to="/seller">
-                <LayoutDashboard className={styles.smallIcon} />
-                Seller Hub
+          </div>
+
+          <div className={styles.searchStack}>
+            <div className={styles.navLinks}>
+              <Link className={cn(styles.catalogButton, isMarketplacePage && styles.catalogButtonActive)} to="/marketplace">
+                <Store className={styles.smallIcon} />
+                Marketplace
               </Link>
-            ) : null}
+              {isSeller ? (
+                <Link className={cn(styles.catalogButton, isSellerPage && styles.catalogButtonActive)} to="/seller">
+                  <LayoutDashboard className={styles.smallIcon} />
+                  Seller Hub
+                </Link>
+              ) : null}
+            </div>
+            <SearchBox className={styles.searchRegion} />
           </div>
-          <SearchBox className={styles.searchRegion} />
-        </div>
 
-        <div className={styles.actions}>
-          <Link className={styles.basketButton} to="/basket">
-            <span className={styles.basketIconWrap}>
-              <ShoppingBasket className={styles.smallIcon} />
-            </span>
-            <span className={styles.basketCopy}>
-              <span className={styles.profileName}>Basket</span>
-              <span className={styles.profileMeta}>Review selected items</span>
-            </span>
-            <Badge className={styles.basketCount} variant="outline">
-              {itemCount}
-            </Badge>
-          </Link>
-
-          <div
-            className={styles.profileMenuWrap}
-            onBlur={(event) => {
-              if (!event.currentTarget.contains(event.relatedTarget as Node | null)) {
-                setIsProfileMenuOpen(false)
-              }
-            }}
-            ref={profileMenuRef}
-          >
-            <button
-              aria-expanded={isProfileMenuOpen}
-              aria-haspopup="menu"
-              className={styles.profileButton}
-              onClick={() => setIsProfileMenuOpen((current) => !current)}
-              type="button"
-            >
-              <span className={styles.profileAvatar}>{avatarContent}</span>
-              <span className={styles.profileCopy}>
-                <span className={styles.profileName}>{profileTitle}</span>
-                <span className={styles.profileMeta}>{profileMeta}</span>
+          <div className={styles.actions}>
+            <Link className={styles.basketButton} to="/basket">
+              <span className={styles.basketIconWrap}>
+                <ShoppingBasket className={styles.smallIcon} />
               </span>
-              <ChevronDown className={styles.profileChevron} />
-            </button>
+              <span className={styles.basketCopy}>
+                <span className={styles.profileName}>Basket</span>
+                <span className={styles.profileMeta}>Review selected items</span>
+              </span>
+              <Badge className={styles.basketCount} variant="outline">
+                {itemCount}
+              </Badge>
+            </Link>
 
-            {isProfileMenuOpen ? (
-              <div className={styles.profileMenu}>
-                <div className={styles.profileMenuHeader}>
-                  <p className={styles.profileMenuTitle}>{profileTitle}</p>
-                  <p className={styles.profileMenuNote}>{profileMeta}</p>
+            <div
+              className={styles.profileMenuWrap}
+              onBlur={(event) => {
+                if (!event.currentTarget.contains(event.relatedTarget as Node | null)) {
+                  setIsProfileMenuOpen(false)
+                }
+              }}
+              ref={profileMenuRef}
+            >
+              <button
+                aria-expanded={isProfileMenuOpen}
+                aria-haspopup="menu"
+                className={styles.profileButton}
+                onClick={() => setIsProfileMenuOpen((current) => !current)}
+                type="button"
+              >
+                <span className={styles.profileAvatar}>{avatarContent}</span>
+                <span className={styles.profileCopy}>
+                  <span className={styles.profileName}>{profileTitle}</span>
+                  <span className={styles.profileMeta}>{profileMeta}</span>
+                </span>
+                <ChevronDown className={styles.profileChevron} />
+              </button>
+
+              {isProfileMenuOpen ? (
+                <div className={styles.profileMenu}>
+                  <div className={styles.profileMenuHeader}>
+                    <p className={styles.profileMenuTitle}>{profileTitle}</p>
+                    <p className={styles.profileMenuNote}>{profileMeta}</p>
+                  </div>
+
+                  <div className={styles.profileMenuList}>
+                    {profileLinks.map((item) => {
+                      const Icon = item.icon
+
+                      return (
+                        <Link
+                          className={styles.profileMenuItem}
+                          key={item.to}
+                          onClick={() => setIsProfileMenuOpen(false)}
+                          to={item.to}
+                        >
+                          <Icon className={styles.smallIcon} />
+                          <span>{item.label}</span>
+                        </Link>
+                      )
+                    })}
+
+                    {isAuthenticated ? (
+                      <button className={styles.profileMenuLogout} onClick={handleLogout} type="button">
+                        <LogOut className={styles.smallIcon} />
+                        <span>Logout</span>
+                      </button>
+                    ) : null}
+                  </div>
                 </div>
-
-                <div className={styles.profileMenuList}>
-                  {profileLinks.map((item) => {
-                    const Icon = item.icon
-
-                    return (
-                      <Link
-                        className={styles.profileMenuItem}
-                        key={item.to}
-                        onClick={() => setIsProfileMenuOpen(false)}
-                        to={item.to}
-                      >
-                        <Icon className={styles.smallIcon} />
-                        <span>{item.label}</span>
-                      </Link>
-                    )
-                  })}
-
-                  {isAuthenticated ? (
-                    <button className={styles.profileMenuLogout} onClick={handleLogout} type="button">
-                      <LogOut className={styles.smallIcon} />
-                      <span>Logout</span>
-                    </button>
-                  ) : null}
-                </div>
-              </div>
-            ) : null}
+              ) : null}
+            </div>
           </div>
         </div>
+      </header>
+
+      <div className={styles.locationShelf}>
+        <FloatingLocationSwitcher />
       </div>
-    </header>
+    </div>
   )
 }
 
