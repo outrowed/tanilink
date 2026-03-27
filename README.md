@@ -114,3 +114,7 @@ GitHub Pages deployment is configured in `.github/workflows/deploy-pages.yml`.
 - Path alias `@` points to `src`
 - Marketplace and seller data are intentionally connected, so seller-side listing changes affect buyer-facing product and planner views
 - The app opens with a preset seller session by default unless the user has explicitly logged out
+
+## License
+
+This project is licensed under the GNU General Public License v3.0 or later. See [LICENSE](/home/taruna/git/tanilink/LICENSE).
