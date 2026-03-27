@@ -9,6 +9,7 @@ export interface AuthActionResult {
 
 export interface AuthContextValue {
   isAuthenticated: boolean
+  isBuyer: boolean
   isSeller: boolean
   login: (email: string, password: string) => AuthActionResult
   logout: () => void

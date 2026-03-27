@@ -1,17 +1,3 @@
-.page {
-  min-height: 100vh;
-  background:
-    radial-gradient(circle at top left, rgba(251, 191, 36, 0.14), transparent 24%),
-    radial-gradient(circle at bottom right, rgba(34, 197, 94, 0.14), transparent 28%),
-    linear-gradient(180deg, #f3efe6 0%, #f7f5ef 28%, #ece7da 100%);
-}
-
-.inner {
-  margin: 0 auto;
-  max-width: 1600px;
-  padding: 1.75rem;
-}
-
 .headerMeta {
   display: flex;
   flex-wrap: wrap;
@@ -23,7 +9,6 @@
   display: grid;
   grid-template-columns: minmax(0, 1.1fr) minmax(320px, 0.82fr);
   gap: 1.25rem;
-  margin-top: 1rem;
   align-items: start;
 }
 
@@ -33,8 +18,7 @@
 }
 
 .summaryColumn {
-  position: sticky;
-  top: 1.75rem;
+  min-width: 0;
 }
 
 .lineList {
@@ -172,12 +156,14 @@
   margin-top: 0.5rem;
 }
 
-.emptyStateBody {
-  padding: 1.5rem;
+.checkoutNote {
+  margin: -0.1rem 0 0;
+  color: #78716c;
+  line-height: 1.55;
 }
 
-.emptyStateCard {
-  margin-top: 1rem;
+.emptyStateBody {
+  padding: 1.5rem;
 }
 
 .emptyStateTitle {

@@ -1,8 +1,10 @@
 import { Trash2 } from "lucide-react"
 import { Link } from "react-router-dom"
 
+import PageSurface, { PageSection, StickySidebar } from "@/components/layout/PageSurface"
 import BackButton from "@/components/shared/BackButton"
 import PageHeader from "@/components/shared/PageHeader"
+import { useAuth } from "@/context/auth"
 import { useBasket } from "@/context/basket"
 import { formatRupiah } from "@/lib/data"
 import { Badge } from "@/components/ui/badge"
@@ -12,12 +14,12 @@ import { Input } from "@/components/ui/input"
 import styles from "@/pages/BasketPage.module.css"
 
 function BasketPage() {
+  const { isBuyer } = useAuth()
   const { basketLines, clearBasket, itemCount, lineCount, removeItem, sellerCount, subtotal, updateQuantity } =
     useBasket()
 
   return (
-    <div className={styles.page}>
-      <div className={styles.inner}>
+    <PageSurface>
         <PageHeader
           action={<BackButton fallbackTo="/" label="Back" />}
           description="Review basket lines, adjust quantities, and compare the sellers you picked across the marketplace."
@@ -32,7 +34,7 @@ function BasketPage() {
         />
 
         {basketLines.length ? (
-          <main className={styles.layout}>
+          <PageSection as="main" className={styles.layout}>
             <section className={styles.lineList}>
               {basketLines.map((line) => (
                 <Card key={line.id} className={styles.lineCard}>
@@ -80,7 +82,7 @@ function BasketPage() {
               ))}
             </section>
 
-            <aside className={styles.summaryColumn}>
+            <StickySidebar className={styles.summaryColumn}>
               <Card className={styles.summaryCard}>
                 <CardHeader className={styles.summaryHeader}>
                   <CardTitle className={styles.summaryTitle}>Basket summary</CardTitle>
@@ -106,9 +108,20 @@ function BasketPage() {
                   </Card>
 
                   <div className={styles.actionStack}>
-                    <Button asChild type="button">
-                      <Link to="/checkout">Continue to checkout</Link>
-                    </Button>
+                    {isBuyer ? (
+                      <Button asChild type="button">
+                        <Link to="/checkout">Continue to checkout</Link>
+                      </Button>
+                    ) : (
+                      <>
+                        <Button disabled type="button">
+                          Buyer checkout only
+                        </Button>
+                        <p className={styles.checkoutNote}>
+                          Sign in with a buyer account to continue from basket to purchase.
+                        </p>
+                      </>
+                    )}
                     <Button onClick={clearBasket} type="button" variant="outline">
                       Clear basket
                     </Button>
@@ -121,10 +134,11 @@ function BasketPage() {
                   </div>
                 </CardContent>
               </Card>
-            </aside>
-          </main>
+            </StickySidebar>
+          </PageSection>
         ) : (
-          <Card className={styles.emptyStateCard}>
+          <PageSection as="div">
+            <Card className={styles.emptyStateCard}>
             <CardContent className={styles.emptyStateBody}>
               <p className={styles.emptyStateTitle}>Your basket is empty.</p>
               <p className={styles.emptyStateCopy}>
@@ -140,9 +154,9 @@ function BasketPage() {
               </div>
             </CardContent>
           </Card>
+          </PageSection>
         )}
-      </div>
-    </div>
+    </PageSurface>
   )
 }
 

@@ -202,6 +202,7 @@ function AuthProvider({ children }: AuthProviderProps) {
   const value = useMemo(
     () => ({
       isAuthenticated: Boolean(user),
+      isBuyer: user?.role === "buyer",
       isSeller: user?.role === "seller",
       login,
       logout,

@@ -1,5 +1,6 @@
-import { Navigate, Route, Routes, useLocation } from "react-router-dom"
+import { Navigate, Route, Routes } from "react-router-dom"
 import RequireAuth from "@/components/shared/RequireAuth"
+import RequireBuyer from "@/components/shared/RequireBuyer"
 import RequireSeller from "@/components/shared/RequireSeller"
 import { AuthProvider } from "@/context/AuthProvider"
 import { BasketProvider } from "@/context/BasketProvider"
@@ -25,8 +26,6 @@ import SellerStorePage from "@/pages/SellerStorePage"
 import { SellerProvider } from "@/context/SellerProvider"
 
 function App() {
-  const location = useLocation()
-
   return (
     <main>
       <MockDataProvider>
@@ -37,15 +36,15 @@ function App() {
                 <BuyerOrdersProvider>
                   <Routes>
                     <Route element={<AppLayout />} path="/">
-                    <Route element={<PlannerLanding />} index />
-                    <Route element={<AuthPage />} path="auth" />
-                    <Route element={<Dashboard />} path="marketplace" />
-                    <Route element={<Navigate replace to="/marketplace" />} path="catalog" />
-                    <Route element={<BasketPage />} path="basket" />
+                      <Route element={<PlannerLanding />} index />
+                      <Route element={<AuthPage />} path="auth" />
+                      <Route element={<Dashboard />} path="marketplace" />
+                      <Route element={<Navigate replace to="/marketplace" />} path="catalog" />
+                      <Route element={<BasketPage />} path="basket" />
                       <Route element={<ProductPage />} path="products/:slug" />
                       <Route element={<Navigate replace to="/" />} path="planner" />
-                      <Route element={<SearchPlanner key={location.search} />} path="search" />
-                      <Route element={<RequireAuth />}>
+                      <Route element={<SearchPlanner />} path="search" />
+                      <Route element={<RequireBuyer />}>
                         <Route element={<CheckoutPage />} path="checkout" />
                       </Route>
                       <Route element={<RequireAuth />} path="account">

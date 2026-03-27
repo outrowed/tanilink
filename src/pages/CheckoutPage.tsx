@@ -2,6 +2,7 @@ import { CheckCircle2, ChevronLeft, ChevronRight, CreditCard, MapPinned, Package
 import { useEffect, useMemo, useState } from "react"
 import { Link, Navigate, useNavigate } from "react-router-dom"
 
+import PageSurface, { PageSection, StickySidebar } from "@/components/layout/PageSurface"
 import BackButton from "@/components/shared/BackButton"
 import PageHeader from "@/components/shared/PageHeader"
 import { useAuth } from "@/context/auth"
@@ -141,8 +142,7 @@ function CheckoutPage() {
   }
 
   return (
-    <div className={styles.page}>
-      <div className={styles.inner}>
+    <PageSurface>
         <PageHeader
           action={<BackButton fallbackTo="/basket" label="Back" />}
           description="Complete the purchase details, confirm payment, and review delivery before placing the combined order."
@@ -158,7 +158,7 @@ function CheckoutPage() {
         />
 
         {step === "success" ? (
-          <main className={styles.successLayout}>
+          <PageSection as="main" className={styles.successLayout}>
             <Card className={styles.successCard}>
               <CardContent className={styles.successBody}>
                 <div className={styles.successIconWrap}>
@@ -182,9 +182,9 @@ function CheckoutPage() {
                 </div>
               </CardContent>
             </Card>
-          </main>
+          </PageSection>
         ) : (
-          <main className={styles.layout}>
+          <PageSection as="main" className={styles.layout}>
             <section className={styles.mainColumn}>
               <Card className={styles.wizardCard}>
                 <CardHeader className={styles.surfaceHeader}>
@@ -401,7 +401,7 @@ function CheckoutPage() {
               </Card>
             </section>
 
-            <aside className={styles.summaryColumn}>
+            <StickySidebar className={styles.summaryColumn}>
               <Card className={styles.summaryCard}>
                 <CardHeader className={styles.surfaceHeader}>
                   <CardTitle className={styles.surfaceTitle}>Order summary</CardTitle>
@@ -455,11 +455,10 @@ function CheckoutPage() {
                   </div>
                 </CardContent>
               </Card>
-            </aside>
-          </main>
+            </StickySidebar>
+          </PageSection>
         )}
-      </div>
-    </div>
+    </PageSurface>
   )
 }
 

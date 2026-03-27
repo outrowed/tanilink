@@ -13,6 +13,7 @@ import { Link, Navigate, useNavigate, useSearchParams } from "react-router-dom"
 
 import ProductCard from "@/components/dashboard/ProductCard"
 import ProductPriceChart from "@/components/dashboard/ProductPriceChart"
+import PageSurface, { PageSection, StickySidebar } from "@/components/layout/PageSurface"
 import BackButton from "@/components/shared/BackButton"
 import PageHeader from "@/components/shared/PageHeader"
 import { useBasket } from "@/context/basket"
@@ -52,13 +53,16 @@ const sortModes: Array<{ label: string; value: SellerSortMode }> = [
 
 const SIDEBAR_TRANSITION_MS = 260
 
-function SearchPlanner() {
+interface SearchPlannerContentProps {
+  seedQuery: string
+}
+
+function SearchPlannerContent({ seedQuery }: SearchPlannerContentProps) {
   const navigate = useNavigate()
   const [searchParams, setSearchParams] = useSearchParams()
   const { recentAiSearches, searchBundles } = useMockData()
   const { marketplaceProducts } = useMarketplace()
   const { currentLocation } = useLocationPreference()
-  const seedQuery = searchParams.get("q")?.trim() ?? ""
   const resultMode = searchParams.get("mode") === "ai" ? "ai" : "marketplace"
   const categoryParam = searchParams.get("category")
   const selectedProductSlug = searchParams.get("preview") as Product["slug"] | null
@@ -192,15 +196,10 @@ function SearchPlanner() {
     )
   }
 
-  if (!seedQuery) {
-    return <Navigate replace to="/" />
-  }
-
   return (
-    <div className={styles.page}>
-      <div className={styles.inner}>
-        <main className={cn(styles.layout, isSidebarMounted && styles.layoutExpanded)}>
-          <section className={styles.mainColumn}>
+    <PageSurface tone="cool" width="search">
+      <PageSection as="main" className={cn(styles.layout, isSidebarMounted && styles.layoutExpanded)}>
+        <section className={styles.mainColumn}>
             <PageHeader
               action={<BackButton fallbackTo="/" label="Back" />}
               description={
@@ -457,15 +456,16 @@ function SearchPlanner() {
             </section>
           </section>
 
-          <aside
-            className={cn(
-              styles.sidebar,
-              isDetailOpen ? styles.sidebarExpanded : styles.sidebarCollapsed,
-              isDetailOpen && styles.sidebarOpening,
-              isSidebarClosing && styles.sidebarClosing
-            )}
-          >
-            {renderedDetail ? (
+        <StickySidebar className={styles.sidebarShell}>
+          {renderedDetail ? (
+            <div
+              className={cn(
+                styles.sidebar,
+                isDetailOpen ? styles.sidebarExpanded : styles.sidebarCollapsed,
+                isDetailOpen && styles.sidebarOpening,
+                isSidebarClosing && styles.sidebarClosing
+              )}
+            >
               <Card
                 className={cn(styles.sidebarCard, styles.sidebarCardAnimated)}
                 key={renderedDetail.ingredient.product.slug}
@@ -525,6 +525,7 @@ function SearchPlanner() {
                     <div className={styles.sortRow}>
                       {sortModes.map((mode) => (
                         <Button
+                          aria-pressed={mode.value === sortMode}
                           key={mode.value}
                           className={styles.sortButton}
                           onClick={() => setSortMode(mode.value)}
@@ -647,12 +648,23 @@ function SearchPlanner() {
                   </div>
                 </CardContent>
               </Card>
-            ) : null}
-          </aside>
-        </main>
-      </div>
-    </div>
+            </div>
+          ) : null}
+        </StickySidebar>
+      </PageSection>
+    </PageSurface>
   )
+}
+
+function SearchPlanner() {
+  const [searchParams] = useSearchParams()
+  const seedQuery = searchParams.get("q")?.trim() ?? ""
+
+  if (!seedQuery) {
+    return <Navigate replace to="/" />
+  }
+
+  return <SearchPlannerContent key={seedQuery} seedQuery={seedQuery} />
 }
 
 export default SearchPlanner
