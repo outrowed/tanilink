@@ -1,14 +1,15 @@
 # TaniLink Frontend
 
-Frontend-only mockup starter built with the current Vite + React + TypeScript stack, styled with Tailwind CSS and configured for shadcn/ui components.
+Frontend-only mockup starter built with the current Vite + React + TypeScript stack, using CSS Modules for app styling and a small set of Radix-based UI primitives where needed.
 
 ## Stack
 
 - Vite
 - React
 - TypeScript
-- Tailwind CSS v4
-- shadcn/ui
+- CSS Modules
+- Radix UI primitives
+- Vitest
 - pnpm
 
 ## Development
@@ -29,6 +30,7 @@ pnpm dev:host
 ```bash
 pnpm lint
 pnpm build
+pnpm test
 ```
 
 To preview the production build locally:
@@ -42,5 +44,4 @@ pnpm preview
 
 - This project is set up for UI prototyping and mockups.
 - Backend integration is not wired yet.
-- shadcn/ui aliases are configured through `components.json`.
 - Path alias `@` points to `src`.

@@ -2,7 +2,7 @@
 
 ## Purpose
 
-This repository is a frontend-only TaniLink application built with React, Vite, TypeScript, CSS Modules, and shadcn/ui-style primitives. Use this file as the default operating guide for agentic AI contributors working in this codebase.
+This repository is a frontend-only TaniLink application built with React, Vite, TypeScript, CSS Modules, and a small set of Radix-based UI primitives. Use this file as the default operating guide for agentic AI contributors working in this codebase.
 
 ## Primary Commands
 
