@@ -12,6 +12,8 @@ import {
 
 const ACCOUNTS_STORAGE_KEY = "tanilink:accounts"
 const SESSION_STORAGE_KEY = "tanilink:session"
+const SESSION_DISABLED_STORAGE_KEY = "tanilink:session-disabled"
+const DEFAULT_ACCOUNT_EMAIL = "dewi.santika@tanilink.id"
 
 function readStoredAccounts() {
   if (typeof window === "undefined") {
@@ -51,6 +53,14 @@ function readStoredSession() {
   }
 }
 
+function readSessionDisabledFlag() {
+  if (typeof window === "undefined") {
+    return false
+  }
+
+  return window.localStorage.getItem(SESSION_DISABLED_STORAGE_KEY) === "true"
+}
+
 interface AuthProviderProps {
   children: ReactNode
 }
@@ -59,17 +69,37 @@ function AuthProvider({ children }: AuthProviderProps) {
   const { presetAccounts } = useMockData()
   const [storedAccounts, setStoredAccounts] = useState<StoredAccount[]>(readStoredAccounts)
   const [session, setSession] = useState<AuthSession | null>(readStoredSession)
+  const [sessionDisabled, setSessionDisabled] = useState(readSessionDisabledFlag)
 
   const allAccounts = useMemo(() => [...presetAccounts, ...storedAccounts], [presetAccounts, storedAccounts])
+  const defaultSession = useMemo(() => {
+    if (session || sessionDisabled || !presetAccounts.length) {
+      return null
+    }
+
+    const defaultAccount = presetAccounts.find(
+      (account) => normalizeEmail(account.email) === normalizeEmail(DEFAULT_ACCOUNT_EMAIL)
+    )
+
+    return defaultAccount
+      ? {
+          email: defaultAccount.email,
+          role: defaultAccount.role,
+          userId: defaultAccount.id,
+        }
+      : null
+  }, [presetAccounts, session, sessionDisabled])
+  const activeSession = session ?? defaultSession
   const user = useMemo(
     () =>
-      session
+      activeSession
         ? allAccounts.find(
             (account) =>
-              account.id === session.userId && normalizeEmail(account.email) === normalizeEmail(session.email)
+              account.id === activeSession.userId &&
+              normalizeEmail(account.email) === normalizeEmail(activeSession.email)
           ) ?? null
         : null,
-    [allAccounts, session]
+    [activeSession, allAccounts]
   )
 
   useEffect(() => {
@@ -77,13 +107,22 @@ function AuthProvider({ children }: AuthProviderProps) {
   }, [storedAccounts])
 
   useEffect(() => {
-    if (!session || !user) {
+    if (!activeSession || !user) {
       window.localStorage.removeItem(SESSION_STORAGE_KEY)
       return
     }
 
-    window.localStorage.setItem(SESSION_STORAGE_KEY, JSON.stringify(session))
-  }, [session, user])
+    window.localStorage.setItem(SESSION_STORAGE_KEY, JSON.stringify(activeSession))
+  }, [activeSession, user])
+
+  useEffect(() => {
+    if (sessionDisabled) {
+      window.localStorage.setItem(SESSION_DISABLED_STORAGE_KEY, "true")
+      return
+    }
+
+    window.localStorage.removeItem(SESSION_DISABLED_STORAGE_KEY)
+  }, [sessionDisabled])
 
   const login = useCallback(
     (email: string, password: string) => {
@@ -102,6 +141,7 @@ function AuthProvider({ children }: AuthProviderProps) {
         role: account.role,
         userId: account.id,
       })
+      setSessionDisabled(false)
 
       return { ok: true }
     },
@@ -147,6 +187,7 @@ function AuthProvider({ children }: AuthProviderProps) {
         role: nextAccount.role,
         userId: nextAccount.id,
       })
+      setSessionDisabled(false)
 
       return { ok: true }
     },
@@ -155,6 +196,7 @@ function AuthProvider({ children }: AuthProviderProps) {
 
   const logout = useCallback(() => {
     setSession(null)
+    setSessionDisabled(true)
   }, [])
 
   const value = useMemo(
