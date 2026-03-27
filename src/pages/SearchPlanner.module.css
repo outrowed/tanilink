@@ -509,6 +509,12 @@
   justify-content: flex-start;
 }
 
+.detailActionButton {
+  width: 100%;
+  justify-content: center;
+  font-weight: 600;
+}
+
 .sortSection {
   display: flex;
   flex-direction: column;
@@ -610,4 +616,10 @@
 
 .quantityInput {
   width: 6rem;
+}
+
+@media (max-width: 720px) {
+  .detailActionButton {
+    width: 100%;
+  }
 }

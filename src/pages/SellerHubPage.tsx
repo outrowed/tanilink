@@ -582,7 +582,7 @@ function SellerHubPage() {
                     <Badge variant="outline">{sellerSummary.activeListings} ingredients live</Badge>
                   </div>
                   <div className={styles.inlineActions}>
-                    <Button asChild type="button" variant="outline">
+                    <Button asChild className={styles.panelActionButton} type="button" variant="outline">
                       <Link to="/seller/store">Open store setup</Link>
                     </Button>
                   </div>
@@ -601,7 +601,7 @@ function SellerHubPage() {
                     Open the routing board to drag ingredients into the warehouse location that should fulfill them.
                   </p>
                   <div className={styles.inlineActions}>
-                    <Button asChild type="button" variant="outline">
+                    <Button asChild className={styles.panelActionButton} type="button" variant="outline">
                       <Link to="/seller/routing">Manage routing</Link>
                     </Button>
                   </div>

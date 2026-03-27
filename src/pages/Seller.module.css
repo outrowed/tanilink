@@ -110,6 +110,12 @@
   gap: 0.75rem;
 }
 
+.panelActionButton {
+  width: 100%;
+  justify-content: center;
+  font-weight: 600;
+}
+
 .productIdentity {
   justify-content: flex-start;
   min-width: 0;

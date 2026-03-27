@@ -498,7 +498,7 @@ function SearchPlannerContent({ seedQuery }: SearchPlannerContentProps) {
                   </Card>
 
                   <div className={styles.detailActions}>
-                    <Button asChild variant="outline">
+                    <Button asChild className={styles.detailActionButton}>
                       <Link to={`/products/${renderedDetail.ingredient.product.slug}`}>
                         <ArrowUpRight className={styles.buttonIcon} />
                         Open full product page
