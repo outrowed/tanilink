@@ -741,10 +741,9 @@
 }
 
 .priceChartFooter {
-  display: flex;
-  align-items: flex-end;
-  justify-content: space-between;
-  flex-wrap: wrap;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: end;
   gap: 1rem;
   padding: 1rem 1.25rem;
   border-top: 1px solid color-mix(in srgb, #d6d3d1 60%, transparent);
@@ -755,6 +754,7 @@
   display: flex;
   flex-direction: column;
   gap: 0.35rem;
+  min-width: 0;
 }
 
 .priceChartFooterText {
@@ -849,9 +849,10 @@
 
 .priceForecastSummary {
   display: flex;
-  align-items: stretch;
+  align-items: center;
   flex-wrap: wrap;
   justify-content: flex-end;
+  justify-self: end;
   gap: 0.6rem;
 }
 
@@ -883,6 +884,17 @@
   align-self: center;
   font-size: 0.8rem;
   color: #78716c;
+}
+
+@media (max-width: 760px) {
+  .priceChartFooter {
+    grid-template-columns: 1fr;
+  }
+
+  .priceForecastSummary {
+    justify-self: start;
+    justify-content: flex-start;
+  }
 }
 
 .mosaicGrid {

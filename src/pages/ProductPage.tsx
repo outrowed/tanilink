@@ -54,10 +54,17 @@ function ProductPage() {
   const renderSellerCard = (
     seller: (typeof sortedSellers)[number],
     options?: { spotlight?: boolean }
-  ) => (
+  ) => {
+    const isSavingsOffer = seller.marketDeltaLabel.toLowerCase().includes("below market")
+
+    return (
     <Card
       key={`${options?.spotlight ? "spotlight" : "seller"}-${seller.id}`}
-      className={cn(styles.sellerCard, options?.spotlight && styles.sellerCardSpotlight)}
+      className={cn(
+        styles.sellerCard,
+        options?.spotlight && styles.sellerCardSpotlight,
+        options?.spotlight && isSavingsOffer && styles.sellerCardSpotlightSaving
+      )}
     >
       <CardHeader className={styles.sellerHeader}>
         {options?.spotlight ? (
@@ -65,7 +72,12 @@ function ProductPage() {
             <p className={styles.sectionLabel}>Best match for {currentLocation.area}</p>
             <div className={styles.spotlightBadgeRow}>
               <Badge variant="success">{seller.smartScore} smart score</Badge>
-              <Badge variant="outline">{seller.marketDeltaLabel}</Badge>
+              <Badge
+                className={isSavingsOffer ? styles.savingsBadge : undefined}
+                variant={isSavingsOffer ? "success" : "outline"}
+              >
+                {seller.marketDeltaLabel}
+              </Badge>
             </div>
           </div>
         ) : null}
@@ -166,7 +178,8 @@ function ProductPage() {
         </div>
       </CardContent>
     </Card>
-  )
+    )
+  }
 
   return (
     <div className={styles.page}>

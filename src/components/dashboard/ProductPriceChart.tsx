@@ -38,7 +38,8 @@ const rangeOrder: PriceHistoryRange[] = ["1y", "6m", "1m", "1w", "24h"]
 interface PriceChartRow {
   average: number
   baseline: number | null
-  label: string
+  displayLabel: string
+  pointIndex: number
   price: number | null
 }
 
@@ -108,16 +109,18 @@ function ProductPriceChart({
   const chartData: PriceChartRow[] = activeHistory.map((point, index) => ({
     average: averageLine,
     baseline: index === activeHistory.length - 1 ? point.price : null,
-    label: point.month,
+    displayLabel: point.month,
+    pointIndex: index,
     price: point.price,
   }))
 
   if (forecast) {
-    forecast.baseline.points.forEach((point) => {
+    forecast.baseline.points.forEach((point, forecastIndex) => {
       chartData.push({
         average: averageLine,
         baseline: point.price,
-        label: point.month,
+        displayLabel: point.month,
+        pointIndex: activeHistory.length + forecastIndex,
         price: null,
       })
     })
@@ -133,10 +136,21 @@ function ProductPriceChart({
               <stop offset="95%" stopColor="var(--color-price)" stopOpacity={0.08} />
             </linearGradient>
           </defs>
+          <XAxis dataKey="pointIndex" hide />
+          <ChartTooltip
+            content={
+              <ChartTooltipContent
+                formatLabel={(value) => chartData[Number(value)]?.displayLabel ?? ""}
+                formatValue={(value) => formatRupiah(Number(value))}
+              />
+            }
+            cursor={false}
+          />
           <Area
             dataKey="price"
             fill={`url(#fill-${chartId})`}
             fillOpacity={1}
+            activeDot={{ fill: "var(--color-price)", r: 4, stroke: "#ffffff", strokeWidth: 2 }}
             stroke="var(--color-price)"
             strokeWidth={2.5}
             type="linear"
@@ -224,10 +238,11 @@ function ProductPriceChart({
             <Legend content={() => null} />
             <XAxis
               axisLine={false}
-              dataKey="label"
+              dataKey="pointIndex"
               minTickGap={24}
               tickLine={false}
               tickMargin={8}
+              tickFormatter={(value) => chartData[value]?.displayLabel ?? ""}
             />
             <YAxis
               axisLine={false}
@@ -249,12 +264,13 @@ function ProductPriceChart({
                 stroke="#15803d"
                 strokeDasharray="4 4"
                 strokeOpacity={0.7}
-                x={latestPoint.month}
+                x={activeHistory.length - 1}
               />
             ) : null}
             <ChartTooltip
               content={
                 <ChartTooltipContent
+                  formatLabel={(value) => chartData[Number(value)]?.displayLabel ?? ""}
                   formatValue={(value) => formatRupiah(Number(value))}
                   indicator="dot"
                 />

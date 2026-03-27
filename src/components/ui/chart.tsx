@@ -72,13 +72,14 @@ const ChartTooltip = RechartsPrimitive.Tooltip
 
 interface ChartTooltipContentProps {
   active?: boolean
+  formatLabel?: (label: number | string | undefined) => React.ReactNode
   payload?: Array<{
     color?: string
     dataKey?: string | number
     name?: string
     value?: number | string
   }>
-  label?: string
+  label?: number | string
   hideLabel?: boolean
   hideIndicator?: boolean
   indicator?: "dot" | "line"
@@ -89,6 +90,7 @@ function ChartTooltipContent({
   active,
   payload,
   label,
+  formatLabel,
   hideLabel = false,
   hideIndicator = false,
   indicator = "dot",
@@ -104,7 +106,7 @@ function ChartTooltipContent({
     <div className={styles.tooltip}>
       {!hideLabel ? (
         <div className={styles.tooltipLabel}>
-          {label}
+          {formatLabel ? formatLabel(label) : label}
         </div>
       ) : null}
       <div className={styles.tooltipItems}>

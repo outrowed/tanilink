@@ -284,6 +284,9 @@ function SellerHubPage() {
     return labels.join(" · ")
   }, [categoryFilter, statusFilter, stockFilter])
 
+  const hasActiveFilters =
+    statusFilter !== "all" || categoryFilter !== "all" || stockFilter !== "all"
+
   useEffect(() => {
     const handleEscape = (event: KeyboardEvent) => {
       if (event.key === "Escape") {
@@ -384,20 +387,14 @@ function SellerHubPage() {
                         Review headline performance for each listing, then open the ingredient page for detailed analytics and pricing or stock edits.
                       </CardDescription>
                     </div>
-                    <div className={styles.filterRow}>
-                      <Button asChild type="button" variant="outline">
-                        <Link to="/seller/routing">Manage routing</Link>
-                      </Button>
-                      <Button asChild type="button" variant="outline">
-                        <Link to="/seller/store">Open store setup</Link>
-                      </Button>
-                    </div>
                   </div>
                 </CardHeader>
                 <CardContent className={styles.surfaceBody}>
-                  <div className={styles.noticeBanner}>
-                    Showing {visibleListings.length} ingredient{visibleListings.length === 1 ? "" : "s"} · {filteredStateLabel}
-                  </div>
+                  {hasActiveFilters ? (
+                    <div className={styles.noticeBanner}>
+                      Showing {visibleListings.length} ingredient{visibleListings.length === 1 ? "" : "s"} · {filteredStateLabel}
+                    </div>
+                  ) : null}
                   <div className={styles.filterToolbar}>
                     <div className={styles.fieldGroup}>
                       <label className={styles.fieldLabel} htmlFor="seller-hub-status-filter">
@@ -582,7 +579,31 @@ function SellerHubPage() {
                   <div className={styles.badgeRow}>
                     <Badge variant="outline">{currentStoreProfile.locations.length} locations</Badge>
                     <Badge variant="outline">{currentStoreProfile.deliveryOptions.length} delivery options</Badge>
-                    <Badge variant="outline">{filteredStateLabel}</Badge>
+                    <Badge variant="outline">{sellerSummary.activeListings} ingredients live</Badge>
+                  </div>
+                  <div className={styles.inlineActions}>
+                    <Button asChild type="button" variant="outline">
+                      <Link to="/seller/store">Open store setup</Link>
+                    </Button>
+                  </div>
+                </CardContent>
+              </Card>
+
+              <Card className={styles.surfaceCard}>
+                <CardHeader className={styles.surfaceHeader}>
+                  <CardTitle className={styles.surfaceTitle}>Warehouse routing</CardTitle>
+                  <CardDescription>
+                    Move ingredients across warehouse locations and review where each listing is currently routed.
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className={styles.surfaceBody}>
+                  <p className={styles.supportingCopy}>
+                    Open the routing board to drag ingredients into the warehouse location that should fulfill them.
+                  </p>
+                  <div className={styles.inlineActions}>
+                    <Button asChild type="button" variant="outline">
+                      <Link to="/seller/routing">Manage routing</Link>
+                    </Button>
                   </div>
                 </CardContent>
               </Card>

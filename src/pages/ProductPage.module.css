@@ -229,6 +229,20 @@
   box-shadow: 0 20px 48px -40px rgba(21, 128, 61, 0.5);
 }
 
+.sellerCardSpotlightSaving {
+  border-color: rgba(34, 197, 94, 0.34);
+  background:
+    radial-gradient(circle at top right, rgba(134, 239, 172, 0.18), transparent 32%),
+    linear-gradient(180deg, rgba(240, 253, 244, 0.98) 0%, rgba(255, 253, 249, 1) 100%);
+  box-shadow: 0 24px 54px -42px rgba(21, 128, 61, 0.56);
+}
+
+.savingsBadge {
+  background: linear-gradient(180deg, rgba(220, 252, 231, 0.96) 0%, rgba(240, 253, 244, 0.96) 100%);
+  border-color: rgba(34, 197, 94, 0.22);
+  color: #047857;
+}
+
 .sellerHeader {
   padding: 1rem 1.15rem;
 }
