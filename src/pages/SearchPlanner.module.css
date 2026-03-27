@@ -79,7 +79,13 @@
 .summaryTop {
   display: flex;
   justify-content: space-between;
+  align-items: flex-start;
   gap: 1rem;
+}
+
+.summaryActionWrap {
+  display: flex;
+  flex-shrink: 0;
 }
 
 .summaryBadgeRow {
@@ -158,12 +164,25 @@
   gap: 0.7rem;
   padding: 0.95rem 1.25rem 1.15rem;
   border-top: 1px solid rgba(214, 211, 209, 0.7);
+  background: rgba(247, 244, 238, 0.72);
   color: #57534e;
+}
+
+.summaryFooterCopy {
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
 }
 
 .summaryFootnote {
   margin: 0;
   line-height: 1.65;
+}
+
+.summarySuccessNote {
+  margin: 0;
+  color: #166534;
+  font-weight: 600;
 }
 
 .aiSuggestionBody {

@@ -62,6 +62,7 @@ function SearchPlanner() {
   const selectedProductSlug = searchParams.get("preview") as Product["slug"] | null
   const [sortMode, setSortMode] = useState<SellerSortMode>("smart")
   const [sellerQuantities, setSellerQuantities] = useState<Record<number, number>>({})
+  const [bulkAddMessage, setBulkAddMessage] = useState("")
   const { addItem } = useBasket()
 
   const matchedProducts = useMemo(
@@ -126,6 +127,40 @@ function SearchPlanner() {
 
   const getSellerQuantity = (sellerId: number) => sellerQuantities[sellerId] ?? 1
 
+  const parseIngredientQuantity = (quantity: string) => {
+    const matchedValue = quantity.match(/[\d.]+/)
+
+    if (!matchedValue) {
+      return 1
+    }
+
+    const parsedValue = Number(matchedValue[0])
+
+    if (!Number.isFinite(parsedValue) || parsedValue <= 0) {
+      return 1
+    }
+
+    return Math.max(1, Math.round(parsedValue))
+  }
+
+  const handleAddPlanToBasket = () => {
+    if (!plannerView) {
+      return
+    }
+
+    plannerView.ingredients.forEach((ingredient) => {
+      addItem(
+        ingredient.product,
+        ingredient.recommendedSeller,
+        parseIngredientQuantity(ingredient.quantity)
+      )
+    })
+
+    setBulkAddMessage(
+      `${plannerView.ingredients.length} planned ingredient${plannerView.ingredients.length === 1 ? "" : "s"} added to basket.`
+    )
+  }
+
   if (!seedQuery) {
     return <Navigate replace to="/" />
   }
@@ -172,6 +207,12 @@ function SearchPlanner() {
                           {plannerView.bundle.description} This planner is based on the current search:
                           <strong> "{seedQuery}"</strong>.
                         </CardDescription>
+                      </div>
+                      <div className={styles.summaryActionWrap}>
+                        <Button onClick={handleAddPlanToBasket} type="button">
+                          <PackageCheck className={styles.buttonIcon} />
+                          Add all to basket
+                        </Button>
                       </div>
                     </div>
                   </CardHeader>
@@ -222,7 +263,10 @@ function SearchPlanner() {
 
                   <CardFooter className={styles.summaryFooter}>
                     <Sparkles className={styles.footerIcon} />
-                    <p className={styles.summaryFootnote}>{plannerView.marketPressure}</p>
+                    <div className={styles.summaryFooterCopy}>
+                      <p className={styles.summaryFootnote}>{plannerView.marketPressure}</p>
+                      {bulkAddMessage ? <p className={styles.summarySuccessNote}>{bulkAddMessage}</p> : null}
+                    </div>
                   </CardFooter>
                 </Card>
 
