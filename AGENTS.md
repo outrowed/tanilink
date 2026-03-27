@@ -2,16 +2,26 @@
 
 ## Purpose
 
-This repository is a frontend-only TaniLink application built with React, Vite, TypeScript, CSS Modules, and a small set of Radix-based UI primitives. Use this file as the default operating guide for agentic AI contributors working in this codebase.
+This repository is a frontend-only TaniLink application built with React, Vite, TypeScript, CSS Modules, and a small set of Radix-based UI primitives. Use this file as the repo-specific operating guide for agentic AI contributors.
+
+The app is not a generic starter anymore. It already contains:
+
+- a public ingredient Marketplace
+- an AI planner and search flow
+- basket and buyer checkout
+- buyer account pages
+- seller analytics, routing, and store management
 
 ## Primary Commands
 
 Use `pnpm`.
 
 - `pnpm dev` starts the local app
+- `pnpm dev:host` exposes the app on the local network
 - `pnpm lint` runs eslint
 - `pnpm build` runs the TypeScript build and Vite production build
 - `pnpm test` runs the Vitest regression suite
+- `pnpm preview` previews the production build
 
 Before finishing non-trivial code changes, run:
 
@@ -24,16 +34,46 @@ pnpm test
 ## Repo Map
 
 - `src/pages`: route-level screens
-- `src/components/layout`: app shell and shared page-surface layout
-- `src/components/shared`: route guards and cross-page UI helpers
-- `src/components/dashboard`: marketplace, chart, seller, and analytics components
-- `src/components/ui`: low-level reusable UI primitives
+- `src/components/layout`: app shell, navbar, page surface, floating location switcher
+- `src/components/shared`: route guards and cross-page helpers
+- `src/components/dashboard`: marketplace, seller, analytics, and chart components
+- `src/components/ui`: reusable low-level UI primitives
 - `src/context`: app-wide state providers
-- `src/lib`: domain models, data builders, ranking logic, formatting helpers
-- `src/test`: test setup and shared fixtures
-- `public/resources/*.json`: seed resources loaded at runtime
+- `src/lib`: domain logic, seed transforms, ranking logic, and formatting helpers
+- `src/test`: shared test setup and fixtures
+- `public/resources/*.json`: seeded runtime resources loaded by `MockDataProvider`
 
-## Architectural Rules
+## App Shell and Layout Rules
+
+### 1. Treat `AppLayout` as the shell owner
+
+`AppLayout` owns the global preview warning bar and mounts the shared navbar. Do not duplicate shell-level warnings or top-level framing in individual pages unless the feature is intentionally page-specific.
+
+### 2. Keep the navbar shell consistent
+
+`AppNavbar` owns:
+
+- Marketplace and Seller Hub entry points
+- the global search box
+- basket access
+- profile menu
+- the location switcher attached below the header row
+
+Do not move location or account controls into page-local implementations unless explicitly required.
+
+### 3. Use the shared page surface
+
+For route-level page layout, prefer:
+
+- `PageSurface`
+- `PageSection`
+- `StickySidebar`
+
+from `src/components/layout/PageSurface.tsx`.
+
+Do not reintroduce duplicated page shell wrappers, page backgrounds, or per-page sticky offsets unless a page truly needs a unique variant.
+
+## Data and State Rules
 
 ### 1. Treat `public/resources` as seeded inputs
 
@@ -44,11 +84,13 @@ pnpm test
 - `public/resources/auth.json`
 - `public/resources/seller.json`
 
-These files are runtime seed resources. Do not add app logic that writes back into them. If a feature needs user-created or session-persistent state, store it in a context provider backed by `localStorage`, following the existing auth, basket, buyer-order, seller, or location patterns.
+These are seeded runtime inputs, not writable sources of truth. Do not add logic that writes back into them.
 
-### 2. Reuse existing providers before creating new global state
+If a feature needs user-created or session-persistent state, store it through an existing provider backed by `localStorage`.
 
-Current app-level providers are composed in `src/App.tsx` in this order:
+### 2. Reuse existing providers before adding new global state
+
+Current provider composition in `src/App.tsx`:
 
 1. `MockDataProvider`
 2. `AuthProvider`
@@ -57,13 +99,30 @@ Current app-level providers are composed in `src/App.tsx` in this order:
 5. `BasketProvider`
 6. `BuyerOrdersProvider`
 
-Before adding another provider, check whether the feature belongs in one of the existing state domains.
+Before adding another provider, check whether the new state belongs in one of these domains.
 
-### 3. Preserve role boundaries
+### 3. Understand the persistence split
+
+The app combines seeded resources with browser-local state:
+
+- auth session and local accounts
+- selected location
+- basket contents
+- buyer-created transactions
+- seller-managed store and listing state
+- preview-warning dismissal
+
+Keep that layering intact. Seeded resource data should remain read-only.
+
+### 4. Default auth behavior is intentional
+
+The app currently opens with the preset seller account session by default unless the user has explicitly logged out. Do not change that behavior unless requested.
+
+## Route and Access Rules
 
 Route behavior is intentionally split:
 
-- public: landing, auth, marketplace, basket, product, search
+- public: landing, auth, Marketplace, basket, product pages, search
 - buyer-only: checkout
 - authenticated: account pages
 - seller-only: seller hub, seller ingredient detail, seller routing, seller store
@@ -74,38 +133,47 @@ Use the existing guards in `src/components/shared`:
 - `RequireBuyer`
 - `RequireSeller`
 
-Do not bypass buyer/seller restrictions in page logic or provider APIs. If a flow is buyer-only, enforce that both in routing and in the underlying state mutation layer.
+If a flow is buyer-only or seller-only, enforce that both:
 
-### 4. Keep the search planner stable across query-string changes
+- in routing
+- in the underlying state mutation path
 
-`/search` is a stateful screen. Keep these concerns separate:
+Do not rely on UI-only hiding for access control.
+
+## High-Risk Areas
+
+### 1. Search planner state
+
+`/search` is stateful. Keep these concerns separate:
 
 - URL-driven state: `q`, `mode`, `category`, `preview`
-- local UI state: seller sort mode, quantity inputs, animation state, transient banners
+- local UI state: seller sort mode, quantity inputs, animations, transient banners
 
-Do not reintroduce route keying or remount behavior based on the full query string. Changing preview/filter params should not wipe planner-local UI state.
+Do not reintroduce remount behavior based on the full query string. Changing preview or filters should not wipe planner-local state.
 
-### 5. Use the shared page shell
+### 2. Buyer order persistence
 
-For route-level page layout, prefer:
+`BuyerOrdersProvider` layers user-created transactions on top of seeded account transactions. Keep seeded account data read-only and merge persisted buyer orders on top of it.
 
-- `PageSurface`
-- `PageSection`
-- `StickySidebar`
+### 3. Seller overlays affect buyer views
 
-from `src/components/layout/PageSurface.tsx`.
+Seller-managed listings and analytics are not isolated from the Marketplace. If you change seller listing structure, routing, pricing, or ranking logic, verify:
 
-Do not copy page shell backgrounds, max-width wrappers, or sticky offsets into each page module unless there is a clear variant reason. Shared layout drift has already caused spacing and sticky regressions in this repo.
+- product page seller panels
+- search planner seller ranking
+- basket snapshots
+- buyer checkout line items
+- seller hub analytics
 
 ## UI and Styling Conventions
 
-### 1. Prefer CSS Modules for page/component styling
+### 1. Prefer CSS Modules
 
-This codebase primarily uses `.module.css` files, not inline style systems for feature work. Reuse existing module patterns before adding new styling approaches.
+This repo uses `.module.css` files as the main styling system. Reuse existing module patterns before introducing another styling approach.
 
-### 2. Reuse UI primitives
+### 2. Reuse existing UI primitives
 
-Before creating a one-off button/card/layout pattern, check:
+Before creating a new card, button, or layout pattern, check:
 
 - `src/components/ui`
 - `src/components/shared`
@@ -128,48 +196,10 @@ The app already uses:
 
 - warm neutral page surfaces
 - rounded cards and soft borders
-- sticky navbar with a floating location switch
+- a sticky navbar shell with attached location switcher
 - chart-heavy marketplace and seller analytics views
 
-Match existing spacing, tone, and component structure before inventing a new presentation style.
-
-## Routing and Page Patterns
-
-Important route structure in `src/App.tsx`:
-
-- `/` -> planner landing
-- `/marketplace`
-- `/basket`
-- `/products/:slug`
-- `/search`
-- `/checkout` -> buyer-only
-- `/account/*` -> authenticated
-- `/seller/*` -> seller-only
-
-When adding a new route:
-
-- place it under the correct guard
-- keep redirects explicit
-- update any related navbar/account/seller navigation entry points
-
-## Data and Domain Guidelines
-
-### 1. Marketplace and seller data are connected
-
-Consumer marketplace views depend on seller-managed listing overlays. If you change seller listing structure or ranking logic, verify:
-
-- product page seller panels
-- planner seller ranking
-- seller hub analytics
-- basket / checkout line-item snapshots
-
-### 2. Buyer orders are persisted separately from seeded account data
-
-`BuyerOrdersProvider` extends seeded account transactions with user-created orders. Keep seeded resource data read-only and merge persisted user-created orders on top of it.
-
-### 3. Default auth behavior is intentional
-
-The app currently opens with the preset seller account session by default unless the user has explicitly logged out. Do not change that behavior unless requested.
+Match existing spacing, tone, and structure before inventing a new presentation style.
 
 ## Testing Expectations
 
@@ -193,17 +223,19 @@ When adding a stateful feature, add at least one regression test if the change a
 
 When making changes:
 
-1. Inspect the existing pattern first
-2. Reuse the nearest existing abstraction
-3. Keep modifications scoped
-4. Validate the affected flows end to end
-5. Prefer fixing root causes over adding page-specific overrides
+1. inspect the existing pattern first
+2. reuse the nearest existing abstraction
+3. keep modifications scoped
+4. validate the affected flows end to end
+5. prefer fixing root causes over page-specific overrides
 
 Good examples in this repo:
 
 - shared route guards instead of per-page auth checks
-- `PageSurface` instead of duplicated page shell CSS
-- provider-backed persistence instead of ad hoc `localStorage` usage inside pages
+- `PageSurface` instead of duplicated shell CSS
+- provider-backed persistence instead of page-local `localStorage` logic
+
+If a change touches layout, auth, routing, or persistence, inspect the provider, route guard, and shared layout layer before editing the page itself. In this repo, the correct fix is often one layer lower than the first symptom.
 
 ## Commit Style
 
@@ -217,7 +249,3 @@ Examples:
 - `test: add search planner regression coverage`
 
 Avoid scoped formats such as `feat(search): ...` unless explicitly requested.
-
-## When Unsure
-
-If a change touches layout, auth, routing, or persisted state, inspect the relevant provider, route guard, and shared layout component before editing the page itself. In this repo, the correct fix is often one layer lower than the first symptom.
