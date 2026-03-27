@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react"
+import { useEffect, useMemo, useRef, useState } from "react"
 import {
   ArrowUpRight,
   Clock3,
@@ -49,6 +49,8 @@ const sortModes: Array<{ label: string; value: SellerSortMode }> = [
   { label: "Lowest price", value: "price" },
   { label: "Highest rating", value: "rating" },
 ]
+
+const SIDEBAR_TRANSITION_MS = 260
 
 function SearchPlanner() {
   const navigate = useNavigate()
@@ -103,17 +105,46 @@ function SearchPlanner() {
     () => (activeIngredient ? rankSellers(activeIngredient.product, "smart", currentLocation)[0] : null),
     [activeIngredient, currentLocation]
   )
-  const visibleSellers = useMemo(
-    () => (activeIngredient ? rankSellers(activeIngredient.product, sortMode, currentLocation) : []),
-    [activeIngredient, currentLocation, sortMode]
-  )
   const detailState =
     activeIngredient && smartBestSeller
       ? { ingredient: activeIngredient, bestSeller: smartBestSeller }
       : null
   const isDetailOpen = Boolean(detailState)
+  const closeTimerRef = useRef<number | null>(null)
+  const [closingDetail, setClosingDetail] = useState<typeof detailState>(null)
+  const renderedDetail = detailState ?? closingDetail
+  const isSidebarMounted = Boolean(renderedDetail)
+  const isSidebarClosing = !isDetailOpen && isSidebarMounted
+  const sidebarIngredient = renderedDetail?.ingredient ?? null
+  const visibleSellers = useMemo(
+    () => (sidebarIngredient ? rankSellers(sidebarIngredient.product, sortMode, currentLocation) : []),
+    [currentLocation, sidebarIngredient, sortMode]
+  )
+
+  useEffect(() => {
+    return () => {
+      if (closeTimerRef.current) {
+        window.clearTimeout(closeTimerRef.current)
+      }
+    }
+  }, [])
 
   const handlePreviewChange = (nextSlug: Product["slug"] | null) => {
+    if (closeTimerRef.current) {
+      window.clearTimeout(closeTimerRef.current)
+      closeTimerRef.current = null
+    }
+
+    if (!nextSlug && detailState) {
+      setClosingDetail(detailState)
+      closeTimerRef.current = window.setTimeout(() => {
+        setClosingDetail(null)
+        closeTimerRef.current = null
+      }, SIDEBAR_TRANSITION_MS)
+    } else if (nextSlug) {
+      setClosingDetail(null)
+    }
+
     const nextSearchParams = new URLSearchParams(searchParams)
 
     if (nextSlug) {
@@ -168,7 +199,7 @@ function SearchPlanner() {
   return (
     <div className={styles.page}>
       <div className={styles.inner}>
-        <main className={cn(styles.layout, isDetailOpen && styles.layoutExpanded)}>
+        <main className={cn(styles.layout, isSidebarMounted && styles.layoutExpanded)}>
           <section className={styles.mainColumn}>
             <PageHeader
               action={<BackButton fallbackTo="/" label="Back" />}
@@ -294,11 +325,11 @@ function SearchPlanner() {
                             isActive={isActive}
                             metricLabel="Recommended offer"
                             metricValue={formatRupiah(ingredient.recommendedSeller.price)}
-                            onSelect={() =>
+                            onSelect={() => {
                               handlePreviewChange(
                                 selectedProductSlug === ingredient.product.slug ? null : ingredient.product.slug
                               )
-                            }
+                            }}
                             product={ingredient.product}
                             showChart={false}
                             subtitle={ingredient.quantity}
@@ -426,16 +457,26 @@ function SearchPlanner() {
             </section>
           </section>
 
-          <aside className={cn(styles.sidebar, isDetailOpen ? styles.sidebarExpanded : styles.sidebarCollapsed)}>
-            {detailState ? (
-              <Card className={styles.sidebarCard}>
+          <aside
+            className={cn(
+              styles.sidebar,
+              isDetailOpen ? styles.sidebarExpanded : styles.sidebarCollapsed,
+              isDetailOpen && styles.sidebarOpening,
+              isSidebarClosing && styles.sidebarClosing
+            )}
+          >
+            {renderedDetail ? (
+              <Card
+                className={cn(styles.sidebarCard, styles.sidebarCardAnimated)}
+                key={renderedDetail.ingredient.product.slug}
+              >
                 <CardHeader className={styles.compactHeader}>
                   <div className={styles.sidebarHeaderTop}>
                     <div>
                       <p className={styles.sectionLabel}>Live seller routing</p>
-                      <CardTitle className={styles.sidebarTitle}>{detailState.ingredient.product.name}</CardTitle>
+                      <CardTitle className={styles.sidebarTitle}>{renderedDetail.ingredient.product.name}</CardTitle>
                     </div>
-                    <Badge variant="warning">{detailState.ingredient.quantity}</Badge>
+                    <Badge variant="warning">{renderedDetail.ingredient.quantity}</Badge>
                   </div>
                   <CardDescription>
                     Best seller is chosen from price history, local delivery fit, rating, and current handling load.
@@ -447,18 +488,18 @@ function SearchPlanner() {
                     <CardContent className={styles.bestSellerBody}>
                       <div>
                         <p className={styles.bestSellerLabel}>Best match for {currentLocation.area}</p>
-                        <p className={styles.bestSellerName}>{detailState.bestSeller.name}</p>
+                        <p className={styles.bestSellerName}>{renderedDetail.bestSeller.name}</p>
                       </div>
                       <div className={styles.bestSellerMeta}>
-                        <Badge variant="success">{detailState.bestSeller.smartScore} smart score</Badge>
-                        <Badge variant="outline">{detailState.bestSeller.marketDeltaLabel}</Badge>
+                        <Badge variant="success">{renderedDetail.bestSeller.smartScore} smart score</Badge>
+                        <Badge variant="outline">{renderedDetail.bestSeller.marketDeltaLabel}</Badge>
                       </div>
                     </CardContent>
                   </Card>
 
                   <div className={styles.detailActions}>
                     <Button asChild variant="outline">
-                      <Link to={`/products/${detailState.ingredient.product.slug}`}>
+                      <Link to={`/products/${renderedDetail.ingredient.product.slug}`}>
                         <ArrowUpRight className={styles.buttonIcon} />
                         Open full product page
                       </Link>
@@ -466,13 +507,13 @@ function SearchPlanner() {
                   </div>
 
                   <ProductPriceChart
-                    description={`${detailState.ingredient.product.marketStatus}. Seller ranking prefers below-market offers when price pressure rises for ${describeUserLocation(currentLocation, "short")}.`}
-                    history={detailState.ingredient.product.priceHistory}
-                    label={detailState.ingredient.product.name}
-                    priceChange={detailState.ingredient.product.priceChange}
-                    subtitle={`${detailState.ingredient.product.unit} market movement`}
+                    description={`${renderedDetail.ingredient.product.marketStatus}. Seller ranking prefers below-market offers when price pressure rises for ${describeUserLocation(currentLocation, "short")}.`}
+                    history={renderedDetail.ingredient.product.priceHistory}
+                    label={renderedDetail.ingredient.product.name}
+                    priceChange={renderedDetail.ingredient.product.priceChange}
+                    subtitle={`${renderedDetail.ingredient.product.unit} market movement`}
                     title="Market price history"
-                    tone={detailState.ingredient.product.chartColor}
+                    tone={renderedDetail.ingredient.product.chartColor}
                   />
 
                   <div className={styles.sortSection}>
@@ -498,7 +539,7 @@ function SearchPlanner() {
 
                   <div className={styles.sellerList}>
                     {visibleSellers.map((seller) => {
-                      const isSmartRecommendation = seller.id === detailState.bestSeller.id
+                      const isSmartRecommendation = seller.id === renderedDetail.bestSeller.id
 
                       return (
                         <Card key={seller.id} className={styles.sellerCard}>
@@ -593,7 +634,7 @@ function SearchPlanner() {
                                 />
                               </label>
                               <Button
-                                onClick={() => addItem(detailState.ingredient.product, seller, getSellerQuantity(seller.id))}
+                                onClick={() => addItem(renderedDetail.ingredient.product, seller, getSellerQuantity(seller.id))}
                                 type="button"
                               >
                                 Add to basket
