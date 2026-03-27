@@ -1,6 +1,5 @@
 import { Navigate, Route, Routes } from "react-router-dom"
 import RequireAuth from "@/components/shared/RequireAuth"
-import RequireBuyer from "@/components/shared/RequireBuyer"
 import RequireSeller from "@/components/shared/RequireSeller"
 import { AuthProvider } from "@/context/AuthProvider"
 import { BasketProvider } from "@/context/BasketProvider"
@@ -44,7 +43,7 @@ function App() {
                       <Route element={<ProductPage />} path="products/:slug" />
                       <Route element={<Navigate replace to="/" />} path="planner" />
                       <Route element={<SearchPlanner />} path="search" />
-                      <Route element={<RequireBuyer />}>
+                      <Route element={<RequireAuth />}>
                         <Route element={<CheckoutPage />} path="checkout" />
                       </Route>
                       <Route element={<RequireAuth />} path="account">

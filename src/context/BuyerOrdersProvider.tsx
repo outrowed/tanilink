@@ -74,13 +74,6 @@ function BuyerOrdersProvider({ children }: BuyerOrdersProviderProps) {
         }
       }
 
-      if (user.role !== "buyer") {
-        return {
-          error: "Checkout is only available for buyer accounts.",
-          ok: false,
-        }
-      }
-
       if (!basketLines.length) {
         return {
           error: "Your basket is empty.",

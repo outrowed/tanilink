@@ -39,8 +39,9 @@ function TransactionHarness() {
 }
 
 describe("BuyerOrdersProvider", () => {
-  it("rejects seller accounts from creating buyer checkout orders", async () => {
+  it("creates a new transaction for seller accounts and clears the basket", async () => {
     const user = userEvent.setup()
+    const clearBasket = vi.fn()
 
     render(
       <MockDataContext.Provider value={createMockDataValue({ accountTransactions: [] })}>
@@ -48,7 +49,7 @@ describe("BuyerOrdersProvider", () => {
           <BasketContext.Provider
             value={{
               basketLines: [sampleBasketLine],
-              clearBasket: vi.fn(),
+              clearBasket,
               itemCount: sampleBasketLine.quantity,
               lineCount: 1,
               removeItem: vi.fn(),
@@ -68,10 +69,9 @@ describe("BuyerOrdersProvider", () => {
 
     await user.click(screen.getByRole("button", { name: "Create transaction" }))
 
-    expect(
-      screen.getByText("Checkout is only available for buyer accounts.")
-    ).toBeInTheDocument()
-    expect(screen.getByText("Transactions: 0")).toBeInTheDocument()
+    expect(screen.getByText(/^Created TNL-/)).toBeInTheDocument()
+    expect(clearBasket).toHaveBeenCalledTimes(1)
+    expect(screen.getByText("Transactions: 1")).toBeInTheDocument()
   })
 
   it("creates a new transaction for buyer accounts and clears the basket", async () => {

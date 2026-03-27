@@ -4,7 +4,6 @@ import { Link } from "react-router-dom"
 import PageSurface, { PageSection, StickySidebar } from "@/components/layout/PageSurface"
 import BackButton from "@/components/shared/BackButton"
 import PageHeader from "@/components/shared/PageHeader"
-import { useAuth } from "@/context/auth"
 import { useBasket } from "@/context/basket"
 import { formatRupiah } from "@/lib/data"
 import { Badge } from "@/components/ui/badge"
@@ -14,7 +13,6 @@ import { Input } from "@/components/ui/input"
 import styles from "@/pages/BasketPage.module.css"
 
 function BasketPage() {
-  const { isBuyer } = useAuth()
   const { basketLines, clearBasket, itemCount, lineCount, removeItem, sellerCount, subtotal, updateQuantity } =
     useBasket()
 
@@ -108,20 +106,9 @@ function BasketPage() {
                   </Card>
 
                   <div className={styles.actionStack}>
-                    {isBuyer ? (
-                      <Button asChild type="button">
-                        <Link to="/checkout">Continue to checkout</Link>
-                      </Button>
-                    ) : (
-                      <>
-                        <Button disabled type="button">
-                          Buyer checkout only
-                        </Button>
-                        <p className={styles.checkoutNote}>
-                          Sign in with a buyer account to continue from basket to purchase.
-                        </p>
-                      </>
-                    )}
+                    <Button asChild type="button">
+                      <Link to="/checkout">Continue to checkout</Link>
+                    </Button>
                     <Button onClick={clearBasket} type="button" variant="outline">
                       Clear basket
                     </Button>
