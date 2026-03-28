@@ -66,4 +66,5 @@ Object.defineProperty(HTMLElement.prototype, "scrollIntoView", {
 afterEach(() => {
   cleanup()
   window.localStorage.clear()
+  window.sessionStorage.clear()
 })
