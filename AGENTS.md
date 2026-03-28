@@ -219,6 +219,82 @@ Focus tests on behavior, not snapshots. Prioritize:
 
 When adding a stateful feature, add at least one regression test if the change affects routing, persistence, or multi-step UI.
 
+## Browser QA Workflow
+
+For layout, responsive, animation, sticky-positioning, and interaction bugs, do not rely on code inspection or unit tests alone. Open the app in a real browser session through the Chrome DevTools MCP tools and verify the UI directly.
+
+### 1. Prefer browser QA for UI-sensitive changes
+
+Use browser checks when a change affects:
+
+- navbar, drawer, menus, popovers, or the location switcher
+- responsive layout or breakpoint behavior
+- sticky headers, sticky sidebars, or scroll restoration
+- touch/click interaction bugs
+- chart sizing or visual clipping
+
+If a bug only appears in-browser, treat the browser result as the source of truth even if the existing test suite passes.
+
+### 2. Viewport coverage
+
+At minimum:
+
+- desktop: `1920x1080`
+- mobile: `390x844`
+
+For responsive work, also check a small tablet width such as `768x1024` when the layout meaningfully changes between phone and desktop.
+
+### 3. Snapshot and screenshot usage
+
+Prefer this order:
+
+1. `take_snapshot` to inspect structure, labels, and interactable elements
+2. `take_screenshot` to inspect spacing, clipping, layering, and visual polish
+
+Use screenshots after opening the exact interactive state being debugged, such as:
+
+- hamburger drawer open
+- profile or location menu open
+- right-side planner detail open
+- modal or dialog open
+
+### 4. Screenshot rules for tall pages
+
+Do not use a full-page screenshot when the viewport height is already large or when the page is long enough that a single capture becomes hard to inspect.
+
+Instead:
+
+- keep the normal viewport height
+- take several standard screenshots while scrolling down the page
+- capture the top, middle, and lower sections separately when needed
+
+Only use full-page screenshots when they provide a clear advantage and the result will still be readable.
+
+### 5. Interaction checks
+
+When verifying a fix, exercise the real interaction path in the browser:
+
+- click/tap the actual trigger
+- confirm the resulting state remains open or closed as expected
+- verify overlays are not clipped or hidden behind other layers
+- confirm body scroll locking or restoration behavior when relevant
+
+If the change affects navigation or session behavior, also verify:
+
+- opening a new route starts at the expected scroll position
+- browser back/forward restores the expected session state
+- query-param-only state changes do not trigger unintended page jumps
+
+### 6. After browser QA
+
+If browser QA exposes a bug:
+
+1. fix the root cause in the shared layer when possible
+2. add or update a regression test if the behavior is testable
+3. rerun browser QA on the same viewport and route after the fix
+
+Do not stop at “test passes” if the browser still shows a UI or UX defect.
+
 ## Change Strategy for Agents
 
 When making changes:
