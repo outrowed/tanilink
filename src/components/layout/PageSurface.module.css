@@ -6,7 +6,9 @@
     linear-gradient(180deg, #f3efe6 0%, #f7f5ef 28%, #ece7da 100%);
   --page-shell-sticky-top: calc(4.75rem + 1rem);
   min-height: 100vh;
+  min-height: 100dvh;
   background: var(--page-shell-background);
+  overflow-x: clip;
 }
 
 .toneCool {
@@ -34,4 +36,25 @@
   position: sticky;
   top: var(--page-shell-sticky-top);
   align-self: start;
+}
+
+@media (max-width: 960px) {
+  .inner {
+    padding: 1.25rem 1rem 1.4rem;
+  }
+
+  .stickySidebar {
+    position: static;
+    top: auto;
+  }
+}
+
+@media (max-width: 720px) {
+  .inner {
+    padding: 1rem 0.9rem 1.2rem;
+  }
+
+  .section {
+    margin-top: 0.85rem;
+  }
 }

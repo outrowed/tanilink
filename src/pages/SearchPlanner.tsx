@@ -8,6 +8,7 @@ import {
   Star,
   Store,
   Truck,
+  X,
 } from "lucide-react"
 import { Link, Navigate, useNavigate, useSearchParams } from "react-router-dom"
 
@@ -52,9 +53,33 @@ const sortModes: Array<{ label: string; value: SellerSortMode }> = [
 ]
 
 const SIDEBAR_TRANSITION_MS = 260
+const MOBILE_DETAIL_BREAKPOINT = 720
 
 interface SearchPlannerContentProps {
   seedQuery: string
+}
+
+function useIsMobileSearchLayout() {
+  const [isMobileLayout, setIsMobileLayout] = useState(() => {
+    if (typeof window === "undefined") {
+      return false
+    }
+
+    return window.matchMedia(`(max-width: ${MOBILE_DETAIL_BREAKPOINT}px)`).matches
+  })
+
+  useEffect(() => {
+    const mediaQuery = window.matchMedia(`(max-width: ${MOBILE_DETAIL_BREAKPOINT}px)`)
+    const handleChange = (event: MediaQueryListEvent) => {
+      setIsMobileLayout(event.matches)
+    }
+
+    mediaQuery.addEventListener("change", handleChange)
+
+    return () => mediaQuery.removeEventListener("change", handleChange)
+  }, [])
+
+  return isMobileLayout
 }
 
 function SearchPlannerContent({ seedQuery }: SearchPlannerContentProps) {
@@ -105,6 +130,7 @@ function SearchPlannerContent({ seedQuery }: SearchPlannerContentProps) {
   const activeIngredient =
     plannerView?.ingredients.find((ingredient) => ingredient.product.slug === selectedProductSlug) ?? null
   const activeIngredientSlug = activeIngredient?.product.slug ?? null
+  const isMobileLayout = useIsMobileSearchLayout()
   const smartBestSeller = useMemo(
     () => (activeIngredient ? rankSellers(activeIngredient.product, "smart", currentLocation)[0] : null),
     [activeIngredient, currentLocation]
@@ -117,13 +143,8 @@ function SearchPlannerContent({ seedQuery }: SearchPlannerContentProps) {
   const closeTimerRef = useRef<number | null>(null)
   const [closingDetail, setClosingDetail] = useState<typeof detailState>(null)
   const renderedDetail = detailState ?? closingDetail
-  const isSidebarMounted = Boolean(renderedDetail)
-  const isSidebarClosing = !isDetailOpen && isSidebarMounted
-  const sidebarIngredient = renderedDetail?.ingredient ?? null
-  const visibleSellers = useMemo(
-    () => (sidebarIngredient ? rankSellers(sidebarIngredient.product, sortMode, currentLocation) : []),
-    [currentLocation, sidebarIngredient, sortMode]
-  )
+  const isSidebarMounted = !isMobileLayout && Boolean(renderedDetail)
+  const isSidebarClosing = !isMobileLayout && !isDetailOpen && isSidebarMounted
 
   useEffect(() => {
     return () => {
@@ -133,19 +154,36 @@ function SearchPlannerContent({ seedQuery }: SearchPlannerContentProps) {
     }
   }, [])
 
+  useEffect(() => {
+    if (!isMobileLayout) {
+      return
+    }
+
+    if (closeTimerRef.current) {
+      window.clearTimeout(closeTimerRef.current)
+      closeTimerRef.current = null
+    }
+
+    const clearClosingDetail = window.setTimeout(() => {
+      setClosingDetail(null)
+    }, 0)
+
+    return () => window.clearTimeout(clearClosingDetail)
+  }, [isMobileLayout])
+
   const handlePreviewChange = (nextSlug: Product["slug"] | null) => {
     if (closeTimerRef.current) {
       window.clearTimeout(closeTimerRef.current)
       closeTimerRef.current = null
     }
 
-    if (!nextSlug && detailState) {
+    if (!isMobileLayout && !nextSlug && detailState) {
       setClosingDetail(detailState)
       closeTimerRef.current = window.setTimeout(() => {
         setClosingDetail(null)
         closeTimerRef.current = null
       }, SIDEBAR_TRANSITION_MS)
-    } else if (nextSlug) {
+    } else {
       setClosingDetail(null)
     }
 
@@ -196,9 +234,215 @@ function SearchPlannerContent({ seedQuery }: SearchPlannerContentProps) {
     )
   }
 
+  const renderDetailPanel = (
+    detail: NonNullable<typeof detailState>,
+    options?: { animated?: boolean; className?: string; showClose?: boolean }
+  ) => {
+    const detailSellers = rankSellers(detail.ingredient.product, sortMode, currentLocation)
+
+    return (
+      <Card className={cn(styles.sidebarCard, options?.animated && styles.sidebarCardAnimated, options?.className)}>
+        <CardHeader className={styles.compactHeader}>
+          <div className={styles.sidebarHeaderTop}>
+            <div>
+              <p className={styles.sectionLabel}>Live seller routing</p>
+              <CardTitle className={styles.sidebarTitle}>{detail.ingredient.product.name}</CardTitle>
+            </div>
+            <div className={styles.sidebarHeaderMeta}>
+              <Badge variant="warning">{detail.ingredient.quantity}</Badge>
+              {options?.showClose ? (
+                <Button
+                  aria-label="Close detail panel"
+                  className={styles.sidebarCloseButton}
+                  onClick={() => handlePreviewChange(null)}
+                  size="icon"
+                  type="button"
+                  variant="ghost"
+                >
+                  <X className={styles.buttonIcon} />
+                </Button>
+              ) : null}
+            </div>
+          </div>
+          <CardDescription>
+            Best seller is chosen from price history, local delivery fit, rating, and current handling load.
+          </CardDescription>
+        </CardHeader>
+
+        <CardContent className={styles.sidebarBody}>
+          <Card className={styles.bestSellerCard} size="sm">
+            <CardContent className={styles.bestSellerBody}>
+              <div>
+                <p className={styles.bestSellerLabel}>Best match for {currentLocation.area}</p>
+                <p className={styles.bestSellerName}>{detail.bestSeller.name}</p>
+              </div>
+              <div className={styles.bestSellerMeta}>
+                <Badge variant="success">{detail.bestSeller.smartScore} smart score</Badge>
+                <Badge variant="outline">{detail.bestSeller.marketDeltaLabel}</Badge>
+              </div>
+            </CardContent>
+          </Card>
+
+          <div className={styles.detailActions}>
+            <Button asChild className={styles.detailActionButton}>
+              <Link to={`/products/${detail.ingredient.product.slug}`}>
+                <ArrowUpRight className={styles.buttonIcon} />
+                Open full product page
+              </Link>
+            </Button>
+          </div>
+
+          <ProductPriceChart
+            description={`${detail.ingredient.product.marketStatus}. Seller ranking prefers below-market offers when price pressure rises for ${describeUserLocation(currentLocation, "short")}.`}
+            history={detail.ingredient.product.priceHistory}
+            label={detail.ingredient.product.name}
+            priceChange={detail.ingredient.product.priceChange}
+            subtitle={`${detail.ingredient.product.unit} market movement`}
+            title="Market price history"
+            tone={detail.ingredient.product.chartColor}
+          />
+
+          <div className={styles.sortSection}>
+            <div className={styles.sectionHeader}>
+              <div>
+                <h3 className={styles.sortTitle}>Sort sellers by location, price, rating, or smart match</h3>
+              </div>
+            </div>
+            <div className={styles.sortRow}>
+              {sortModes.map((mode) => (
+                <Button
+                  aria-pressed={mode.value === sortMode}
+                  key={mode.value}
+                  className={styles.sortButton}
+                  onClick={() => setSortMode(mode.value)}
+                  type="button"
+                  variant={mode.value === sortMode ? "default" : "outline"}
+                >
+                  {mode.label}
+                </Button>
+              ))}
+            </div>
+          </div>
+
+          <div className={styles.sellerList}>
+            {detailSellers.map((seller) => {
+              const isSmartRecommendation = seller.id === detail.bestSeller.id
+
+              return (
+                <Card key={seller.id} className={styles.sellerCard}>
+                  <CardHeader className={styles.compactHeader}>
+                    <div className={styles.sellerHeaderRow}>
+                      <div>
+                        <div className={styles.sellerNameRow}>
+                          <CardTitle className={styles.sellerName}>{seller.name}</CardTitle>
+                          {isSmartRecommendation ? <Badge variant="success">Recommended</Badge> : null}
+                        </div>
+                        <CardDescription>{seller.stockLabel}</CardDescription>
+                      </div>
+                      <div className={styles.priceWrap}>
+                        <p className={styles.metricLabel}>Seller price</p>
+                        <p className={styles.sellerPrice}>{formatRupiah(seller.price)}</p>
+                      </div>
+                    </div>
+                  </CardHeader>
+
+                  <Separator />
+
+                  <CardContent className={styles.sellerBody}>
+                    <div className={styles.sellerInfoGrid}>
+                      <div className={styles.infoPill}>
+                        <MapPin className={styles.infoIcon} />
+                        <div>
+                          <p className={styles.infoLabel}>Location</p>
+                          <p className={styles.infoValue}>
+                            {seller.location} · {seller.distanceKm} km
+                          </p>
+                        </div>
+                      </div>
+                      <div className={styles.infoPill}>
+                        <Store className={styles.infoIcon} />
+                        <div>
+                          <p className={styles.infoLabel}>Warehouse</p>
+                          <p className={styles.infoValue}>{seller.warehouse}</p>
+                        </div>
+                      </div>
+                      <div className={styles.infoPill}>
+                        <Truck className={styles.infoIcon} />
+                        <div>
+                          <p className={styles.infoLabel}>Delivery</p>
+                          <p className={styles.infoValue}>{seller.delivery}</p>
+                        </div>
+                      </div>
+                      <div className={styles.infoPill}>
+                        <Star className={styles.infoIcon} />
+                        <div>
+                          <p className={styles.infoLabel}>Rating</p>
+                          <p className={styles.infoValue}>{seller.rating.toFixed(1)} / 5</p>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className={styles.sellerMetrics}>
+                      <Badge variant="success">{seller.smartScore} smart score</Badge>
+                      <Badge variant="outline">
+                        <PackageCheck className={styles.badgeIcon} />
+                        {seller.marketDeltaLabel}
+                      </Badge>
+                      <Badge
+                        variant={
+                          seller.busyLevel === "High"
+                            ? "danger"
+                            : seller.busyLevel === "Moderate"
+                              ? "warning"
+                              : "success"
+                        }
+                      >
+                        <Clock3 className={styles.badgeIcon} />
+                        {seller.busyLevel} load
+                      </Badge>
+                      <Badge variant="secondary">{seller.activeOrders} active orders</Badge>
+                      <Badge variant="muted">{seller.handlingTime}</Badge>
+                    </div>
+
+                    <div className={styles.basketControls}>
+                      <label className={styles.quantityGroup}>
+                        <span className={styles.metricLabel}>Quantity</span>
+                        <Input
+                          className={styles.quantityInput}
+                          min="1"
+                          onChange={(event) =>
+                            setSellerQuantities((current) => ({
+                              ...current,
+                              [seller.id]: Math.max(1, Number(event.target.value) || 1),
+                            }))
+                          }
+                          type="number"
+                          value={getSellerQuantity(seller.id)}
+                        />
+                      </label>
+                      <Button
+                        onClick={() => addItem(detail.ingredient.product, seller, getSellerQuantity(seller.id))}
+                        type="button"
+                      >
+                        Add to basket
+                      </Button>
+                    </div>
+                  </CardContent>
+                </Card>
+              )
+            })}
+          </div>
+        </CardContent>
+      </Card>
+    )
+  }
+
   return (
     <PageSurface tone="cool" width="search">
-      <PageSection as="main" className={cn(styles.layout, isSidebarMounted && styles.layoutExpanded)}>
+      <PageSection
+        as="main"
+        className={cn(styles.layout, isSidebarMounted && !isMobileLayout && styles.layoutExpanded)}
+      >
         <section className={styles.mainColumn}>
             <PageHeader
               action={<BackButton fallbackTo="/" label="Back" />}
@@ -306,7 +550,9 @@ function SearchPlannerContent({ seedQuery }: SearchPlannerContentProps) {
                       <p className={styles.sectionLabel}>AI planner</p>
                       <h2 className={styles.sectionTitle}>Recommended sourcing per ingredient</h2>
                       <p className={styles.sectionNote}>
-                        Click an ingredient card to expand its market and seller detail from the right.
+                        {isMobileLayout
+                          ? "Tap an ingredient card to expand its market and seller detail inline."
+                          : "Click an ingredient card to expand its market and seller detail from the right."}
                       </p>
                     </div>
                   </div>
@@ -333,6 +579,11 @@ function SearchPlannerContent({ seedQuery }: SearchPlannerContentProps) {
                             showChart={false}
                             subtitle={ingredient.quantity}
                           />
+                          {isMobileLayout && isActive && detailState ? (
+                            <div className={styles.inlineDetailWrap}>
+                              {renderDetailPanel(detailState, { className: styles.inlineDetailCard })}
+                            </div>
+                          ) : null}
                         </div>
                       )
                     })}
@@ -456,201 +707,29 @@ function SearchPlannerContent({ seedQuery }: SearchPlannerContentProps) {
             </section>
           </section>
 
-        <StickySidebar className={styles.sidebarShell}>
-          {renderedDetail ? (
-            <div
-              className={cn(
-                styles.sidebar,
-                isDetailOpen ? styles.sidebarExpanded : styles.sidebarCollapsed,
-                isDetailOpen && styles.sidebarOpening,
-                isSidebarClosing && styles.sidebarClosing
-              )}
-            >
-              <Card
-                className={cn(styles.sidebarCard, styles.sidebarCardAnimated)}
-                key={renderedDetail.ingredient.product.slug}
+        {!isMobileLayout ? (
+          <StickySidebar
+            className={cn(styles.sidebarShell, isSidebarMounted && styles.sidebarShellMounted)}
+            onClick={(event) => {
+              if (event.target === event.currentTarget) {
+                handlePreviewChange(null)
+              }
+            }}
+          >
+            {renderedDetail ? (
+              <div
+                className={cn(
+                  styles.sidebar,
+                  isDetailOpen ? styles.sidebarExpanded : styles.sidebarCollapsed,
+                  isDetailOpen && styles.sidebarOpening,
+                  isSidebarClosing && styles.sidebarClosing
+                )}
               >
-                <CardHeader className={styles.compactHeader}>
-                  <div className={styles.sidebarHeaderTop}>
-                    <div>
-                      <p className={styles.sectionLabel}>Live seller routing</p>
-                      <CardTitle className={styles.sidebarTitle}>{renderedDetail.ingredient.product.name}</CardTitle>
-                    </div>
-                    <Badge variant="warning">{renderedDetail.ingredient.quantity}</Badge>
-                  </div>
-                  <CardDescription>
-                    Best seller is chosen from price history, local delivery fit, rating, and current handling load.
-                  </CardDescription>
-                </CardHeader>
-
-                <CardContent className={styles.sidebarBody}>
-                  <Card className={styles.bestSellerCard} size="sm">
-                    <CardContent className={styles.bestSellerBody}>
-                      <div>
-                        <p className={styles.bestSellerLabel}>Best match for {currentLocation.area}</p>
-                        <p className={styles.bestSellerName}>{renderedDetail.bestSeller.name}</p>
-                      </div>
-                      <div className={styles.bestSellerMeta}>
-                        <Badge variant="success">{renderedDetail.bestSeller.smartScore} smart score</Badge>
-                        <Badge variant="outline">{renderedDetail.bestSeller.marketDeltaLabel}</Badge>
-                      </div>
-                    </CardContent>
-                  </Card>
-
-                  <div className={styles.detailActions}>
-                    <Button asChild className={styles.detailActionButton}>
-                      <Link to={`/products/${renderedDetail.ingredient.product.slug}`}>
-                        <ArrowUpRight className={styles.buttonIcon} />
-                        Open full product page
-                      </Link>
-                    </Button>
-                  </div>
-
-                  <ProductPriceChart
-                    description={`${renderedDetail.ingredient.product.marketStatus}. Seller ranking prefers below-market offers when price pressure rises for ${describeUserLocation(currentLocation, "short")}.`}
-                    history={renderedDetail.ingredient.product.priceHistory}
-                    label={renderedDetail.ingredient.product.name}
-                    priceChange={renderedDetail.ingredient.product.priceChange}
-                    subtitle={`${renderedDetail.ingredient.product.unit} market movement`}
-                    title="Market price history"
-                    tone={renderedDetail.ingredient.product.chartColor}
-                  />
-
-                  <div className={styles.sortSection}>
-                    <div className={styles.sectionHeader}>
-                      <div>
-                        <h3 className={styles.sortTitle}>Sort sellers by location, price, rating, or smart match</h3>
-                      </div>
-                    </div>
-                    <div className={styles.sortRow}>
-                      {sortModes.map((mode) => (
-                        <Button
-                          aria-pressed={mode.value === sortMode}
-                          key={mode.value}
-                          className={styles.sortButton}
-                          onClick={() => setSortMode(mode.value)}
-                          type="button"
-                          variant={mode.value === sortMode ? "default" : "outline"}
-                        >
-                          {mode.label}
-                        </Button>
-                      ))}
-                    </div>
-                  </div>
-
-                  <div className={styles.sellerList}>
-                    {visibleSellers.map((seller) => {
-                      const isSmartRecommendation = seller.id === renderedDetail.bestSeller.id
-
-                      return (
-                        <Card key={seller.id} className={styles.sellerCard}>
-                          <CardHeader className={styles.compactHeader}>
-                            <div className={styles.sellerHeaderRow}>
-                              <div>
-                                <div className={styles.sellerNameRow}>
-                                  <CardTitle className={styles.sellerName}>{seller.name}</CardTitle>
-                                  {isSmartRecommendation ? <Badge variant="success">Recommended</Badge> : null}
-                                </div>
-                                <CardDescription>{seller.stockLabel}</CardDescription>
-                              </div>
-                              <div className={styles.priceWrap}>
-                                <p className={styles.metricLabel}>Seller price</p>
-                                <p className={styles.sellerPrice}>{formatRupiah(seller.price)}</p>
-                              </div>
-                            </div>
-                          </CardHeader>
-
-                          <Separator />
-
-                          <CardContent className={styles.sellerBody}>
-                            <div className={styles.sellerInfoGrid}>
-                              <div className={styles.infoPill}>
-                                <MapPin className={styles.infoIcon} />
-                                <div>
-                                  <p className={styles.infoLabel}>Location</p>
-                                  <p className={styles.infoValue}>
-                                    {seller.location} · {seller.distanceKm} km
-                                  </p>
-                                </div>
-                              </div>
-                              <div className={styles.infoPill}>
-                                <Store className={styles.infoIcon} />
-                                <div>
-                                  <p className={styles.infoLabel}>Warehouse</p>
-                                  <p className={styles.infoValue}>{seller.warehouse}</p>
-                                </div>
-                              </div>
-                              <div className={styles.infoPill}>
-                                <Truck className={styles.infoIcon} />
-                                <div>
-                                  <p className={styles.infoLabel}>Delivery</p>
-                                  <p className={styles.infoValue}>{seller.delivery}</p>
-                                </div>
-                              </div>
-                              <div className={styles.infoPill}>
-                                <Star className={styles.infoIcon} />
-                                <div>
-                                  <p className={styles.infoLabel}>Rating</p>
-                                  <p className={styles.infoValue}>{seller.rating.toFixed(1)} / 5</p>
-                                </div>
-                              </div>
-                            </div>
-
-                            <div className={styles.sellerMetrics}>
-                              <Badge variant="success">{seller.smartScore} smart score</Badge>
-                              <Badge variant="outline">
-                                <PackageCheck className={styles.badgeIcon} />
-                                {seller.marketDeltaLabel}
-                              </Badge>
-                              <Badge
-                                variant={
-                                  seller.busyLevel === "High"
-                                    ? "danger"
-                                    : seller.busyLevel === "Moderate"
-                                      ? "warning"
-                                      : "success"
-                                }
-                              >
-                                <Clock3 className={styles.badgeIcon} />
-                                {seller.busyLevel} load
-                              </Badge>
-                              <Badge variant="secondary">{seller.activeOrders} active orders</Badge>
-                              <Badge variant="muted">{seller.handlingTime}</Badge>
-                            </div>
-
-                            <div className={styles.basketControls}>
-                              <label className={styles.quantityGroup}>
-                                <span className={styles.metricLabel}>Quantity</span>
-                                <Input
-                                  className={styles.quantityInput}
-                                  min="1"
-                                  onChange={(event) =>
-                                    setSellerQuantities((current) => ({
-                                      ...current,
-                                      [seller.id]: Math.max(1, Number(event.target.value) || 1),
-                                    }))
-                                  }
-                                  type="number"
-                                  value={getSellerQuantity(seller.id)}
-                                />
-                              </label>
-                              <Button
-                                onClick={() => addItem(renderedDetail.ingredient.product, seller, getSellerQuantity(seller.id))}
-                                type="button"
-                              >
-                                Add to basket
-                              </Button>
-                            </div>
-                          </CardContent>
-                        </Card>
-                      )
-                    })}
-                  </div>
-                </CardContent>
-              </Card>
-            </div>
-          ) : null}
-        </StickySidebar>
+                {renderDetailPanel(renderedDetail, { animated: true, showClose: true })}
+              </div>
+            ) : null}
+          </StickySidebar>
+        ) : null}
       </PageSection>
     </PageSurface>
   )

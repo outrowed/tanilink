@@ -132,3 +132,20 @@
   color: inherit;
   opacity: 0.82;
 }
+
+@media (max-width: 640px) {
+  .trigger {
+    padding: 0.32rem 0.6rem;
+    max-width: calc(100vw - 1.2rem);
+  }
+
+  .value {
+    max-width: min(14rem, calc(100vw - 8rem));
+    font-size: 0.74rem;
+  }
+
+  .menu {
+    width: min(20rem, calc(100vw - 1rem));
+    max-width: calc(100vw - 1rem);
+  }
+}

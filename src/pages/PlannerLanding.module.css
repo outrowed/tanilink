@@ -51,3 +51,43 @@
   width: 1rem;
   height: 1rem;
 }
+
+@media (max-width: 900px) {
+  .inner {
+    align-items: flex-start;
+    padding: 2rem 1rem 2.75rem;
+  }
+
+  .hero {
+    width: 100%;
+    padding-top: 0.45rem;
+  }
+
+  .title {
+    font-size: clamp(2.2rem, 11vw, 3.35rem);
+  }
+}
+
+@media (max-width: 640px) {
+  .inner {
+    padding: 1.7rem 0.85rem 2.4rem;
+  }
+
+  .eyebrow {
+    font-size: 0.72rem;
+    letter-spacing: 0.22em;
+  }
+
+  .title {
+    margin-top: 0.85rem;
+    font-size: clamp(2rem, 12vw, 3rem);
+  }
+
+  .copy {
+    font-size: 0.95rem;
+  }
+
+  .searchShell {
+    margin-top: 1.25rem;
+  }
+}

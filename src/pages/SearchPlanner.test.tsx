@@ -1,7 +1,7 @@
 import { act, fireEvent, render, screen } from "@testing-library/react"
 import userEvent from "@testing-library/user-event"
 import { MemoryRouter, Route, Routes, useLocation } from "react-router-dom"
-import { afterEach, describe, expect, it, vi } from "vitest"
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest"
 
 import SearchPlanner from "@/pages/SearchPlanner"
 import { BasketContext } from "@/context/basket"
@@ -26,6 +26,25 @@ vi.mock("@/components/dashboard/ProductPriceChart", () => ({
     title?: string
   }) => <div>{compact ? `${label} mini chart` : title}</div>,
 }))
+
+const defaultMatchMedia = window.matchMedia
+
+function mockMatchMedia(matches: boolean) {
+  Object.defineProperty(window, "matchMedia", {
+    configurable: true,
+    writable: true,
+    value: (query: string) => ({
+      matches,
+      media: query,
+      onchange: null,
+      addEventListener: () => {},
+      removeEventListener: () => {},
+      addListener: () => {},
+      removeListener: () => {},
+      dispatchEvent: () => false,
+    }),
+  })
+}
 
 function renderSearchPlanner(initialEntry: string) {
   function RouteProbe() {
@@ -57,11 +76,21 @@ function renderSearchPlanner(initialEntry: string) {
 }
 
 describe("SearchPlanner", () => {
+  beforeEach(() => {
+    mockMatchMedia(false)
+  })
+
   afterEach(() => {
     if (vi.isFakeTimers()) {
       vi.runOnlyPendingTimers()
       vi.useRealTimers()
     }
+
+    Object.defineProperty(window, "matchMedia", {
+      configurable: true,
+      writable: true,
+      value: defaultMatchMedia,
+    })
   })
 
   it("preserves seller sort mode while preview query params change between ingredients", async () => {
@@ -106,5 +135,23 @@ describe("SearchPlanner", () => {
     expect(
       screen.queryByText("Sort sellers by location, price, rating, or smart match")
     ).not.toBeInTheDocument()
+  })
+
+  it("opens the selected ingredient detail inline on mobile and closes it without waiting for desktop animation", async () => {
+    const user = userEvent.setup()
+
+    mockMatchMedia(true)
+
+    renderSearchPlanner("/search?q=I%20want%20to%20cook%20nasi%20goreng%20for%2020%20portions&mode=ai")
+
+    await user.click(screen.getAllByRole("button", { name: /Premium Rice/i })[0])
+
+    expect(screen.getByRole("link", { name: "Open full product page" })).toBeInTheDocument()
+    expect(screen.getByTestId("search-location")).toHaveTextContent("preview=premium-rice")
+
+    await user.click(screen.getAllByRole("button", { name: /Premium Rice/i })[0])
+
+    expect(screen.queryByRole("link", { name: "Open full product page" })).not.toBeInTheDocument()
+    expect(screen.getByTestId("search-location")).not.toHaveTextContent("preview=premium-rice")
   })
 })

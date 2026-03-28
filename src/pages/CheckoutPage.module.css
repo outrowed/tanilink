@@ -418,4 +418,27 @@
   .actionRow {
     flex-direction: column-reverse;
   }
+
+  .optionGrid,
+  .reviewGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .summaryLine {
+    flex-direction: column;
+  }
+
+  .summaryLineValue {
+    white-space: normal;
+  }
+
+  .successActions,
+  .stepper {
+    flex-direction: column;
+  }
+
+  .successActions > *,
+  .actionRow > * {
+    width: 100%;
+  }
 }

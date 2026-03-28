@@ -887,6 +887,39 @@
 }
 
 @media (max-width: 760px) {
+  .sectionHeader,
+  .sellerSectionHeader,
+  .priceChartHeaderTop,
+  .itemTop,
+  .itemFooter,
+  .sellerHeaderRow,
+  .mosaicHeaderRow,
+  .mosaicFooter {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .overviewStats,
+  .sellerMetaGrid,
+  .mosaicGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .sellerPriceBody,
+  .priceRangeSelectWrap {
+    text-align: left;
+    align-items: flex-start;
+  }
+
+  .priceRangeSelect {
+    min-width: 0;
+    width: 100%;
+  }
+
+  .priceChartExpanded {
+    height: 16rem;
+  }
+
   .priceChartFooter {
     grid-template-columns: 1fr;
   }
@@ -894,6 +927,10 @@
   .priceForecastSummary {
     justify-self: start;
     justify-content: flex-start;
+  }
+
+  .salesTooltipGrid {
+    grid-template-columns: 1fr;
   }
 }
 
@@ -1188,4 +1225,34 @@
 .floatingPromptButton:hover {
   background: rgba(255, 255, 255, 0.1);
   color: white;
+}
+
+@media (max-width: 720px) {
+  .sectionHeader {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .sectionNote {
+    max-width: none;
+    text-align: left;
+  }
+
+  .itemCard {
+    border-radius: 1.55rem;
+  }
+
+  .itemCardBody {
+    padding: 0.8rem;
+  }
+
+  .itemTop,
+  .itemFooter {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .metricValue {
+    font-size: 1.15rem;
+  }
 }

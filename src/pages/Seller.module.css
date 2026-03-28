@@ -513,9 +513,21 @@
 }
 
 @media (max-width: 900px) {
+  .gridLayout {
+    grid-template-columns: 1fr;
+  }
+
+  .summaryGrid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .headerMeta {
+    justify-content: flex-start;
+  }
+
   .headerActions {
     flex-wrap: wrap;
-    justify-content: flex-end;
+    justify-content: flex-start;
   }
 
   .dialogOverlay {
@@ -528,5 +540,56 @@
 
   .dialogBody {
     padding: 1rem;
+  }
+
+  .sectionHeader,
+  .listingTopRow,
+  .inlineActions {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .formGrid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 640px) {
+  .surfaceHeader {
+    padding: 1rem 1rem 0.85rem;
+  }
+
+  .surfaceBody {
+    padding: 0 1rem 1rem;
+  }
+
+  .summaryGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .dialogStatsGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .routingBoard {
+    grid-auto-columns: minmax(16rem, 88vw);
+  }
+
+  .panelActionButton,
+  .inlineActions > * {
+    width: 100%;
+  }
+
+  .analyticsIdentity,
+  .productIdentity {
+    align-items: flex-start;
+  }
+
+  .routingCard {
+    padding-right: 0.85rem;
+  }
+
+  .routingCard .inlineActions {
+    gap: 0.6rem;
   }
 }

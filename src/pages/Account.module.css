@@ -369,6 +369,61 @@
   font: inherit;
 }
 
+@media (max-width: 1100px) {
+  .dashboardLayout,
+  .splitLayout {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 900px) {
+  .headerMeta {
+    justify-content: flex-start;
+  }
+
+  .identityMetaGrid,
+  .summaryGrid,
+  .linkGrid,
+  .settingsGrid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .sideListHeader,
+  .selectionHeader,
+  .selectionFooter,
+  .detailHeaderRow,
+  .logoutRow {
+    flex-direction: column;
+    align-items: stretch;
+  }
+}
+
+@media (max-width: 640px) {
+  .identityRow,
+  .itemPrimary,
+  .messageRow {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .identityMetaGrid,
+  .summaryGrid,
+  .sellerSummaryGrid,
+  .linkGrid,
+  .settingsGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .itemActions {
+    align-items: stretch;
+    width: 100%;
+  }
+
+  .messageBubble {
+    max-width: 100%;
+  }
+}
+
 .emptyStateCard {
   margin-top: 1rem;
 }

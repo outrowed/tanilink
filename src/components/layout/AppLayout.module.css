@@ -29,6 +29,24 @@
 
 @media (max-width: 900px) {
   .warningInner {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: start;
     padding-inline: 1rem;
+  }
+}
+
+@media (max-width: 640px) {
+  .warningInner {
+    gap: 0.6rem;
+    padding: 0.55rem 0.85rem;
+  }
+
+  .warningCopy {
+    font-size: 0.8rem;
+  }
+
+  .warningInner {
+    grid-template-columns: minmax(0, 1fr) auto;
   }
 }
