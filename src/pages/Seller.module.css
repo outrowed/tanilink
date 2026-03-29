@@ -370,6 +370,13 @@
   line-height: 1.55;
 }
 
+.routingBoardHint {
+  margin: 0.45rem 0 0;
+  font-size: 0.88rem;
+  color: #78716c;
+  line-height: 1.55;
+}
+
 .emptyStateBody {
   padding: 1.35rem 1.4rem;
 }
@@ -380,7 +387,11 @@
   grid-auto-flow: column;
   gap: 1rem;
   overflow-x: auto;
-  padding-bottom: 0.35rem;
+  padding: 0 0.5rem 0.35rem 0;
+  scroll-snap-type: x proximity;
+  scroll-padding-inline: 0;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior-x: contain;
 }
 
 .routingColumn {
@@ -388,6 +399,7 @@
   flex-direction: column;
   gap: 0.8rem;
   min-width: 0;
+  scroll-snap-align: start;
 }
 
 .routingColumnHeader {
@@ -572,7 +584,7 @@
   }
 
   .routingBoard {
-    grid-auto-columns: minmax(16rem, 88vw);
+    grid-auto-columns: minmax(16rem, 86vw);
   }
 
   .panelActionButton,

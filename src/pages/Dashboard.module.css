@@ -84,6 +84,13 @@
   gap: 0.65rem;
 }
 
+.mobileRailHint {
+  display: none;
+  margin: 0;
+  font-size: 0.78rem;
+  color: #78716c;
+}
+
 .categoryFilterRow {
   display: flex;
   flex-wrap: wrap;
@@ -194,8 +201,11 @@
   .categoryFilterRow {
     flex-wrap: nowrap;
     overflow-x: auto;
-    padding-bottom: 0.2rem;
+    padding: 0 0.9rem 0.2rem 0;
+    scroll-snap-type: x proximity;
+    scroll-padding-inline: 0;
     scrollbar-width: none;
+    -webkit-overflow-scrolling: touch;
   }
 
   .categoryFilterRow::-webkit-scrollbar {
@@ -204,5 +214,10 @@
 
   .categoryFilterButton {
     white-space: nowrap;
+    scroll-snap-align: start;
+  }
+
+  .mobileRailHint {
+    display: block;
   }
 }

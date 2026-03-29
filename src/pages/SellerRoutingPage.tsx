@@ -155,6 +155,9 @@ function SellerRoutingPage() {
                   <CardDescription>
                     Drag ingredient cards into a warehouse column to update the live routing location for that listing.
                   </CardDescription>
+                  <p className={styles.routingBoardHint}>
+                    Swipe sideways on mobile to switch warehouses, then drag cards into place.
+                  </p>
                 </div>
                 <Button asChild type="button" variant="outline">
                   <Link to="/seller/store">Manage locations</Link>

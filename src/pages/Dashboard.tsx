@@ -98,6 +98,9 @@ function Dashboard() {
                 </button>
               ))}
             </div>
+            {categories.length > 2 ? (
+              <p className={styles.mobileRailHint}>Swipe for more categories</p>
+            ) : null}
           </div>
 
           {filteredProducts.length ? (
