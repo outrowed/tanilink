@@ -137,7 +137,7 @@ describe("SearchPlanner", () => {
     ).not.toBeInTheDocument()
   })
 
-  it("opens the selected ingredient detail inline on mobile and closes it without waiting for desktop animation", async () => {
+  it("opens the selected ingredient detail in a mobile dialog and closes it with the preview state", async () => {
     const user = userEvent.setup()
 
     mockMatchMedia(true)
@@ -146,16 +146,18 @@ describe("SearchPlanner", () => {
 
     await user.click(screen.getAllByRole("button", { name: /Premium Rice/i })[0])
 
+    expect(screen.getByRole("dialog", { name: "Premium Rice detail panel" })).toBeInTheDocument()
     expect(screen.getByRole("link", { name: "Open full product page" })).toBeInTheDocument()
     expect(screen.getByTestId("search-location")).toHaveTextContent("preview=premium-rice")
 
-    await user.click(screen.getAllByRole("button", { name: /Premium Rice/i })[0])
+    await user.click(screen.getByRole("button", { name: "Close detail panel" }))
 
+    expect(screen.queryByRole("dialog", { name: "Premium Rice detail panel" })).not.toBeInTheDocument()
     expect(screen.queryByRole("link", { name: "Open full product page" })).not.toBeInTheDocument()
     expect(screen.getByTestId("search-location")).not.toHaveTextContent("preview=premium-rice")
   })
 
-  it("shows a close button in the mobile inline detail panel", async () => {
+  it("shows a close button in the mobile detail dialog", async () => {
     const user = userEvent.setup()
 
     mockMatchMedia(true)
@@ -164,6 +166,7 @@ describe("SearchPlanner", () => {
 
     await user.click(screen.getAllByRole("button", { name: /Premium Rice/i })[0])
 
+    expect(screen.getByRole("dialog", { name: "Premium Rice detail panel" })).toBeInTheDocument()
     expect(screen.getByRole("button", { name: "Close detail panel" })).toBeInTheDocument()
 
     await user.click(screen.getByRole("button", { name: "Close detail panel" }))

@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from "react"
+import { createPortal } from "react-dom"
 import {
   ArrowUpRight,
   Clock3,
@@ -170,6 +171,19 @@ function SearchPlannerContent({ seedQuery }: SearchPlannerContentProps) {
 
     return () => window.clearTimeout(clearClosingDetail)
   }, [isMobileLayout])
+
+  useEffect(() => {
+    if (!isMobileLayout || !isDetailOpen) {
+      return
+    }
+
+    const previousOverflow = document.body.style.overflow
+    document.body.style.overflow = "hidden"
+
+    return () => {
+      document.body.style.overflow = previousOverflow
+    }
+  }, [isDetailOpen, isMobileLayout])
 
   const handlePreviewChange = (nextSlug: Product["slug"] | null) => {
     if (closeTimerRef.current) {
@@ -437,6 +451,32 @@ function SearchPlannerContent({ seedQuery }: SearchPlannerContentProps) {
     )
   }
 
+  const mobileDetailOverlay =
+    isMobileLayout && detailState && typeof document !== "undefined"
+      ? createPortal(
+          <div className={styles.mobileDetailLayer}>
+            <button
+              aria-label="Dismiss detail panel"
+              className={styles.mobileDetailBackdrop}
+              onClick={() => handlePreviewChange(null)}
+              type="button"
+            />
+            <div
+              aria-label={`${detailState.ingredient.product.name} detail panel`}
+              aria-modal="true"
+              className={styles.mobileDetailDialog}
+              role="dialog"
+            >
+              {renderDetailPanel(detailState, {
+                className: styles.mobileDetailCard,
+                showClose: true,
+              })}
+            </div>
+          </div>,
+          document.body
+        )
+      : null
+
   return (
     <PageSurface tone="cool" width="search">
       <PageSection
@@ -551,7 +591,7 @@ function SearchPlannerContent({ seedQuery }: SearchPlannerContentProps) {
                       <h2 className={styles.sectionTitle}>Recommended sourcing per ingredient</h2>
                       <p className={styles.sectionNote}>
                         {isMobileLayout
-                          ? "Tap an ingredient card to expand its market and seller detail inline."
+                          ? "Tap an ingredient card to open its market and seller detail in a pop-up panel."
                           : "Click an ingredient card to expand its market and seller detail from the right."}
                       </p>
                     </div>
@@ -579,14 +619,6 @@ function SearchPlannerContent({ seedQuery }: SearchPlannerContentProps) {
                             showChart={false}
                             subtitle={ingredient.quantity}
                           />
-                          {isMobileLayout && isActive && detailState ? (
-                            <div className={styles.inlineDetailWrap}>
-                              {renderDetailPanel(detailState, {
-                                className: styles.inlineDetailCard,
-                                showClose: true,
-                              })}
-                            </div>
-                          ) : null}
                         </div>
                       )
                     })}
@@ -733,6 +765,7 @@ function SearchPlannerContent({ seedQuery }: SearchPlannerContentProps) {
             ) : null}
           </StickySidebar>
         ) : null}
+        {mobileDetailOverlay}
       </PageSection>
     </PageSurface>
   )
