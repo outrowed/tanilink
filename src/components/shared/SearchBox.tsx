@@ -1,4 +1,4 @@
-import { useMemo, useState, type FormEvent } from "react"
+import { useId, useMemo, useState, type FormEvent } from "react"
 import { Clock3, Search, Sparkles, X } from "lucide-react"
 import { useLocation, useNavigate, useSearchParams } from "react-router-dom"
 
@@ -85,6 +85,10 @@ function SearchBoxInner({
   const [isOpen, setIsOpen] = useState(false)
   const { recentAiSearches } = useMockData()
   const { marketplaceProducts } = useMarketplace()
+  const reactId = useId().replace(/:/g, "")
+  const inputId = `${variant}-global-search-${reactId}`
+  const inputLabel =
+    variant === "hero" ? "Search the marketplace or ask the AI planner" : "Global search"
 
   const currentMode = getCurrentMode(location.pathname, searchParams, defaultMode)
   const isAiSelected = currentMode === "ai"
@@ -117,7 +121,11 @@ function SearchBoxInner({
         <div className={styles.searchInputWrap}>
           <Search className={styles.searchIcon} />
           <Input
+            aria-label={inputLabel}
             className={cn(styles.searchInput, variant === "hero" && styles.searchInputHero)}
+            enterKeyHint="search"
+            id={inputId}
+            name="query"
             onBlur={() => {
               window.setTimeout(() => setIsOpen(false), 120)
             }}

@@ -4,6 +4,7 @@ import {
   ChevronDown,
   LayoutDashboard,
   LogOut,
+  MapPin,
   Menu,
   MessageSquareText,
   Settings,
@@ -19,20 +20,25 @@ import FloatingLocationSwitcher from "@/components/layout/FloatingLocationSwitch
 import SearchBox from "@/components/shared/SearchBox"
 import { useAuth } from "@/context/auth"
 import { useBasket } from "@/context/basket"
+import { useLocationPreference } from "@/context/location"
 import { Badge } from "@/components/ui/badge"
+import { describeUserLocation } from "@/lib/planner"
 import { cn } from "@/lib/utils"
 import styles from "@/components/layout/AppNavbar.module.css"
 
 const MOBILE_DRAWER_ID = "mobile-navigation-drawer"
+const MOBILE_DRAWER_BACKDROP_GUARD_MS = 160
 
 function AppNavbar() {
   const { itemCount } = useBasket()
   const navigate = useNavigate()
   const { isAuthenticated, isSeller, logout, user } = useAuth()
+  const { currentLocation, locationOptions, selectedLocationId, setSelectedLocationId } = useLocationPreference()
   const location = useLocation()
   const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false)
   const [isMobileDrawerOpen, setIsMobileDrawerOpen] = useState(false)
   const hasMountedRef = useRef(false)
+  const mobileDrawerOpenedAtRef = useRef(0)
   const profileMenuRef = useRef<HTMLDivElement | null>(null)
   const isMarketplacePage = location.pathname === "/marketplace" || location.pathname === "/catalog"
   const isSellerPage = location.pathname.startsWith("/seller")
@@ -51,6 +57,9 @@ function AppNavbar() {
         { icon: UserRound, label: "Sign in", to: "/auth" },
         { icon: WalletCards, label: "Create account", to: "/auth?mode=signup" },
       ]
+  const mobileAccountLinks = isSeller
+    ? profileLinks.filter((item) => item.to !== "/seller")
+    : profileLinks
 
   useEffect(() => {
     const handlePointerDown = (event: MouseEvent) => {
@@ -116,7 +125,13 @@ function AppNavbar() {
             <button
               aria-label="Close navigation menu"
               className={styles.mobileDrawerBackdrop}
-              onClick={() => setIsMobileDrawerOpen(false)}
+              onClick={() => {
+                if (Date.now() - mobileDrawerOpenedAtRef.current < MOBILE_DRAWER_BACKDROP_GUARD_MS) {
+                  return
+                }
+
+                setIsMobileDrawerOpen(false)
+              }}
               type="button"
             />
 
@@ -134,6 +149,43 @@ function AppNavbar() {
                     <p className={styles.mobileDrawerTitle}>{profileTitle}</p>
                     <p className={styles.mobileDrawerMeta}>{profileMeta}</p>
                   </div>
+                </div>
+              </div>
+
+              <div className={styles.mobileDrawerSection}>
+                <p className={styles.mobileDrawerLabel}>Location</p>
+                <div className={styles.mobileDrawerLocationSummary}>
+                  <span className={styles.mobileDrawerLocationPin}>
+                    <MapPin className={styles.smallIcon} />
+                  </span>
+                  <div>
+                    <p className={styles.mobileDrawerLocationTitle}>Current delivery area</p>
+                    <p className={styles.mobileDrawerLocationValue}>
+                      {describeUserLocation(currentLocation, "short")}
+                    </p>
+                  </div>
+                </div>
+                <div className={styles.mobileDrawerLocationList}>
+                  {locationOptions.map((locationOption) => (
+                    <button
+                      className={cn(
+                        styles.locationMenuItem,
+                        styles.mobileDrawerLocationItem,
+                        locationOption.id === selectedLocationId && styles.locationMenuItemActive
+                      )}
+                      key={locationOption.id}
+                      onClick={() => {
+                        setSelectedLocationId(locationOption.id)
+                        setIsMobileDrawerOpen(false)
+                      }}
+                      type="button"
+                    >
+                      <span className={styles.locationMenuItemTitle}>
+                        {describeUserLocation(locationOption, "short")}
+                      </span>
+                      <span className={styles.locationMenuItemMeta}>{locationOption.zone}</span>
+                    </button>
+                  ))}
                 </div>
               </div>
 
@@ -169,7 +221,7 @@ function AppNavbar() {
 
               <div className={styles.mobileDrawerSection}>
                 <p className={styles.mobileDrawerLabel}>Account</p>
-                {profileLinks.map((item) => {
+                {mobileAccountLinks.map((item) => {
                   const Icon = item.icon
 
                   return (
@@ -333,7 +385,17 @@ function AppNavbar() {
                     aria-haspopup="menu"
                     aria-label={isMobileDrawerOpen ? "Close navigation menu" : "Open navigation menu"}
                     className={styles.mobileMenuButton}
-                    onClick={() => setIsMobileDrawerOpen((current) => !current)}
+                    onClick={() =>
+                      setIsMobileDrawerOpen((current) => {
+                        const nextState = !current
+
+                        if (nextState) {
+                          mobileDrawerOpenedAtRef.current = Date.now()
+                        }
+
+                        return nextState
+                      })
+                    }
                     type="button"
                   >
                     {isMobileDrawerOpen ? <X className={styles.smallIcon} /> : <Menu className={styles.smallIcon} />}
@@ -347,7 +409,7 @@ function AppNavbar() {
         </div>
       </header>
 
-      <div className={styles.locationShelf}>
+      <div className={styles.locationShelf} aria-hidden={isMobileDrawerOpen}>
         <FloatingLocationSwitcher />
       </div>
       {mobileDrawerOverlay}

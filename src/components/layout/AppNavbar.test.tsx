@@ -1,4 +1,4 @@
-import { render, screen } from "@testing-library/react"
+import { render, screen, within } from "@testing-library/react"
 import userEvent from "@testing-library/user-event"
 import { MemoryRouter } from "react-router-dom"
 import { describe, expect, it, vi } from "vitest"
@@ -6,9 +6,11 @@ import { describe, expect, it, vi } from "vitest"
 import AppNavbar from "@/components/layout/AppNavbar"
 import { AuthContext } from "@/context/auth"
 import { BasketContext } from "@/context/basket"
+import { LocationContext } from "@/context/location"
 import {
   createAuthContextValue,
   createBasketContextValue,
+  createLocationContextValue,
   sellerUser,
 } from "@/test/fixtures"
 
@@ -23,11 +25,13 @@ vi.mock("@/components/shared/SearchBox", () => ({
 function renderNavbar() {
   return render(
     <AuthContext.Provider value={createAuthContextValue(sellerUser)}>
-      <BasketContext.Provider value={createBasketContextValue({ itemCount: 2 })}>
-        <MemoryRouter>
-          <AppNavbar />
-        </MemoryRouter>
-      </BasketContext.Provider>
+      <LocationContext.Provider value={createLocationContextValue()}>
+        <BasketContext.Provider value={createBasketContextValue({ itemCount: 2 })}>
+          <MemoryRouter>
+            <AppNavbar />
+          </MemoryRouter>
+        </BasketContext.Provider>
+      </LocationContext.Provider>
     </AuthContext.Provider>
   )
 }
@@ -40,10 +44,15 @@ describe("AppNavbar", () => {
 
     await user.click(screen.getByRole("button", { name: "Open navigation menu" }))
 
-    expect(screen.getByRole("dialog", { name: "Navigation menu" })).toBeInTheDocument()
-    expect(screen.getByText("Account overview")).toBeInTheDocument()
-    expect(screen.getByRole("button", { name: "Logout" })).toBeInTheDocument()
-    expect(screen.getByRole("button", { name: "Close menu" })).toBeInTheDocument()
+    const dialog = screen.getByRole("dialog", { name: "Navigation menu" })
+
+    expect(dialog).toBeInTheDocument()
+    expect(within(dialog).getByText("Current delivery area")).toBeInTheDocument()
+    expect(within(dialog).getAllByText("Jakarta Selatan, Jakarta")).not.toHaveLength(0)
+    expect(within(dialog).getByText("Account overview")).toBeInTheDocument()
+    expect(within(dialog).getByRole("button", { name: "Logout" })).toBeInTheDocument()
+    expect(within(dialog).getByRole("button", { name: "Close menu" })).toBeInTheDocument()
+    expect(within(dialog).getAllByText("Seller Hub")).toHaveLength(1)
 
     await user.click(screen.getByRole("button", { name: "Close menu" }))
 
