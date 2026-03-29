@@ -40,11 +40,14 @@ describe("AppNavbar", () => {
 
     await user.click(screen.getByRole("button", { name: "Open navigation menu" }))
 
+    expect(screen.getByRole("dialog", { name: "Navigation menu" })).toBeInTheDocument()
     expect(screen.getByText("Account overview")).toBeInTheDocument()
     expect(screen.getByRole("button", { name: "Logout" })).toBeInTheDocument()
+    expect(screen.getByRole("button", { name: "Close menu" })).toBeInTheDocument()
 
-    await user.click(screen.getAllByRole("button", { name: "Close navigation menu" })[0])
+    await user.click(screen.getByRole("button", { name: "Close menu" }))
 
+    expect(screen.queryByRole("dialog", { name: "Navigation menu" })).not.toBeInTheDocument()
     expect(screen.queryByText("Account overview")).not.toBeInTheDocument()
     expect(screen.queryByRole("button", { name: "Logout" })).not.toBeInTheDocument()
   })
@@ -58,6 +61,7 @@ describe("AppNavbar", () => {
 
     await new Promise((resolve) => window.setTimeout(resolve, 10))
 
+    expect(screen.getByRole("dialog", { name: "Navigation menu" })).toBeInTheDocument()
     expect(screen.getByText("Account overview")).toBeInTheDocument()
     expect(screen.getAllByRole("button", { name: "Close navigation menu" })).toHaveLength(2)
   })

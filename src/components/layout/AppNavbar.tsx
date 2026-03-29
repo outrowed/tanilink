@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react"
+import { createPortal } from "react-dom"
 import {
   ChevronDown,
   LayoutDashboard,
@@ -21,6 +22,8 @@ import { useBasket } from "@/context/basket"
 import { Badge } from "@/components/ui/badge"
 import { cn } from "@/lib/utils"
 import styles from "@/components/layout/AppNavbar.module.css"
+
+const MOBILE_DRAWER_ID = "mobile-navigation-drawer"
 
 function AppNavbar() {
   const { itemCount } = useBasket()
@@ -105,6 +108,102 @@ function AppNavbar() {
     logout()
     navigate("/auth", { replace: true })
   }
+
+  const mobileDrawerOverlay =
+    isMobileDrawerOpen && typeof document !== "undefined"
+      ? createPortal(
+          <>
+            <button
+              aria-label="Close navigation menu"
+              className={styles.mobileDrawerBackdrop}
+              onClick={() => setIsMobileDrawerOpen(false)}
+              type="button"
+            />
+
+            <div
+              aria-label="Navigation menu"
+              aria-modal="true"
+              className={styles.mobileDrawerPanel}
+              id={MOBILE_DRAWER_ID}
+              role="dialog"
+            >
+              <div className={styles.mobileDrawerHeader}>
+                <div className={styles.mobileDrawerIdentity}>
+                  <span className={styles.profileAvatar}>{avatarContent}</span>
+                  <div>
+                    <p className={styles.mobileDrawerTitle}>{profileTitle}</p>
+                    <p className={styles.mobileDrawerMeta}>{profileMeta}</p>
+                  </div>
+                </div>
+              </div>
+
+              <div className={styles.mobileDrawerSection}>
+                <p className={styles.mobileDrawerLabel}>Navigate</p>
+                <Link
+                  className={styles.mobileDrawerItem}
+                  onClick={() => setIsMobileDrawerOpen(false)}
+                  to="/marketplace"
+                >
+                  <Store className={styles.smallIcon} />
+                  <span>Marketplace</span>
+                </Link>
+                {isSeller ? (
+                  <Link
+                    className={styles.mobileDrawerItem}
+                    onClick={() => setIsMobileDrawerOpen(false)}
+                    to="/seller"
+                  >
+                    <LayoutDashboard className={styles.smallIcon} />
+                    <span>Seller Hub</span>
+                  </Link>
+                ) : null}
+                <Link
+                  className={styles.mobileDrawerItem}
+                  onClick={() => setIsMobileDrawerOpen(false)}
+                  to="/basket"
+                >
+                  <ShoppingBasket className={styles.smallIcon} />
+                  <span>Basket</span>
+                </Link>
+              </div>
+
+              <div className={styles.mobileDrawerSection}>
+                <p className={styles.mobileDrawerLabel}>Account</p>
+                {profileLinks.map((item) => {
+                  const Icon = item.icon
+
+                  return (
+                    <Link
+                      className={styles.mobileDrawerItem}
+                      key={item.to}
+                      onClick={() => setIsMobileDrawerOpen(false)}
+                      to={item.to}
+                    >
+                      <Icon className={styles.smallIcon} />
+                      <span>{item.label}</span>
+                    </Link>
+                  )
+                })}
+
+                {isAuthenticated ? (
+                  <button className={styles.mobileDrawerLogout} onClick={handleLogout} type="button">
+                    <LogOut className={styles.smallIcon} />
+                    <span>Logout</span>
+                  </button>
+                ) : null}
+              </div>
+
+              <div className={styles.mobileDrawerFooter}>
+                <button className={styles.mobileDrawerClose} onClick={() => setIsMobileDrawerOpen(false)} type="button">
+                  <X className={styles.smallIcon} />
+                  <span>Close menu</span>
+                </button>
+              </div>
+            </div>
+          </>,
+          document.body
+        )
+      : null
 
   return (
     <div className={styles.stickyShell}>
@@ -228,16 +327,8 @@ function AppNavbar() {
                 </Link>
 
                 <div className={styles.mobileDrawerWrap}>
-                  {isMobileDrawerOpen ? (
-                    <button
-                      aria-label="Close navigation menu"
-                      className={styles.mobileDrawerBackdrop}
-                      onClick={() => setIsMobileDrawerOpen(false)}
-                      type="button"
-                    />
-                  ) : null}
-
                   <button
+                    aria-controls={isMobileDrawerOpen ? MOBILE_DRAWER_ID : undefined}
                     aria-expanded={isMobileDrawerOpen}
                     aria-haspopup="menu"
                     aria-label={isMobileDrawerOpen ? "Close navigation menu" : "Open navigation menu"}
@@ -247,76 +338,6 @@ function AppNavbar() {
                   >
                     {isMobileDrawerOpen ? <X className={styles.smallIcon} /> : <Menu className={styles.smallIcon} />}
                   </button>
-
-                  {isMobileDrawerOpen ? (
-                    <div className={styles.mobileDrawerPanel}>
-                      <div className={styles.mobileDrawerHeader}>
-                        <div className={styles.mobileDrawerIdentity}>
-                          <span className={styles.profileAvatar}>{avatarContent}</span>
-                          <div>
-                            <p className={styles.mobileDrawerTitle}>{profileTitle}</p>
-                            <p className={styles.mobileDrawerMeta}>{profileMeta}</p>
-                          </div>
-                        </div>
-                      </div>
-
-                      <div className={styles.mobileDrawerSection}>
-                        <p className={styles.mobileDrawerLabel}>Navigate</p>
-                        <Link
-                          className={styles.mobileDrawerItem}
-                          onClick={() => setIsMobileDrawerOpen(false)}
-                          to="/marketplace"
-                        >
-                          <Store className={styles.smallIcon} />
-                          <span>Marketplace</span>
-                        </Link>
-                        {isSeller ? (
-                          <Link
-                            className={styles.mobileDrawerItem}
-                            onClick={() => setIsMobileDrawerOpen(false)}
-                            to="/seller"
-                          >
-                            <LayoutDashboard className={styles.smallIcon} />
-                            <span>Seller Hub</span>
-                          </Link>
-                        ) : null}
-                        <Link
-                          className={styles.mobileDrawerItem}
-                          onClick={() => setIsMobileDrawerOpen(false)}
-                          to="/basket"
-                        >
-                          <ShoppingBasket className={styles.smallIcon} />
-                          <span>Basket</span>
-                        </Link>
-                      </div>
-
-                      <div className={styles.mobileDrawerSection}>
-                        <p className={styles.mobileDrawerLabel}>Account</p>
-                        {profileLinks.map((item) => {
-                          const Icon = item.icon
-
-                          return (
-                            <Link
-                              className={styles.mobileDrawerItem}
-                              key={item.to}
-                              onClick={() => setIsMobileDrawerOpen(false)}
-                              to={item.to}
-                            >
-                              <Icon className={styles.smallIcon} />
-                              <span>{item.label}</span>
-                            </Link>
-                          )
-                        })}
-
-                        {isAuthenticated ? (
-                          <button className={styles.mobileDrawerLogout} onClick={handleLogout} type="button">
-                            <LogOut className={styles.smallIcon} />
-                            <span>Logout</span>
-                          </button>
-                        ) : null}
-                      </div>
-                    </div>
-                  ) : null}
                 </div>
               </div>
             </div>
@@ -329,6 +350,7 @@ function AppNavbar() {
       <div className={styles.locationShelf}>
         <FloatingLocationSwitcher />
       </div>
+      {mobileDrawerOverlay}
     </div>
   )
 }
