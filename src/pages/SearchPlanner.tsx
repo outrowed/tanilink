@@ -581,7 +581,10 @@ function SearchPlannerContent({ seedQuery }: SearchPlannerContentProps) {
                           />
                           {isMobileLayout && isActive && detailState ? (
                             <div className={styles.inlineDetailWrap}>
-                              {renderDetailPanel(detailState, { className: styles.inlineDetailCard })}
+                              {renderDetailPanel(detailState, {
+                                className: styles.inlineDetailCard,
+                                showClose: true,
+                              })}
                             </div>
                           ) : null}
                         </div>

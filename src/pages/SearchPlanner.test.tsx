@@ -154,4 +154,21 @@ describe("SearchPlanner", () => {
     expect(screen.queryByRole("link", { name: "Open full product page" })).not.toBeInTheDocument()
     expect(screen.getByTestId("search-location")).not.toHaveTextContent("preview=premium-rice")
   })
+
+  it("shows a close button in the mobile inline detail panel", async () => {
+    const user = userEvent.setup()
+
+    mockMatchMedia(true)
+
+    renderSearchPlanner("/search?q=I%20want%20to%20cook%20nasi%20goreng%20for%2020%20portions&mode=ai")
+
+    await user.click(screen.getAllByRole("button", { name: /Premium Rice/i })[0])
+
+    expect(screen.getByRole("button", { name: "Close detail panel" })).toBeInTheDocument()
+
+    await user.click(screen.getByRole("button", { name: "Close detail panel" }))
+
+    expect(screen.queryByRole("button", { name: "Close detail panel" })).not.toBeInTheDocument()
+    expect(screen.getByTestId("search-location")).not.toHaveTextContent("preview=premium-rice")
+  })
 })
